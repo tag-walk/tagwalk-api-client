@@ -1,0 +1,6 @@
+services:
+  Tagwalk\ApiClientBundle\TagwalkApiProvider:
+    autowire: false
+    arguments:
+      $clientId: '%tagwalk_api.client_id%'
+      $clientSecret: '%tagwalk_api.client_secret%'
