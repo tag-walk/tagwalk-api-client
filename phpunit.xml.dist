@@ -1,40 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit
-        backupGlobals="false"
-        backupStaticAttributes="false"
-        convertErrorsToExceptions="true"
-        convertNoticesToExceptions="true"
-        convertWarningsToExceptions="true"
-        processIsolation="false"
-        stopOnFailure="false"
-        bootstrap="vendor/autoload.php"
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         bootstrap="vendor/autoload.php"
 >
 
     <testsuites>
-        <testsuite
-                name="TagwalkApiClientBundle Test Suite">
-            <directory>
-                ./Tests/
-            </directory>
+        <testsuite name="TagwalkApiClientBundle Test Suite">
+            <directory>./Tests/</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory>
-                ./
-            </directory>
+            <directory>./</directory>
             <exclude>
-                <directory>
-                    ./Resources
-                </directory>
-                <directory>
-                    ./Tests
-                </directory>
-                <directory>
-                    ./vendor
-                </directory>
+                <directory>./Resources</directory>
+                <directory>./Tests</directory>
+                <directory>./vendor</directory>
             </exclude>
         </whitelist>
     </filter>
