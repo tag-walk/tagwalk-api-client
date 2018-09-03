@@ -2,7 +2,7 @@
 
 ## Configuration
 
-Create a file in config/tagwalk_api_client.yaml
+Create a file in config/packages/tagwalk_api_client.yaml
 
 ```yaml
 tagwalk_api_client:

@@ -2,6 +2,6 @@ services:
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     autowire: false
     arguments:
-      $baseUrl:  '' #'%env(TAGWALK_API_URL)%'
-      $clientId: '' #'%env(TAGWALK_API_CLIENT_ID)%'
-      $clientSecret: '' #'%env(TAGWALK_API_CLIENT_SECRET)%'
+      $baseUri:  ''
+      $clientId: ''
+      $clientSecret: ''

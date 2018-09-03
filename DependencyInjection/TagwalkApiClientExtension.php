@@ -32,24 +32,25 @@ class TagwalkApiClientExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__) . '/Resources/config'));
         $loader->load('services.yaml');
-        if (!isset($config['host_url'])) {
+        $api = $config['api'];
+        if (!isset($api['host_url'])) {
             throw new \InvalidArgumentException(
-                'The "host_url" option must be set'
+                'The "tagwalk_api_client.api.host_url" config option must be set'
             );
         }
-        if (!isset($config['client_id'])) {
+        if (!isset($api['client_id'])) {
             throw new \InvalidArgumentException(
-                'The "client_secret" option must be set'
+                'The "tagwalk_api_client.api.client_secret" config option must be set'
             );
         }
-        if (!isset($config['client_secret'])) {
+        if (!isset($api['client_secret'])) {
             throw new \InvalidArgumentException(
-                'The "client_secret" option must be set'
+                'The "tagwalk_api_client.api.client_secret" config option must be set'
             );
         }
-        $definition = $container->getDefinition('Tagwalk\ApiClientBundle\TagwalkApiProvider');
-        $definition->replaceArgument(0, $config['host_url']);
-        $definition->replaceArgument(1, $config['client_id']);
-        $definition->replaceArgument(2, $config['client_secret']);
+        $definition = $container->getDefinition('Tagwalk\ApiClientBundle\Provider\ApiProvider');
+        $definition->replaceArgument('$baseUri', $api['host_url']);
+        $definition->replaceArgument('$clientId', $api['client_id']);
+        $definition->replaceArgument('$clientSecret', $api['client_secret']);
     }
 }
