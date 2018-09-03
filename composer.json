@@ -1,7 +1,7 @@
 {
   "name": "tagwalk/api-client-bundle",
   "type": "symfony-bundle",
-  "description": "Tagwalk API Client",
+  "description": "This bundle provides access to the Tagwalk API",
   "homepage": "https://www.tag-walk.com",
   "license": "LGPL-3.0-or-later",
   "authors": [
@@ -11,7 +11,7 @@
     }
   ],
   "require": {
-    "php": ">=7.0",
+    "php": "^7.0",
     "symfony/framework-bundle": "^4.1",
     "guzzlehttp/guzzle": "^6.3"
   },
@@ -21,11 +21,14 @@
   "autoload": {
     "psr-4": {
       "Tagwalk\\ApiClientBundle\\": ""
-    }
+    },
+    "exclude-from-classmap": [
+      "/Tests/"
+    ]
   },
-  "autoload-dev": {
-    "psr-4": {
-      "Tagwalk\\ApiClientBundle\\Tests\\": "/Tests/"
-    }
+  "scripts": {
+    "test": [
+      "vendor/bin/simple-phpunit"
+    ]
   }
 }
