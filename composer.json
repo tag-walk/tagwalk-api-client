@@ -13,7 +13,6 @@
   "require": {
     "php": ">=7.0",
     "symfony/framework-bundle": "^4.1",
-    "symfony/lts": "^4@dev",
     "guzzlehttp/guzzle": "^6.3"
   },
   "require-dev": {
