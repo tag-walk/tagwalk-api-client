@@ -30,7 +30,7 @@
     "psr-4": {
       "Tagwalk\\ApiClientBundle\\Tests\\": "tests/"
     }
-  }
+  },
   "scripts": {
     "test": [
       "vendor/bin/simple-phpunit"
