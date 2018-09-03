@@ -20,12 +20,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Tagwalk\\ApiClientBundle\\": "src/"
+      "Tagwalk\\ApiClientBundle\\": ""
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Tagwalk\\ApiClientBundle\\Tests\\": "tests/"
+      "Tagwalk\\ApiClientBundle\\Tests\\": "/Tests/"
     }
   }
 }
