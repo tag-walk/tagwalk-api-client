@@ -12,7 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 
 class ApiProvider
 {
@@ -54,30 +53,24 @@ class ApiProvider
     /**
      * @param string $method
      * @param string $uri
-     * @param array $query
+     * @param array $options
      *
-     * @return bool
+     * @return bool|mixed|\Psr\Http\Message\ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function request($method, $uri, $query): bool
+    public function request($method, $uri, $options = [])
     {
-        $options = [
+        $default = [
             'http_errors' => true,
             'headers' => [
                 'Authorization' => $this->getBearer(),
                 'Accept' => 'application/json'
             ]
         ];
-        if ($query) {
-            $options['query'] = $query;
-        }
-        try {
-            $response = $this->client->request($method, $uri, $options);
+        $options = array_merge($default, $options);
+        $response = $this->client->request($method, $uri, $options);
 
-            return $response;
-        } catch (RequestException $e) {
-            return false;
-        }
+        return $response;
     }
 
     /**
