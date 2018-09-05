@@ -39,14 +39,15 @@ class ApiProvider
      * @param string $baseUri
      * @param string $clientId
      * @param string $clientSecret
+     * @param float $timeout
      */
-    public function __construct(string $baseUri, string $clientId, string $clientSecret)
+    public function __construct(string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
     {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->client = new Client([
             'base_uri' => $baseUri,
-            'timeout' => 10.0
+            'timeout' => $timeout
         ]);
     }
 

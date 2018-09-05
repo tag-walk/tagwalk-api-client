@@ -5,3 +5,4 @@ services:
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''
+      $timeout: 10.0

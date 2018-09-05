@@ -32,6 +32,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('client_id')->end()
             ->scalarNode('client_secret')->end()
             ->scalarNode('host_url')->end()
+            ->floatNode('timeout')->defaultValue(10.0)->min(0)->max(60)->end()
             ->end()
             ->end()
             ->end();
