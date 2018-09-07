@@ -107,4 +107,12 @@ class ApiProvider
 
         $this->token = $data['access_token'];
     }
+
+    /**
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
+    }
 }
