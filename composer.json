@@ -11,10 +11,14 @@
     }
   ],
   "require": {
-    "php": "^7.0",
+    "php": "~7.1",
     "symfony/framework-bundle": "^4.1",
     "guzzlehttp/guzzle": "^6.3",
-    "symfony/security-bundle": "^4.1"
+    "symfony/security-bundle": "^4.1",
+    "symfony/validator": "^4.1",
+    "symfony/form": "^4.1",
+    "symfony/asset": "^4.1",
+    "symfony/translation": "^4.1"
   },
   "require-dev": {
     "symfony/phpunit-bridge": "^4.1",

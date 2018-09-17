@@ -1,0 +1,18 @@
+help:
+  name: The public name
+  slug: The slug is an alpha-numeric idenfier displayed in url
+  homepage:
+    section: The homepage section you want to add
+
+label:
+  name: Name
+  slug: Slug
+  beginAt: Begin at datetime
+  endAt: End at datetime
+
+input:
+  homepage:
+    section:
+      home: Homepage
+      shop: Shop
+      street: Streetstyle
