@@ -20,7 +20,7 @@ class SlugType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'required' => true,
+            'required' => false,
             'attr' => [
                 'class' => 'slugInput'
             ],

@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Programmable;
 use Tagwalk\ApiClientBundle\Utils\Constants\HomepageSection;
 

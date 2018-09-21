@@ -1,14 +1,18 @@
 help:
   name: The public name
   slug: The slug is an alpha-numeric idenfier displayed in url
+  beginAt: The date and time when the homepage will be set as the default one
+  endAt: The date and time when the homepage will be disabled
   homepage:
     section: The homepage section you want to add
 
 label:
   name: Name
   slug: Slug
-  beginAt: Begin at datetime
-  endAt: End at datetime
+  beginAt: Begin at
+  endAt: End at
+  homepage:
+    section: Section
 
 input:
   homepage:

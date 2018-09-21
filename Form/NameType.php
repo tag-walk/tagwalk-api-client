@@ -22,7 +22,8 @@ class NameType extends AbstractType
         $resolver->setDefaults([
             'required' => true,
             'attr' => [
-                'class' => 'nameInput'
+                'class' => 'nameInput',
+                'autocomplete' => 'off'
             ],
             'help' => 'help.name',
             'translation_domain' => 'forms'

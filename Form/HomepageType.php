@@ -25,27 +25,30 @@ class HomepageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('section', HomepageSectionType::class)
-            ->add('name', NameType::class)
-            ->add('slug', SlugType::class)
+            ->add('section', HomepageSectionType::class, ['label_format' => 'label.homepage.%name%',])
+            ->add('name', NameType::class, ['label_format' => 'label.%name%'])
+            ->add('slug', SlugType::class, ['label_format' => 'label.%name%'])
             ->add('beginAt', DateTimeType::class, [
-                'required' => true,
-                'widget' => 'single_text'
+                'required' => false,
+                'widget' => 'single_text',
+                'label_format' => 'label.%name%',
+                'help' => 'help.beginAt',
             ])
             ->add('endAt', DateTimeType::class, [
-                'required' => true,
-                'widget' => 'single_text'
+                'required' => false,
+                'widget' => 'single_text',
+                'label_format' => 'label.%name%',
+                'help' => 'help.endAt',
             ])
             ->add('status', HiddenType::class, ['data' => Status::DISABLED])
-            ->add('cells', HiddenType::class)
-            ->add('submit', SubmitType::class);
+            ->add('submit', SubmitType::class, ['label' => 'Create']);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Homepage::class,
-            'translation_domain' => 'form'
+            'translation_domain' => 'forms'
         ]);
     }
 }

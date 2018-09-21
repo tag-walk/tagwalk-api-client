@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Linkable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;

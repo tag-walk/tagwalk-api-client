@@ -11,3 +11,6 @@ services:
       $clientId: ''
       $clientSecret: ''
       $timeout: 10.0
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer:
+    tags: ['serializer.normalizer']
