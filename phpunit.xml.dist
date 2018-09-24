@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.5/phpunit.xsd"
+        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.3/phpunit.xsd"
         colors="true"
         bootstrap="vendor/autoload.php"
 >
@@ -14,8 +14,11 @@
     <filter>
         <whitelist>
             <directory suffix=".php">DependencyInjection</directory>
+            <directory suffix=".php">Form</directory>
+            <directory suffix=".php">Model</directory>
             <directory suffix=".php">Provider</directory>
             <directory suffix=".php">Security</directory>
+            <directory suffix=".php">Serializer</directory>
         </whitelist>
     </filter>
 </phpunit>
