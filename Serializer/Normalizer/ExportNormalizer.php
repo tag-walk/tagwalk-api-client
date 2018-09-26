@@ -42,18 +42,6 @@ class ExportNormalizer extends ObjectNormalizer implements NormalizerInterface
     {
         $data = parent::normalize($object, $format, $context);
 
-        $data['keep-empty'] = $data['keepEmpty'];
-        unset($data['keepEmpty']);
-
-        $data['split-city'] = $data['splitCity'];
-        unset($data['splitCity']);
-
-        $data['split-designer'] = $data['splitDesigner'];
-        unset($data['splitDesigner']);
-
-        $data['split-season'] = $data['splitSeason'];
-        unset($data['splitSeason']);
-
         return $data;
     }
 }

@@ -80,4 +80,24 @@ class Homepage extends AbstractDocument
 
         return $this;
     }
+
+    /**
+     * @param HomepageCell $cell
+     */
+    public function addCell(HomepageCell $cell): void
+    {
+        $this->cells[] = $cell;
+    }
+
+    /**
+     * @param HomepageCell $cell
+     */
+    public function removeCell(HomepageCell $cell): void
+    {
+        foreach ($this->cells as $index => $currentCell) {
+            if ($currentCell->getSlug() === $cell->getSlug()) {
+                unset($this->cells[$index]);
+            }
+        }
+    }
 }

@@ -12,23 +12,23 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\Homepage;
+use Tagwalk\ApiClientBundle\Model\HomepageCell;
 
 /**
- * Normalizer for Homepage instances
+ * Normalizer for HomepageCell instances
  *
  * @extends DocumentNormalizer
  */
-class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
+class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof Homepage;
+        return $data instanceof HomepageCell;
     }
 
     /**
@@ -43,13 +43,5 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
         $data = parent::normalize($object, $format, $context);
 
         return $data;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function denormalize($data, $class, $format = null, array $context = [])
-    {
-        return parent::denormalize($data, $class, $format, $context);
     }
 }
