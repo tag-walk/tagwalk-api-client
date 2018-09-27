@@ -29,7 +29,14 @@ class HomepageCellType extends AbstractType
             ->add('text', TextType::class, ['label_format' => 'label.homepage.cell.%name%'])
             ->add('link', TextType::class, ['label_format' => 'label.homepage.cell.%name%'])
             ->add('width', NumberType::class, ['label_format' => 'label.homepage.cell.%name%'])
-            ->add('filters', ChoiceType::class, ['label_format' => 'label.homepage.cell.%name%'])
+            //TODO FILTERS
+//            ->add('filters', CollectionType::class, [
+//                'label_format' => 'label.homepage.cell.%name%',
+//                'entry_type' => TextType::class,
+//                'allow_add' => true,
+//                'allow_delete' => true,
+//                'delete_empty' => true
+//            ])
             ->add('name', NameType::class, ['label_format' => 'label.%name%'])
             ->add('type', ChoiceType::class, ['label_format' => 'label.homepage.cell.%name%'])
             ->add('Position', HiddenType::class)
