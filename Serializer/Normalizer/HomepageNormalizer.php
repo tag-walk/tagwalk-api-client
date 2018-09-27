@@ -15,6 +15,7 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\Homepage;
+use Tagwalk\ApiClientBundle\Model\HomepageCell;
 
 /**
  * Normalizer for Homepage instances
@@ -23,12 +24,31 @@ use Tagwalk\ApiClientBundle\Model\Homepage;
  */
 class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
 {
+    private $cellNormalizer;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(HomepageCellNormalizer $cellNormalizer)
+    {
+        parent::__construct();
+        $this->cellNormalizer = $cellNormalizer;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Homepage;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsDenormalization($data, $type, $format = null)
+    {
+        return $type === Homepage::class;
     }
 
     /**
@@ -50,6 +70,22 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
      */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
+        foreach ($data['cells'] as &$cell) {
+            $cell = $this->cellNormalizer->denormalize($cell, HomepageCell::class);
+        }
+        if (isset($data['created_at'])) {
+            $data['created_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['created_at']);
+        }
+        if (isset($data['updated_at'])) {
+            $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
+        }
+        if (isset($data['begin_at'])) {
+            $data['begin_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['begin_at']);
+        }
+        if (isset($data['end_at'])) {
+            $data['end_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['end_at']);
+        }
+
         return parent::denormalize($data, $class, $format, $context);
     }
 }

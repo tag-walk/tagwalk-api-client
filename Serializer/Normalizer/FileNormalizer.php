@@ -14,34 +14,20 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\File;
-use Tagwalk\ApiClientBundle\Model\HomepageCell;
 
 /**
- * Normalizer for HomepageCell instances
+ * Normalizer for File instances
  *
  * @extends DocumentNormalizer
  */
-class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInterface
+class FileNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
-    /**
-     * @var FileNormalizer
-     */
-    private $fileNormalizer;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(FileNormalizer $fileNormalizer)
-    {
-        parent::__construct();
-        $this->fileNormalizer = $fileNormalizer;
-    }
     /**
      * {@inheritdoc}
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof HomepageCell;
+        return $data instanceof File;
     }
 
     /**
@@ -49,7 +35,7 @@ class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInt
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === HomepageCell::class;
+        return $type === File::class;
     }
 
     /**
@@ -62,11 +48,6 @@ class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInt
         }
         if (isset($data['updated_at'])) {
             $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
-        }
-        if (false === empty($data['files'])) {
-            foreach ($data['files'] as &$file) {
-                $file = $this->fileNormalizer->denormalize($file, File::class);
-            }
         }
 
         return parent::denormalize($data, $class, $format, $context);

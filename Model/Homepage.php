@@ -71,14 +71,10 @@ class Homepage extends AbstractDocument
 
     /**
      * @param null|HomepageCell[] $cells
-     *
-     * @return Homepage
      */
-    public function setCells(?array $cells): Homepage
+    public function setCells(?array $cells): void
     {
         $this->cells = $cells;
-
-        return $this;
     }
 
     /**

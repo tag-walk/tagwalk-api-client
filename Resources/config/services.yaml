@@ -20,5 +20,15 @@ services:
       $clientSecret: ''
       $timeout: 10.0
 
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer:
+    tags: ['serializer.normalizer']
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      $fileNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+
   Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer:
     tags: ['serializer.normalizer']
+    arguments:
+      $cellNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer'
