@@ -1,4 +1,17 @@
 services:
+  _defaults:
+    autowire: false
+    autoconfigure: true
+    public: false
+
+  Tagwalk\ApiClientBundle\Form\ExportModelsType:
+    arguments:
+      $router: '@router'
+
+  Tagwalk\ApiClientBundle\Form\ExportTagsType:
+    arguments:
+      $router: '@router'
+
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     autowire: false
     arguments:
@@ -6,3 +19,16 @@ services:
       $clientId: ''
       $clientSecret: ''
       $timeout: 10.0
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer:
+    tags: ['serializer.normalizer']
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      $fileNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      $cellNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer'
