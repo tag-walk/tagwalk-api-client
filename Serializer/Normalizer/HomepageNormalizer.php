@@ -12,6 +12,8 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\Homepage;
@@ -26,12 +28,12 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
 {
     private $cellNormalizer;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(HomepageCellNormalizer $cellNormalizer)
-    {
-        parent::__construct();
+    public function __construct(
+        NameConverterInterface $nameConverter = null,
+        PropertyAccessorInterface $propertyAccessor = null,
+        HomepageCellNormalizer $cellNormalizer
+    ) {
+        parent::__construct($nameConverter, $propertyAccessor);
         $this->cellNormalizer = $cellNormalizer;
     }
 

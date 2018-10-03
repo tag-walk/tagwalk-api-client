@@ -12,7 +12,8 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
+use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
+use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Document;
@@ -24,9 +25,14 @@ use Tagwalk\ApiClientBundle\Model\Document;
  */
 class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
 {
-    public function __construct()
-    {
-        parent::__construct(null, new CamelCaseToSnakeCaseNameConverter());
+    /**
+     * @inheritdoc
+     */
+    public function __construct(
+        NameConverterInterface $nameConverter = null,
+        PropertyAccessorInterface $propertyAccessor = null
+    ) {
+        parent::__construct(null, $nameConverter, $propertyAccessor);
     }
 
     /**
