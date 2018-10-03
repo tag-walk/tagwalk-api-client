@@ -13,7 +13,6 @@
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Export;
 
 /**
@@ -21,7 +20,7 @@ use Tagwalk\ApiClientBundle\Model\Export;
  *
  * @extends DocumentNormalizer
  */
-class ExportNormalizer extends ObjectNormalizer implements NormalizerInterface
+class ExportNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
      * {@inheritdoc}
