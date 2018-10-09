@@ -13,7 +13,7 @@
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tagwalk\ApiClientBundle\Model\Export;
+use Tagwalk\ApiClientBundle\Model\ExportTags;
 
 /**
  * Normalizer for File instances
@@ -27,11 +27,11 @@ class ExportNormalizer extends DocumentNormalizer implements NormalizerInterface
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof Export;
+        return $data instanceof ExportTags;
     }
 
     /**
-     * @param Export $object
+     * @param ExportTags $object
      * @param string $format
      * @param array $context
      *
