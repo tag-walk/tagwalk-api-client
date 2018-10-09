@@ -19,9 +19,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\RouterInterface;
-use Tagwalk\ApiClientBundle\Model\ExportTags;
+use Tagwalk\ApiClientBundle\Model\ExportDesigners;
 
-class ExportTagsType extends AbstractType
+class ExportDesignersType extends AbstractType
 {
     /**
      * @var RouterInterface
@@ -42,7 +42,7 @@ class ExportTagsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->setAction($this->router->generate('export_tags'))
+            ->setAction($this->router->generate('export_designers'))
             ->add('email', TextType::class, ['required' => false])
             ->add('filename', TextType::class, ['required' => false])
             ->add('type', ChoiceType::class, [
@@ -57,11 +57,9 @@ class ExportTagsType extends AbstractType
                 ]
             ])
             ->add('season', TextType::class, ['required' => false])
-            ->add('designer', TextType::class, ['required' => false])
+            ->add('designers', TextType::class, ['required' => false])
             ->add('city', TextType::class, ['required' => false])
             ->add('keepEmpty', CheckboxType::class, ['required' => false])
-            ->add('splitCity', CheckboxType::class, ['required' => false])
-            ->add('splitDesigner', CheckboxType::class, ['required' => false])
             ->add('splitSeason', CheckboxType::class, ['required' => false])
             ->add('submit', SubmitType::class, ['label' => 'Generate', 'attr' => ['class' => 'btn btn-primary']]);
     }
@@ -72,7 +70,7 @@ class ExportTagsType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ExportTags::class,
+            'data_class' => ExportDesigners::class,
             'translation_domain' => 'export'
         ]);
     }

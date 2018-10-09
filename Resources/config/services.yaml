@@ -12,6 +12,10 @@ services:
     arguments:
       $router: '@router'
 
+  Tagwalk\ApiClientBundle\Form\ExportDesignersType:
+    arguments:
+      $router: '@router'
+
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     autowire: false
     arguments:

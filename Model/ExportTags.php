@@ -13,7 +13,7 @@ namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Export
+class ExportTags
 {
     /**
      * @var string|null
