@@ -40,7 +40,7 @@ class TagwalkApiClientExtension extends Extension
         }
         if (!isset($api['client_id'])) {
             throw new \InvalidArgumentException(
-                'The "tagwalk_api_client.api.client_secret" config option must be set'
+                'The "tagwalk_api_client.api.client_id" config option must be set'
             );
         }
         if (!isset($api['client_secret'])) {
