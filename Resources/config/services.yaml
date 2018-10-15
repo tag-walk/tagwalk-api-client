@@ -4,6 +4,11 @@ services:
     autoconfigure: true
     public: false
 
+  Tagwalk\ApiClientBundle\Security\UserProvider:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
   Tagwalk\ApiClientBundle\Form\ExportModelsType:
     arguments:
       $router: '@router'
@@ -17,7 +22,6 @@ services:
       $router: '@router'
 
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
-    autowire: false
     arguments:
       $baseUri:  ''
       $clientId: ''
@@ -43,6 +47,12 @@ services:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\UserNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
     tags: ['serializer.normalizer']
