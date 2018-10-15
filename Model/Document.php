@@ -4,7 +4,6 @@
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     App\Document
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2018 TAGWALK
  * @license     proprietary
