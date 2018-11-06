@@ -11,7 +11,9 @@
 
 namespace Tagwalk\ApiClientBundle\Security;
 
-use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -48,14 +50,16 @@ class UserProvider implements UserProviderInterface
     public function loadUserByUsername($username)
     {
         try {
-            $response = $this->provider->request('GET', '/api/users/' . $username);
+            $response = $this->provider->request('GET', '/api/users/' . $username, ['http_errors' => false]);
+            if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
+                throw new UsernameNotFoundException();
+            }
             $json = $response->getBody()->getContents();
 
             return $this->serializer->deserialize($json, User::class, 'json');
-        } catch (GuzzleException $e) {
+        } catch (RequestException $e) {
+            throw new ServiceUnavailableHttpException('Unable to connect');
         }
-
-        throw new UsernameNotFoundException();
     }
 
     /**

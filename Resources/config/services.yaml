@@ -21,6 +21,10 @@ services:
     arguments:
       $router: '@router'
 
+  Tagwalk\ApiClientBundle\Form\ExportMoodboardsType:
+    arguments:
+      $router: '@router'
+
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     arguments:
       $baseUri:  ''
