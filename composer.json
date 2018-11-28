@@ -12,8 +12,8 @@
   ],
   "require": {
     "php": ">=7.1",
-    "symfony/framework-bundle": "^4.1",
     "guzzlehttp/guzzle": "^6.3",
+    "symfony/framework-bundle": "^4.1",
     "symfony/security-bundle": "^4.1",
     "symfony/validator": "^4.1",
     "symfony/form": "^4.1",

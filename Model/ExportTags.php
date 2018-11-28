@@ -82,6 +82,12 @@ class ExportTags
     private $city;
 
     /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $tags;
+
+    /**
      * @return string|null
      */
     public function getFilename(): ?string
@@ -255,5 +261,21 @@ class ExportTags
     public function setCity(?string $city): void
     {
         $this->city = $city;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTags(): ?string
+    {
+        return $this->tags;
+    }
+
+    /**
+     * @param string|null $tags
+     */
+    public function setTags(?string $tags): void
+    {
+        $this->tags = $tags;
     }
 }

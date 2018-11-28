@@ -59,6 +59,7 @@ class ExportTagsType extends AbstractType
             ->add('season', TextType::class, ['required' => false])
             ->add('designer', TextType::class, ['required' => false])
             ->add('city', TextType::class, ['required' => false])
+            ->add('tags', TextType::class, ['required' => false])
             ->add('keepEmpty', CheckboxType::class, ['required' => false])
             ->add('splitCity', CheckboxType::class, ['required' => false])
             ->add('splitDesigner', CheckboxType::class, ['required' => false])
