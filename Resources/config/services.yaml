@@ -9,28 +9,52 @@ services:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
 
+  Tagwalk\ApiClientBundle\Manager\CityManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
   Tagwalk\ApiClientBundle\Form\ExportModelsType:
     arguments:
       $router: '@router'
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $requestStack: '@request_stack'
+      $tokenStorage: '@security.token_storage'
 
   Tagwalk\ApiClientBundle\Form\ExportTagsType:
     arguments:
       $router: '@router'
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $requestStack: '@request_stack'
+      $tokenStorage: '@security.token_storage'
 
   Tagwalk\ApiClientBundle\Form\ExportDesignersType:
     arguments:
       $router: '@router'
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $requestStack: '@request_stack'
+      $tokenStorage: '@security.token_storage'
 
   Tagwalk\ApiClientBundle\Form\ExportMoodboardsType:
     arguments:
       $router: '@router'
+      $tokenStorage: '@security.token_storage'
 
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     arguments:
+      $requestStack: '@request_stack'
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''
       $timeout: 10.0
+
+  Tagwalk\ApiClientBundle\Controller\AutocompleteController:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
+  Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
+    arguments:
+      - '%kernel.default_locale%'
+
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer:
     tags: ['serializer.normalizer']
@@ -58,7 +82,7 @@ services:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportTagsNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_spinal_case'

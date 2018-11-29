@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ApiProvider
 {
@@ -36,13 +37,20 @@ class ApiProvider
     private $token;
 
     /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    /**
+     * @param RequestStack $requestStack
      * @param string $baseUri
      * @param string $clientId
      * @param string $clientSecret
      * @param float $timeout
      */
-    public function __construct(string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
+    public function __construct(RequestStack $requestStack, string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
     {
+        $this->requestStack = $requestStack;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->client = new Client([
@@ -65,7 +73,8 @@ class ApiProvider
             'http_errors' => true,
             'headers' => [
                 'Authorization' => $this->getBearer(),
-                'Accept' => 'application/json'
+                'Accept' => 'application/json',
+                'Accept-Language' => $this->requestStack->getCurrentRequest()->getLocale()
             ]
         ];
         $options = array_merge($default, $options);
