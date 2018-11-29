@@ -13,11 +13,15 @@ namespace Tagwalk\ApiClientBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Tagwalk\ApiClientBundle\Model\ExportMoodboards;
 
 class ExportMoodboardsType extends AbstractType
@@ -28,11 +32,17 @@ class ExportMoodboardsType extends AbstractType
     private $router;
 
     /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
      * @param RouterInterface $router
      */
-    public function __construct(RouterInterface $router)
+    public function __construct(RouterInterface $router, TokenStorageInterface $tokenStorage)
     {
         $this->router = $router;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -42,8 +52,10 @@ class ExportMoodboardsType extends AbstractType
     {
         $builder
             ->setAction($this->router->generate('export_moodboards'))
-            ->add('email', TextType::class, ['required' => false])
-            ->add('filename', TextType::class, ['required' => false])
+            ->add('email', TextType::class, [
+                'required' => false,
+                'data' => $this->tokenStorage->getToken()->getUsername()
+            ])
             ->add('type', ChoiceType::class, [
                 'required' => true,
                 'choices' => [
@@ -55,8 +67,29 @@ class ExportMoodboardsType extends AbstractType
                     'Streetstyles' => 'street',
                 ]
             ])
-            ->add('designers', TextType::class, ['required' => true])
+            ->add('designers', HiddenType::class, [
+                'required' => false,
+                'attr' => [
+                    'class' => 'export-designers'
+                ]
+            ])
+            ->add('designersSelect', ChoiceType::class, [
+                'mapped' => false,
+                'required' => false,
+                'validation_groups' => null,
+                'attr' => [
+                    'data-path' => $this->router->generate('autocomplete_designer'),
+                    'class' => 'autocomplete-designers',
+                    'data-placeholder' => 'Filter on designers'
+                ]
+            ])
+            ->add('filename', TextType::class, ['required' => false])
             ->add('submit', SubmitType::class, ['label' => 'Generate', 'attr' => ['class' => 'btn btn-primary']]);
+
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+            $form = $event->getForm();
+            $form->remove('designersSelect');
+        });
     }
 
     /**

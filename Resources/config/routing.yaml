@@ -1,0 +1,7 @@
+autocomplete_tag:
+    path:     /autocomplete/tag
+    controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::tag
+
+autocomplete_designer:
+    path:     /autocomplete/designer
+    controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::designer
