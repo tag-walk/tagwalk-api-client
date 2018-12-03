@@ -55,7 +55,6 @@ services:
     arguments:
       - '%kernel.default_locale%'
 
-
   Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer:
     tags: ['serializer.normalizer']
     arguments:
@@ -80,6 +79,12 @@ services:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_spinal_case'
       - '@serializer.property_accessor'
 
   serializer.name_converter.camel_case_to_spinal_case:
