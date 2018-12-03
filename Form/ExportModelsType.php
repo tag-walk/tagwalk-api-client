@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -87,12 +88,21 @@ class ExportModelsType extends AbstractType
                     'Streetstyles' => 'street',
                 ],
             ])
-            ->add('season', ChoiceType::class, [
+            ->add('seasons', HiddenType::class, [
                 'required' => false,
-                'choices' => $this->getSeasons(),
                 'attr' => [
-                    'class' => 'autocomplete-season',
-                    'data-placeholder' => 'Select a season filter'
+                    'class' => 'export-seasons'
+                ]
+            ])
+            ->add('seasonsSelect', ChoiceType::class, [
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'choices' => $this->getSeasons(),
+                'validation_groups' => null,
+                'attr' => [
+                    'class' => 'autocomplete-seasons',
+                    'data-placeholder' => 'Enter season(s) filter'
                 ]
             ])
             ->add('city', ChoiceType::class, [
@@ -103,28 +113,31 @@ class ExportModelsType extends AbstractType
                     'data-placeholder' => 'Select a city filter'
                 ]
             ])
-            ->add('designer', HiddenType::class, [
+            ->add('designers', HiddenType::class, [
                 'required' => false,
                 'attr' => [
-                    'class' => 'export-designer'
+                    'class' => 'export-designers'
                 ]
             ])
-            ->add('designerSelect', ChoiceType::class, [
+            ->add('designersSelect', ChoiceType::class, [
                 'mapped' => false,
                 'required' => false,
+                'multiple' => true,
                 'validation_groups' => null,
                 'attr' => [
                     'data-path' => $this->router->generate('autocomplete_designer'),
-                    'class' => 'autocomplete-designer',
-                    'data-placeholder' => 'Select a designer filter'
+                    'class' => 'autocomplete-designers',
+                    'data-placeholder' => 'Select designer(s) filter'
                 ]
             ])
+            ->add('splitDesigner', CheckboxType::class, ['required' => false])
             ->add('filename', TextType::class, ['required' => false])
             ->add('submit', SubmitType::class, ['label' => 'Generate', 'attr' => ['class' => 'btn btn-primary']]);
 
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $form = $event->getForm();
-            $form->remove('designerSelect');
+            $form->remove('seasonsSelect');
+            $form->remove('designersSelect');
         });
     }
 

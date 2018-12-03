@@ -13,32 +13,8 @@ namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ExportModels
+class ExportModels extends Export
 {
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    private $filename;
-
-    /**
-     * @var string|null
-     * @Assert\Email
-     */
-    private $email;
-
-    /**
-     * @var string|null
-     * @Assert\Length(min="1", max="1")
-     */
-    private $delimiter = ',';
-
-    /**
-     * @var bool|null
-     * @Assert\Type("bool")
-     */
-    private $keepEmpty = false;
-
     /**
      * @var string|null
      * @Assert\Type("string")
@@ -49,13 +25,13 @@ class ExportModels
      * @var string|null
      * @Assert\Type("string")
      */
-    private $season;
+    private $seasons;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    private $designer;
+    private $designers;
 
     /**
      * @var string|null
@@ -64,68 +40,10 @@ class ExportModels
     private $city;
 
     /**
-     * @return string|null
+     * @var bool|null
+     * @Assert\Type("bool")
      */
-    public function getFilename(): ?string
-    {
-        return $this->filename;
-    }
-
-    /**
-     * @param string|null $filename
-     */
-    public function setFilename(?string $filename): void
-    {
-        $this->filename = $filename;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    /**
-     * @param string|null $email
-     */
-    public function setEmail(?string $email): void
-    {
-        $this->email = $email;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDelimiter(): string
-    {
-        return $this->delimiter;
-    }
-
-    /**
-     * @param string|null $delimiter
-     */
-    public function setDelimiter(?string $delimiter): void
-    {
-        $this->delimiter = $delimiter;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isKeepEmpty(): bool
-    {
-        return $this->keepEmpty;
-    }
-
-    /**
-     * @param bool $keepEmpty
-     */
-    public function setKeepEmpty(bool $keepEmpty): void
-    {
-        $this->keepEmpty = $keepEmpty;
-    }
+    private $splitDesigner = false;
 
     /**
      * @return string
@@ -146,33 +64,33 @@ class ExportModels
     /**
      * @return string
      */
-    public function getSeason(): ?string
+    public function getSeasons(): ?string
     {
-        return $this->season;
+        return $this->seasons;
     }
 
     /**
-     * @param string|null $season
+     * @param string|null $seasons
      */
-    public function setSeason(?string $season): void
+    public function setSeasons(?string $seasons): void
     {
-        $this->season = $season;
+        $this->seasons = $seasons;
     }
 
     /**
      * @return string|null
      */
-    public function getDesigner(): ?string
+    public function getDesigners(): ?string
     {
-        return $this->designer;
+        return $this->designers;
     }
 
     /**
-     * @param string|null $designer
+     * @param string|null $designers
      */
-    public function setDesigner(?string $designer): void
+    public function setDesigners(?string $designers): void
     {
-        $this->designer = $designer;
+        $this->designers = $designers;
     }
 
     /**
@@ -189,5 +107,21 @@ class ExportModels
     public function setCity(?string $city): void
     {
         $this->city = $city;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getSplitDesigner(): ?bool
+    {
+        return $this->splitDesigner;
+    }
+
+    /**
+     * @param bool|null $splitDesigner
+     */
+    public function setSplitDesigner(?bool $splitDesigner): void
+    {
+        $this->splitDesigner = $splitDesigner;
     }
 }
