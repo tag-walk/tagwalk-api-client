@@ -11,7 +11,7 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.2",
     "guzzlehttp/guzzle": "^6.3",
     "symfony/framework-bundle": "^4.1",
     "symfony/security-bundle": "^4.1",
@@ -21,9 +21,7 @@
     "symfony/translation": "^4.1",
     "symfony/serializer": "^4.1",
     "symfony/property-info": "^4.1",
-    "symfony/routing": "^4.1"
-  },
-  "require-dev": {
+    "symfony/routing": "^4.1",
     "symfony/phpunit-bridge": "^4.1",
     "phpunit/phpunit": "^7"
   },
