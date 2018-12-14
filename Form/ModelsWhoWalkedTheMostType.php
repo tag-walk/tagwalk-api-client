@@ -48,8 +48,6 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     private $tokenStorage;
 
     /**
-     * FilterLookType constructor.
-     *
      * @param RouterInterface $router
      * @param ApiProvider $apiProvider
      * @param RequestStack $requestStack
