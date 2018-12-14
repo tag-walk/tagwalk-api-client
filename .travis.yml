@@ -15,14 +15,9 @@ matrix:
     include:
           # Minimum supported dependencies with the latest and oldest PHP version
         - php: 7.2
-          env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" SYMFONY_DEPRECATIONS_HELPER="weak_vendors"
 
         - php: 7.2
-          env: STABILITY="dev"
-
-#    allow_failures:
-          # Dev-master is allowed to fail.
-#        - env: STABILITY="dev"
+          env: STABILITY="dev" COMPOSER_FLAGS="--prefer-stable --prefer-lowest" SYMFONY_DEPRECATIONS_HELPER="weak_vendors"
 
 before_install:
     - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
