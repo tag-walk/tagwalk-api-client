@@ -21,9 +21,10 @@
     "symfony/translation": "^4.1",
     "symfony/serializer": "^4.1",
     "symfony/property-info": "^4.1",
-    "symfony/routing": "^4.1",
-    "symfony/phpunit-bridge": "^4.1",
-    "phpunit/phpunit": "^7"
+    "symfony/routing": "^4.1"
+  },
+  "require-dev": {
+    "symfony/phpunit-bridge": "^4.1"
   },
   "autoload": {
     "psr-4": {
@@ -37,10 +38,5 @@
     "psr-4": {
       "Tagwalk\\ApiClientBundle\\Tests\\": "tests/"
     }
-  },
-  "scripts": {
-    "test": [
-      "vendor/bin/simple-phpunit"
-    ]
   }
 }
