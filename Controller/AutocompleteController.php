@@ -169,7 +169,7 @@ class AutocompleteController extends AbstractController
     }
 
     /**
-     * @Route("/model", name="autocomplete_model")
+     * @Route("/individual", name="autocomplete_individual")
      *
      * @param Request $request
      *
@@ -177,7 +177,7 @@ class AutocompleteController extends AbstractController
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    public function individuals(Request $request)
+    public function individual(Request $request)
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
