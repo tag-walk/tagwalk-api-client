@@ -62,6 +62,10 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
+  Tagwalk\ApiClientBundle\Manager\CoverManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:
       - '%kernel.default_locale%'
