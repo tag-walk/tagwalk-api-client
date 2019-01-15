@@ -5,3 +5,7 @@ autocomplete_tag:
 autocomplete_designer:
     path:     /autocomplete/designer
     controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::designer
+
+autocomplete_individual:
+    path:    /autocomplete/individual
+    controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::individual
