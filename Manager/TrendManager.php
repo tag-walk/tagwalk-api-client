@@ -15,7 +15,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class TrendManager
 {
-    const DEFAULT_STATUS = 'ALL';
+    const DEFAULT_STATUS = 'enabled';
     const DEFAULT_SORT = 'created_at:desc';
 
     /**
