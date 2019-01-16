@@ -39,7 +39,7 @@ class TrendManager
      * @param int $size
      * @param string $sort
      * @param string $status
-     * @return mixed
+     * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function list(
@@ -60,7 +60,6 @@ class TrendManager
 
     /**
      * @param string $slug
-     *
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
