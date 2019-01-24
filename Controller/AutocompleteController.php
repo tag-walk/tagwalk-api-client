@@ -218,7 +218,7 @@ class AutocompleteController extends AbstractController
         foreach ($results as &$result) {
             $result = [
                 'slug' => $result['slug'],
-                'name' => 'name'
+                'name' => $result['name']
             ];
         }
 
