@@ -36,16 +36,20 @@ class PageManager
      * @param int $size
      * @param string $sort
      * @param string $status
+     * @param null|string $name
+     * @param null|string $text
      * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function list(
-        $from = 0,
-        $size = 10,
-        $sort = self::DEFAULT_SORT,
-        $status = self::DEFAULT_STATUS
+        int $from = 0,
+        int $size = 10,
+        string $sort = self::DEFAULT_SORT,
+        string $status = self::DEFAULT_STATUS,
+        ?string $name = null,
+        ?string $text = null
     ) {
-        $query = array_filter(compact('from', 'size', 'sort', 'status'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
         $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
         $data = json_decode($apiResponse->getBody(), true);
 
