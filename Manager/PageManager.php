@@ -17,6 +17,7 @@ class PageManager
 {
     const DEFAULT_STATUS = 'enabled';
     const DEFAULT_SORT = 'created_at:desc';
+    const DEFAULT_SIZE = 10;
 
     /**
      * @var ApiProvider
@@ -43,7 +44,7 @@ class PageManager
      */
     public function list(
         int $from = 0,
-        int $size = 10,
+        int $size = self::DEFAULT_SIZE,
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS,
         ?string $name = null,
@@ -54,6 +55,24 @@ class PageManager
         $data = json_decode($apiResponse->getBody(), true);
 
         return $data;
+    }
+
+    /**
+     * @param string $status
+     * @param null|string $name
+     * @param null|string $text
+     * @return int
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function count(
+        string $status = self::DEFAULT_STATUS,
+        ?string $name = null,
+        ?string $text = null
+    ) {
+        $query = array_filter(compact('status', 'name', 'text'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
+
+        return (int)$apiResponse->getHeader('X-Total-Count')[0];
     }
 
     /**
