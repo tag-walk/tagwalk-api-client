@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class ApiProvider
@@ -70,8 +71,8 @@ class ApiProvider
     public function request($method, $uri, $options = [])
     {
         $default = [
-            'http_errors' => true,
-            'headers' => [
+            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::HEADERS => [
                 'Authorization' => $this->getBearer(),
                 'Accept' => 'application/json',
                 'Accept-Language' => $this->requestStack->getCurrentRequest()->getLocale()
@@ -105,7 +106,7 @@ class ApiProvider
             'POST',
             '/oauth/v2/token',
             [
-                'form_params' => [
+                RequestOptions::FORM_PARAMS => [
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
                     'grant_type' => 'client_credentials'

@@ -61,4 +61,33 @@ class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
 
         return $attributes;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function denormalize($data, $class, $format = null, array $context = [])
+    {
+        if (isset($data['created_at'])) {
+            $data['created_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['created_at']);
+        }
+        if (isset($data['updated_at'])) {
+            $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
+        }
+
+        return parent::denormalize($data, $class, $format, $context);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function normalize($object, $format = null, array $context = [])
+    {
+        $data = parent::normalize($object, $format, $context);
+        if (false === empty($context['write'])) {
+            unset($data['created_at']);
+            unset($data['updated_at']);
+        }
+
+        return $data;
+    }
 }

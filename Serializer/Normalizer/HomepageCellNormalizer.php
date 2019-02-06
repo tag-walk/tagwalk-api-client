@@ -62,12 +62,6 @@ class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInt
      */
     public function denormalize($data, $class, $format = null, array $context = [])
     {
-        if (isset($data['created_at'])) {
-            $data['created_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['created_at']);
-        }
-        if (isset($data['updated_at'])) {
-            $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
-        }
         if (false === empty($data['files'])) {
             foreach ($data['files'] as &$file) {
                 $file = $this->fileNormalizer->denormalize($file, File::class);

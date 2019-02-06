@@ -29,7 +29,6 @@ class PageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('section', HomepageSectionType::class, ['label_format' => 'label.homepage.%name%',])
             ->add('name', NameType::class, ['label_format' => 'label.%name%'])
             ->add('slug', SlugType::class, [
                 'label_format' => 'label.%name%',
@@ -38,12 +37,14 @@ class PageType extends AbstractType
             ->add('status', ChoiceType::class, [
                 'choices' => Status::getOptions()
             ])
-            ->add('text', TextareaType::class, [])
-            ->add('text_fr', TextareaType::class, [])
-            ->add('text_es', TextareaType::class, [])
-            ->add('text_it', TextareaType::class, [])
-            ->add('text_zh', TextareaType::class, [])
-            ->add('submit', SubmitType::class, ['label' => 'Create']);
+            ->add('text', TextareaType::class, [
+                'required' => false
+            ])
+            ->add('text_fr', TextareaType::class, ['required' => false])
+            ->add('text_es', TextareaType::class, ['required' => false])
+            ->add('text_it', TextareaType::class, ['required' => false])
+            ->add('text_zh', TextareaType::class, ['required' => false])
+            ->add('submit', SubmitType::class);
     }
 
     /**

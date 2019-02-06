@@ -11,6 +11,9 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use GuzzleHttp\RequestOptions;
+use Symfony\Component\Serializer\Serializer;
+use Tagwalk\ApiClientBundle\Model\Page;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class PageManager
@@ -25,11 +28,18 @@ class PageManager
     private $apiProvider;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @var Serializer
      */
-    public function __construct(ApiProvider $apiProvider)
+    private $serializer;
+
+    /**
+     * @param ApiProvider $apiProvider
+     * @param Serializer $serializer
+     */
+    public function __construct(ApiProvider $apiProvider, Serializer $serializer)
     {
         $this->apiProvider = $apiProvider;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -39,7 +49,7 @@ class PageManager
      * @param string $status
      * @param null|string $name
      * @param null|string $text
-     * @return array
+     * @return Page[]
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function list(
@@ -49,12 +59,16 @@ class PageManager
         string $status = self::DEFAULT_STATUS,
         ?string $name = null,
         ?string $text = null
-    ) {
+    ): array {
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
         $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
         $data = json_decode($apiResponse->getBody(), true);
+        $pages = [];
+        foreach ($data as $datum) {
+            $pages[] = $this->serializer->denormalize($datum, Page::class);
+        }
 
-        return $data;
+        return $pages;
     }
 
     /**
@@ -77,15 +91,21 @@ class PageManager
 
     /**
      * @param string $slug
-     * @return array
+     * @param null|string $language
+     * @return Page
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function get(string $slug): array
+    public function get(string $slug, ?string $language = null): Page
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/page/' . $slug);
+        $params = [];
+        if (isset($language)) {
+            $params['query'] = ['language' => $language];
+        }
+        $apiResponse = $this->apiProvider->request('GET', '/api/page/' . $slug, $params);
         $data = json_decode($apiResponse->getBody(), true);
+        $page = $this->serializer->denormalize($data, Page::class);
 
-        return $data;
+        return $page;
     }
 
     /**
@@ -102,31 +122,33 @@ class PageManager
     }
 
     /**
-     * @param array $record
-     * @return array
+     * @param Page $record
+     * @return Page
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function create(array $record): array
+    public function create(Page $record): Page
     {
-        $query = ['body' => $record];
-        $apiResponse = $this->apiProvider->request('POST', '/api/page', ['query' => $query]);
+        $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
+        $apiResponse = $this->apiProvider->request('POST', '/api/page', $params);
         $data = json_decode($apiResponse->getBody(), true);
+        $page = $this->serializer->denormalize($data, Page::class);
 
-        return $data;
+        return $page;
     }
 
     /**
      * @param string $slug
-     * @param array $record
-     * @return array
+     * @param Page $record
+     * @return Page
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function update(string $slug, array $record): array
+    public function update(string $slug, Page $record): Page
     {
-        $query = ['body' => $record];
-        $apiResponse = $this->apiProvider->request('PUT', '/api/pages/' . $slug, ['query' => $query]);
+        $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
+        $apiResponse = $this->apiProvider->request('PUT', '/api/page/' . $slug, $params);
         $data = json_decode($apiResponse->getBody(), true);
+        $page = $this->serializer->denormalize($data, Page::class);
 
-        return $data;
+        return $page;
     }
 }

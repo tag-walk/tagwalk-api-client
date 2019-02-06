@@ -73,6 +73,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\PageManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
 
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:
@@ -108,6 +109,12 @@ services:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_spinal_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\PageNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   serializer.name_converter.camel_case_to_spinal_case:
