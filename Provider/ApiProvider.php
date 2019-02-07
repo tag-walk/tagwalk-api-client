@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Provider;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class ApiProvider
 {
@@ -41,17 +42,23 @@ class ApiProvider
      * @var RequestStack
      */
     private $requestStack;
+    /**
+     * @var SessionInterface
+     */
+    private $session;
 
     /**
      * @param RequestStack $requestStack
+     * @param SessionInterface $session
      * @param string $baseUri
      * @param string $clientId
      * @param string $clientSecret
      * @param float $timeout
      */
-    public function __construct(RequestStack $requestStack, string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
+    public function __construct(RequestStack $requestStack, SessionInterface $session, string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
     {
         $this->requestStack = $requestStack;
+        $this->session = $session;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->client = new Client([
@@ -75,7 +82,8 @@ class ApiProvider
             RequestOptions::HEADERS => [
                 'Authorization' => $this->getBearer(),
                 'Accept' => 'application/json',
-                'Accept-Language' => $this->requestStack->getCurrentRequest()->getLocale()
+                'Accept-Language' => $this->requestStack->getCurrentRequest()->getLocale(),
+                'Cookie' => $this->session->get('Cookie')
             ]
         ];
         $options = array_merge($default, $options);

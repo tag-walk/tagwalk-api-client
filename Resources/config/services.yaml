@@ -9,6 +9,12 @@ services:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
 
+  Tagwalk\ApiClientBundle\Security\ApiAuthenticator:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+      - '@session'
+
   Tagwalk\ApiClientBundle\Manager\CityManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
@@ -49,6 +55,7 @@ services:
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     arguments:
       $requestStack: '@request_stack'
+      $session: '@session'
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''

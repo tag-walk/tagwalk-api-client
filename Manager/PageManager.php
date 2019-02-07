@@ -12,6 +12,8 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Page;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -115,10 +117,12 @@ class PageManager
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE', '/api/page/' . $slug);
-        $data = json_decode($apiResponse->getBody(), true);
+        $apiResponse = $this->apiProvider->request('DELETE', '/api/page/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new AccessDeniedHttpException();
+        }
 
-        return $data;
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
