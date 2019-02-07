@@ -74,12 +74,6 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
         foreach ($data['cells'] as &$cell) {
             $cell = $this->cellNormalizer->denormalize($cell, HomepageCell::class);
         }
-        if (isset($data['created_at'])) {
-            $data['created_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['created_at']);
-        }
-        if (isset($data['updated_at'])) {
-            $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
-        }
         if (isset($data['begin_at'])) {
             $data['begin_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['begin_at']);
         }

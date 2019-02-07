@@ -36,19 +36,4 @@ class FileNormalizer extends DocumentNormalizer implements NormalizerInterface
     {
         return $type === File::class;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function denormalize($data, $class, $format = null, array $context = [])
-    {
-        if (isset($data['created_at'])) {
-            $data['created_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['created_at']);
-        }
-        if (isset($data['updated_at'])) {
-            $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
-        }
-
-        return parent::denormalize($data, $class, $format, $context);
-    }
 }

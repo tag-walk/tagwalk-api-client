@@ -14,21 +14,21 @@ namespace Tagwalk\ApiClientBundle\Tests\Provider;
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ApiProviderTest extends TestCase
 {
-
     private function getNewApiProvider($baseUri = '', $clientId = '', $clientSecret = '', $timeout = 0)
     {
         $request = $this->createMock(Request::class);
+        $session = $this->createMock(SessionInterface::class);
         $request->method('getLocale')->willReturn('en');
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn($request);
-
         /** @var RequestStack $requestStack */
-
-        return new ApiProvider($requestStack, $baseUri, $clientId, $clientSecret, $timeout);
+        /** @var SessionInterface $session */
+        return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, $timeout);
     }
 
     public function testConstructor()

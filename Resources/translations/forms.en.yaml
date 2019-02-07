@@ -1,6 +1,6 @@
 help:
   name: The public name
-  slug: The slug is an alpha-numeric idenfier displayed in url
+  slug: The slug is an alpha-numeric idenfier displayed in url, auto-generated on create if left empty
   beginAt: The date and time when the homepage will be set as the default one
   endAt: The date and time when the homepage will be disabled
   homepage:

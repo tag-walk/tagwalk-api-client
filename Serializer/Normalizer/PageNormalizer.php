@@ -12,21 +12,21 @@
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Tagwalk\ApiClientBundle\Model\User;
+use Tagwalk\ApiClientBundle\Model\Page;
 
 /**
- * Normalizer for File instances
+ * Normalizer for Page instances
  *
  * @extends DocumentNormalizer
  */
-class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
+class PageNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
      * {@inheritdoc}
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof User;
+        return $data instanceof Page;
     }
 
     /**
@@ -34,6 +34,6 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return $type === User::class;
+        return $type === Page::class;
     }
 }
