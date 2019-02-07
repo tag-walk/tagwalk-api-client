@@ -47,26 +47,45 @@ class ModelManager
     }
 
     /**
-     * @param int $from
      * @param int $size
-     * @param string|null $type
-     * @param string|null $season
-     * @param string|null $city
-     *
+     * @param int $page
+     * @param array $params
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function listMediasModels(
-        $from = 0,
-        $size = 10,
-        ?string $type = null,
-        ?string $season = null,
-        ?string $city = null
-    ) {
-        $query = array_filter(compact('from', 'size', 'type', 'season', 'city'));
-        $apiResponse = $this->apiProvider->request('GET', '/api/models', ['query' => $query, 'http_errors' => false]);
+    public function listMediasModels(int $size, int $page, array $params = []): array
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models', [
+            'query' => array_merge($params, [
+                'size' => $size,
+                'page' => $page
+            ]),
+            'http_errors' => false
+        ]);
+
         $data = json_decode($apiResponse->getBody(), true);
 
         return $data;
+    }
+
+    /**
+     * @param int $size
+     * @param int $page
+     * @param array $params
+     * @return int
+     */
+    public function countListMediasModels(int $size, int $page, array $params = [])
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models', [
+            'query' => array_merge($params, [
+                'size' => $size,
+                'page' => $page
+            ]),
+            'http_errors' => false
+        ]);
+
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
+
     }
 }
