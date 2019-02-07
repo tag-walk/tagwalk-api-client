@@ -83,6 +83,9 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $password = $credentials['password'];
@@ -107,6 +110,9 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         return null;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function checkCredentials($credentials, UserInterface $user)
     {
         // check credentials - e.g. make sure the password is valid
@@ -116,22 +122,20 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         return true;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        // on success, let the request continue
         return null;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        $data = [
-            'message' => strtr($exception->getMessageKey(), $exception->getMessageData())
-
-            // or to translate this message
-            // $this->translator->trans($exception->getMessageKey(), $exception->getMessageData())
-        ];
-
-        return new JsonResponse($data, Response::HTTP_FORBIDDEN);
+        return null;
     }
 
     /**
@@ -151,6 +155,9 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function supportsRememberMe()
     {
         return false;
