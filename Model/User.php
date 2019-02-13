@@ -14,7 +14,6 @@ namespace Tagwalk\ApiClientBundle\Model;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Tagwalk\ApiClientBundle\Model\Traits\Nameable;
 use Tagwalk\ApiClientBundle\Model\Traits\Sluggable;
 use Tagwalk\ApiClientBundle\Model\Traits\Statusable;
@@ -72,7 +71,7 @@ class User implements UserInterface, EquatableInterface
     private $newsletter;
 
     /**
-     * @var bool
+     * @var bool|null
      */
     private $survey;
 
@@ -104,17 +103,11 @@ class User implements UserInterface, EquatableInterface
     /**
      * @var string|null
      * @Assert\Length(
-     *     min = 8,
-     *     max = 50,
-     *     minMessage="The password is mandatory and should be at least 8 characters"
+     *     min = 4,
+     *     minMessage="The password is mandatory and should be at least 4 characters"
      * )
      */
     private $password;
-
-    /**
-     * @var string|null
-     */
-    private $confirmPassword;
 
     /**
      * @var string[]|null
@@ -131,6 +124,7 @@ class User implements UserInterface, EquatableInterface
      * @param string|null $password
      * @param string|null $salt
      * @param array|null $roles
+     * @throws \Exception
      */
     public function __construct(?string $name = null, ?string $password = null, ?string $salt = null, ?array $roles = null)
     {
@@ -253,7 +247,7 @@ class User implements UserInterface, EquatableInterface
      *
      * @return self
      */
-    public function setSurvey(bool $survey): self
+    public function setSurvey(?bool $survey): self
     {
         $this->survey = $survey;
 
@@ -381,28 +375,9 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
-     */
-    public function getConfirmPassword(): ?string
-    {
-        return $this->confirmPassword;
-    }
-
-    /**
-     * @param string
-     * @return self
-     */
-    public function setConfirmPassword(?string $confirmPassword): self
-    {
-        $this->confirmPassword = $confirmPassword;
-
-        return $this;
-    }
-
-    /**
      * @return string[]
      */
-    public function getRoles(): array
+    public function getRoles(): ?array
     {
         return $this->roles;
     }
@@ -514,21 +489,5 @@ class User implements UserInterface, EquatableInterface
     public function getFullName()
     {
         return $this->firstname . ' ' . $this->lastname;
-    }
-
-    /**
-     * @Assert\Callback()
-     * @param ExecutionContextInterface $context
-     */
-    public function validate(ExecutionContextInterface $context)
-    {
-        $password = $this->getPassword();
-        $confirmPassword = $this->getConfirmPassword();
-
-        if ($password != $confirmPassword) {
-            $context->buildViolation('This password doesn\'t match')
-                ->atPath('confirmPassword')
-                ->addViolation();
-        }
     }
 }

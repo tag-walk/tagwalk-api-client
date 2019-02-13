@@ -36,4 +36,15 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
     {
         return $type === User::class;
     }
+
+    public function normalize($object, $format = null, array $context = [])
+    {
+        $data = parent::normalize($object, $format, $context);
+        if (false === empty($context['registration'])) {
+            unset($data['created_at'], $data['updated_at']);
+        }
+
+        return $data;
+    }
+
 }
