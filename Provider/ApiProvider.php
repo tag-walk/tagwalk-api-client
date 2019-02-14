@@ -13,6 +13,8 @@ namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Psr\SimpleCache\InvalidArgumentException;
+use Symfony\Component\Cache\Simple\FilesystemCache;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -42,10 +44,16 @@ class ApiProvider
      * @var RequestStack
      */
     private $requestStack;
+
     /**
      * @var SessionInterface
      */
     private $session;
+
+    /**
+     * @var FilesystemCache
+     */
+    private $cache;
 
     /**
      * @param RequestStack $requestStack
@@ -55,8 +63,14 @@ class ApiProvider
      * @param string $clientSecret
      * @param float $timeout
      */
-    public function __construct(RequestStack $requestStack, SessionInterface $session, string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
-    {
+    public function __construct(
+        RequestStack $requestStack,
+        SessionInterface $session,
+        string $baseUri,
+        string $clientId,
+        string $clientSecret,
+        $timeout = 10.0
+    ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
         $this->clientId = $clientId;
@@ -65,6 +79,7 @@ class ApiProvider
             'base_uri' => $baseUri,
             'timeout' => $timeout
         ]);
+        $this->cache = new FilesystemCache('tagwalk-api-client.provider');
     }
 
     /**
@@ -98,6 +113,12 @@ class ApiProvider
      */
     private function getBearer(): string
     {
+        if (null === $this->token && $this->cache->has('token')) {
+            try {
+                $this->token = $this->cache->get('token');
+            } catch (InvalidArgumentException $e) {
+            }
+        }
         if (null === $this->token) {
             $this->authenticate();
         }
@@ -122,8 +143,12 @@ class ApiProvider
             ]
         );
         $data = json_decode($response->getBody(), true);
-
         $this->token = $data['access_token'];
+        // save token in cache
+        try {
+            $this->cache->set('token', $this->token, intval($data['expires_in']) - 5);
+        } catch (InvalidArgumentException $e) {
+        }
     }
 
     /**
