@@ -37,6 +37,13 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
         return $type === User::class;
     }
 
+    /**
+     * @param mixed $object
+     * @param null $format
+     * @param array $context
+     * @return array|bool|float|int|string
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
     public function normalize($object, $format = null, array $context = [])
     {
         $data = parent::normalize($object, $format, $context);
@@ -46,5 +53,4 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
 
         return $data;
     }
-
 }

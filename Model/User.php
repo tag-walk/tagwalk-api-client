@@ -51,7 +51,9 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @var string
-     * @Assert\Email()
+     * @Assert\Email(
+     *     checkMX = true
+     * )
      */
     private $email;
 
@@ -102,10 +104,6 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @var string|null
-     * @Assert\Length(
-     *     min = 4,
-     *     minMessage="The password is mandatory and should be at least 4 characters"
-     * )
      */
     private $password;
 
