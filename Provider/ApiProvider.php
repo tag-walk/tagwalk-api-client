@@ -13,8 +13,7 @@ namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use Psr\SimpleCache\InvalidArgumentException;
-use Symfony\Component\Cache\Simple\FilesystemCache;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -36,11 +35,6 @@ class ApiProvider
     private $client;
 
     /**
-     * @var string
-     */
-    private $token;
-
-    /**
      * @var RequestStack
      */
     private $requestStack;
@@ -51,9 +45,14 @@ class ApiProvider
     private $session;
 
     /**
-     * @var FilesystemCache
+     * @var FilesystemAdapter
      */
     private $cache;
+
+    /**
+     * @var string
+     */
+    private $token;
 
     /**
      * @param RequestStack $requestStack
@@ -79,15 +78,14 @@ class ApiProvider
             'base_uri' => $baseUri,
             'timeout' => $timeout
         ]);
-        $this->cache = new FilesystemCache('tagwalk-api-client.provider');
+        $this->cache = new FilesystemAdapter('tagwalk_api_client');
     }
 
     /**
      * @param string $method
      * @param string $uri
      * @param array $options
-     *
-     * @return bool|mixed|\Psr\Http\Message\ResponseInterface
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function request($method, $uri, $options = [])
@@ -111,22 +109,36 @@ class ApiProvider
      * @return string
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function getBearer(): string
+    private function getBearer()
     {
-        if (null === $this->token && $this->cache->has('token')) {
-            try {
-                $this->token = $this->cache->get('token');
-            } catch (InvalidArgumentException $e) {
-            }
-        }
+        $token = $this->getToken();
+
+        return "Bearer {$token}";
+    }
+
+    /** @noinspection PhpDocMissingThrowsInspection */
+    /**
+     * @return mixed|string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function getToken()
+    {
         if (null === $this->token) {
-            $this->authenticate();
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $tokenCache = $this->cache->getItem('token');
+            if (!$tokenCache->isHit()) {
+                $auth = $this->authenticate();
+                $tokenCache->set($auth['access_token']);
+                $tokenCache->expiresAfter(intval($auth['expires_in']) - 5);
+            }
+            $this->token = $tokenCache->get();
         }
 
-        return "Bearer {$this->token}";
+        return $this->token;
     }
 
     /**
+     * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function authenticate()
@@ -142,13 +154,8 @@ class ApiProvider
                 ]
             ]
         );
-        $data = json_decode($response->getBody(), true);
-        $this->token = $data['access_token'];
-        // save token in cache
-        try {
-            $this->cache->set('token', $this->token, intval($data['expires_in']) - 5);
-        } catch (InvalidArgumentException $e) {
-        }
+
+        return json_decode($response->getBody(), true);
     }
 
     /**
