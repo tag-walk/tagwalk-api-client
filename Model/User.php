@@ -118,7 +118,6 @@ class User implements UserInterface, EquatableInterface
      * @param string|null $password
      * @param string|null $salt
      * @param array|null $roles
-     * @throws \Exception
      */
     public function __construct(?string $name = null, ?string $password = null, ?string $salt = null, ?array $roles = null)
     {
