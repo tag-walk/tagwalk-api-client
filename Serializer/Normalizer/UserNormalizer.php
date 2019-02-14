@@ -36,4 +36,21 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
     {
         return $type === User::class;
     }
+
+    /**
+     * @param mixed $object
+     * @param null $format
+     * @param array $context
+     * @return array|bool|float|int|string
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function normalize($object, $format = null, array $context = [])
+    {
+        $data = parent::normalize($object, $format, $context);
+        if (false === empty($context['registration'])) {
+            unset($data['created_at'], $data['updated_at']);
+        }
+
+        return $data;
+    }
 }

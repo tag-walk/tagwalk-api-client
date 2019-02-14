@@ -71,6 +71,11 @@ class User implements UserInterface, EquatableInterface
     /**
      * @var bool|null
      */
+    private $survey;
+
+    /**
+     * @var bool|null
+     */
     private $vip = false;
 
     /**
@@ -114,7 +119,7 @@ class User implements UserInterface, EquatableInterface
      * @param string|null $salt
      * @param array|null $roles
      */
-    public function __construct($name, ?string $password = null, ?string $salt = null, ?array $roles = null)
+    public function __construct(?string $name = null, ?string $password = null, ?string $salt = null, ?array $roles = null)
     {
         $this->name = $name;
         $this->password = $password;
@@ -125,7 +130,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getFirstname(): string
+    public function getFirstname(): ?string
     {
         return $this->firstname;
     }
@@ -145,7 +150,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getLastname(): string
+    public function getLastname(): ?string
     {
         return $this->lastname;
     }
@@ -165,7 +170,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getGender(): string
+    public function getGender(): ?string
     {
         return $this->gender;
     }
@@ -205,7 +210,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return bool
      */
-    public function isNewsletter(): bool
+    public function isNewsletter(): ?bool
     {
         return $this->newsletter;
     }
@@ -218,6 +223,26 @@ class User implements UserInterface, EquatableInterface
     public function setNewsletter(bool $newsletter): self
     {
         $this->newsletter = $newsletter;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSurvey(): ?bool
+    {
+        return $this->survey;
+    }
+
+    /**
+     * @param bool $survey
+     *
+     * @return self
+     */
+    public function setSurvey(?bool $survey): self
+    {
+        $this->survey = $survey;
 
         return $this;
     }
@@ -265,7 +290,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getCountry(): string
+    public function getCountry(): ?string
     {
         return $this->country;
     }
@@ -285,7 +310,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getLocale(): string
+    public function getLocale(): ?string
     {
         return $this->locale;
     }
@@ -345,7 +370,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string[]
      */
-    public function getRoles(): array
+    public function getRoles(): ?array
     {
         return $this->roles;
     }
@@ -434,7 +459,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getEmail(): string
+    public function getEmail(): ?string
     {
         return $this->email;
     }
