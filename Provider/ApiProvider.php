@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -34,18 +35,24 @@ class ApiProvider
     private $client;
 
     /**
-     * @var string
-     */
-    private $token;
-
-    /**
      * @var RequestStack
      */
     private $requestStack;
+
     /**
      * @var SessionInterface
      */
     private $session;
+
+    /**
+     * @var FilesystemAdapter
+     */
+    private $cache;
+
+    /**
+     * @var string
+     */
+    private $token;
 
     /**
      * @param RequestStack $requestStack
@@ -55,8 +62,14 @@ class ApiProvider
      * @param string $clientSecret
      * @param float $timeout
      */
-    public function __construct(RequestStack $requestStack, SessionInterface $session, string $baseUri, string $clientId, string $clientSecret, $timeout = 10.0)
-    {
+    public function __construct(
+        RequestStack $requestStack,
+        SessionInterface $session,
+        string $baseUri,
+        string $clientId,
+        string $clientSecret,
+        $timeout = 10.0
+    ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
         $this->clientId = $clientId;
@@ -65,14 +78,14 @@ class ApiProvider
             'base_uri' => $baseUri,
             'timeout' => $timeout
         ]);
+        $this->cache = new FilesystemAdapter('tagwalk_api_client');
     }
 
     /**
      * @param string $method
      * @param string $uri
      * @param array $options
-     *
-     * @return bool|mixed|\Psr\Http\Message\ResponseInterface
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function request($method, $uri, $options = [])
@@ -96,16 +109,36 @@ class ApiProvider
      * @return string
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function getBearer(): string
+    private function getBearer()
+    {
+        $token = $this->getToken();
+
+        return "Bearer {$token}";
+    }
+
+    /** @noinspection PhpDocMissingThrowsInspection */
+    /**
+     * @return mixed|string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function getToken()
     {
         if (null === $this->token) {
-            $this->authenticate();
+            /** @noinspection PhpUnhandledExceptionInspection */
+            $tokenCache = $this->cache->getItem('token');
+            if (!$tokenCache->isHit()) {
+                $auth = $this->authenticate();
+                $tokenCache->set($auth['access_token']);
+                $tokenCache->expiresAfter(intval($auth['expires_in']) - 5);
+            }
+            $this->token = $tokenCache->get();
         }
 
-        return "Bearer {$this->token}";
+        return $this->token;
     }
 
     /**
+     * @return array
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function authenticate()
@@ -121,9 +154,8 @@ class ApiProvider
                 ]
             ]
         );
-        $data = json_decode($response->getBody(), true);
 
-        $this->token = $data['access_token'];
+        return json_decode($response->getBody(), true);
     }
 
     /**
