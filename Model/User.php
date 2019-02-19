@@ -84,7 +84,7 @@ class User implements UserInterface, EquatableInterface
     private $sector;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $country;
 
