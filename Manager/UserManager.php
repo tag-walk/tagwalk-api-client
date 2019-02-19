@@ -47,7 +47,7 @@ class UserManager
     public function create(User $user)
     {
         $data = $this->serializer->normalize($user, null, ['registration' => true]);
-        $apiResponse = $this->apiProvider->request('POST', '/api/users/registration', [
+        $apiResponse = $this->apiProvider->request('POST', '/api/users/register', [
             'json' => $data,
             'http_errors' => false
         ]);
