@@ -12,6 +12,7 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -51,20 +52,28 @@ class UserManager
         $user = null;
         $apiResponse = $this->apiProvider->request('GET', '/api/users/' . $email, ['http_errors' => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            /** @var User $user */
-            $user = $this->serializer->deserialize(
-                $apiResponse->getBody()->getContents(),
-                User::class,
-                JsonEncoder::FORMAT
-            );
+            $user = $this->deserialize($apiResponse);
         }
 
         return $user;
     }
 
     /**
+     * @param ResponseInterface $response
+     * @return User
+     */
+    private function deserialize($response)
+    {
+        return $this->serializer->deserialize(
+            $response->getBody()->getContents(),
+            User::class,
+            JsonEncoder::FORMAT
+        );
+    }
+
+    /**
      * @param User $user
-     * @return Response
+     * @return User|null
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
@@ -75,14 +84,18 @@ class UserManager
             'json' => $data,
             'http_errors' => false
         ]);
+        $created = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
+            $created = $this->deserialize($apiResponse);
+        }
 
-        return $apiResponse;
+        return $created;
     }
 
     /**
      * @param string $email
      * @param User $user
-     * @return Response
+     * @return User|null
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
@@ -97,7 +110,11 @@ class UserManager
             'json' => $data,
             'http_errors' => false
         ]);
+        $updated = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $updated = $this->deserialize($apiResponse);
+        }
 
-        return $apiResponse;
+        return $updated;
     }
 }
