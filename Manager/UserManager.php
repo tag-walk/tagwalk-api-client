@@ -13,6 +13,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -33,6 +34,11 @@ class UserManager
     private $serializer;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
      */
@@ -40,6 +46,14 @@ class UserManager
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -87,6 +101,8 @@ class UserManager
         $created = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             $created = $this->deserialize($apiResponse);
+        } else {
+            $this->logger->error('UserManager::create ' . $apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
         }
 
         return $created;
@@ -113,6 +129,8 @@ class UserManager
         $updated = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $updated = $this->deserialize($apiResponse);
+        } else {
+            $this->logger->error('UserManager::update ' . $apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
         }
 
         return $updated;
