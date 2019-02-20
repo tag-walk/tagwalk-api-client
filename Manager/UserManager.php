@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -26,7 +27,7 @@ class UserManager
     private $apiProvider;
 
     /**
-     * @var SerializerInterface
+     * @var SerializerInterface|Serializer
      */
     private $serializer;
 
@@ -88,7 +89,9 @@ class UserManager
     public function update(string $email, User $user)
     {
         $data = $this->serializer->normalize($user, null, ['account' => true]);
-        $data = array_filter($data, function($v) { return $v !== null ; });
+        $data = array_filter($data, function ($v) {
+            return $v !== null;
+        });
         $apiResponse = $this->apiProvider->request('PATCH', '/api/users', [
             'query' => ['email' => $email],
             'json' => $data,
