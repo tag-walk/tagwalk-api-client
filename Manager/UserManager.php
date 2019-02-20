@@ -65,7 +65,7 @@ class UserManager
     public function update(string $email, User $user)
     {
         $data = $this->serializer->normalize($user, null, ['account' => true]);
-        $data = array_filter($data, function($v) { return !is_null($v); });
+        $data = array_filter($data, function($v) { return $v !== null ; });
         $apiResponse = $this->apiProvider->request('PATCH', '/api/users', [
             'query' => ['email' => $email],
             'json' => $data,
