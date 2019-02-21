@@ -53,7 +53,7 @@ class TagwalkApiClientExtension extends Extension
         $definition->replaceArgument('$clientId', $api['client_id']);
         $definition->replaceArgument('$clientSecret', $api['client_secret']);
         if (isset($api['timeout'])) {
-            $definition->replaceArgument('$timeout', $api['timeout']);
+            $definition->replaceArgument('$timeout', floatval($api['timeout']));
         }
     }
 }
