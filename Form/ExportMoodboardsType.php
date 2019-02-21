@@ -51,7 +51,7 @@ class ExportMoodboardsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->setAction($this->router->generate('export_moodboards'))
+            ->setAction($this->router->generate('export_moodboards_designers'))
             ->add('email', TextType::class, [
                 'required' => false,
                 'data' => $this->tokenStorage->getToken()->getUsername()
@@ -74,6 +74,7 @@ class ExportMoodboardsType extends AbstractType
                 ]
             ])
             ->add('designersSelect', ChoiceType::class, [
+                'multiple' => true,
                 'mapped' => false,
                 'required' => false,
                 'validation_groups' => null,
