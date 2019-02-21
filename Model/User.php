@@ -356,11 +356,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $password
+     * @param string|null $password
      *
      * @return self
      */
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 
