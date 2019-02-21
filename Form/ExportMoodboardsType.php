@@ -74,6 +74,7 @@ class ExportMoodboardsType extends AbstractType
                 ]
             ])
             ->add('designersSelect', ChoiceType::class, [
+                'multiple' => true,
                 'mapped' => false,
                 'required' => false,
                 'validation_groups' => null,
