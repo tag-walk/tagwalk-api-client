@@ -94,18 +94,20 @@ class PageManager
     /**
      * @param string $slug
      * @param null|string $language
-     * @return Page
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @return Page|null
      */
-    public function get(string $slug, ?string $language = null): Page
+    public function get(string $slug, ?string $language = null): ?Page
     {
-        $params = [];
+        $page = null;
+        $params = [RequestOptions::HTTP_ERRORS => false];
         if (isset($language)) {
             $params['query'] = ['language' => $language];
         }
         $apiResponse = $this->apiProvider->request('GET', '/api/page/' . $slug, $params);
-        $data = json_decode($apiResponse->getBody(), true);
-        $page = $this->serializer->denormalize($data, Page::class);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $page = $this->serializer->denormalize($data, Page::class);
+        }
 
         return $page;
     }
