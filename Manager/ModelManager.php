@@ -130,4 +130,28 @@ class ModelManager
 
         return isset($count[0]) ? $count[0] : 0;
     }
+
+    /**
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getNewFaces()
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
+        $data = json_decode($apiResponse->getBody(), true);
+
+        return $data;
+    }
+
+    /**
+     * @return int
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function countNewFaces()
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
+    }
 }
