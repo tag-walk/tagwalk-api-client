@@ -63,7 +63,7 @@ class ConfigManager
         $apiResponse = $this->apiProvider->request('GET', '/api/configs', ['query' => ['namespace' => $namespace], 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
 
-        return $data;
+        return $data === null ? [] : $data;
     }
 
     /**
