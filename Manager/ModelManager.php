@@ -29,6 +29,19 @@ class ModelManager
     }
 
     /**
+     * @param string $slug
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function get(string $slug)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, ['http_errors' => false]);
+        $model = json_decode($apiResponse->getBody(), true);
+
+        return $model;
+    }
+
+    /**
      * @param string $type
      * @param string $season
      * @param string $city
@@ -51,6 +64,7 @@ class ModelManager
      * @param int $page
      * @param array $params
      * @return array
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function listMediasModels(int $size, int $page, array $params = []): array
     {
@@ -61,7 +75,6 @@ class ModelManager
             ]),
             'http_errors' => false
         ]);
-
         $data = json_decode($apiResponse->getBody(), true);
 
         return $data;
@@ -72,6 +85,7 @@ class ModelManager
      * @param int $page
      * @param array $params
      * @return int
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function countListMediasModels(int $size, int $page, array $params = [])
     {
@@ -82,10 +96,38 @@ class ModelManager
             ]),
             'http_errors' => false
         ]);
-
         $count = $apiResponse->getHeader('X-Total-Count');
 
         return isset($count[0]) ? $count[0] : 0;
 
+    }
+
+    /**
+     * @param string $slug
+     * @param array $params
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function listMediasModel(string $slug, array $params)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
+        $data = json_decode($apiResponse->getBody(), true);
+
+        return $data;
+    }
+
+    /**
+     * @param string $slug
+     * @param array $params
+     *
+     * @return int
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function countListMediasModel(string $slug, array $params)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
     }
 }
