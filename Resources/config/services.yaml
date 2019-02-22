@@ -52,11 +52,6 @@ services:
       $requestStack: '@request_stack'
       $tokenStorage: '@security.token_storage'
 
-  Tagwalk\ApiClientBundle\Form\ModelsIndexType:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $requestStack: '@request_stack'
-
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     arguments:
       $requestStack: '@request_stack'
@@ -145,6 +140,3 @@ services:
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
-
-  Tagwalk\ApiClientBundle\Utils\ModelsIndexTransformer:
-    autowire: true
