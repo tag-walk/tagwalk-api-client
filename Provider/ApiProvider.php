@@ -95,7 +95,9 @@ class ApiProvider
             RequestOptions::HEADERS => [
                 'Authorization' => $this->getBearer(),
                 'Accept' => 'application/json',
-                'Accept-Language' => $this->requestStack->getCurrentRequest()->getLocale(),
+                'Accept-Language' => $this->requestStack->getCurrentRequest()
+                    ? $this->requestStack->getCurrentRequest()->getLocale()
+                    : 'en', // Fallback if console mode
                 'Cookie' => $this->session->get('Cookie')
             ]
         ];
