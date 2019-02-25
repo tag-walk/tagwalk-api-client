@@ -38,6 +38,7 @@ class ExportMoodboardsType extends AbstractType
 
     /**
      * @param RouterInterface $router
+     * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(RouterInterface $router, TokenStorageInterface $tokenStorage)
     {
