@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
-
 use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Config;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -39,14 +38,14 @@ class ConfigManager
     }
 
     /**
-     * @param string $key
+     * @param string $id
      * @return Config
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function get(string $key): Config
+    public function get(string $id): Config
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/configs/' . $key);
+        $apiResponse = $this->apiProvider->request('GET', '/api/configs/' . $id);
         $data = json_decode($apiResponse->getBody(), true);
         $config = $this->serializer->denormalize($data, Config::class);
 
