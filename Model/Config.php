@@ -19,12 +19,6 @@ class Config
      * @var string
      * @Assert\NotBlank()
      */
-    private $namespace;
-
-    /**
-     * @var string
-     * @Assert\NotBlank()
-     */
     private $key;
 
     /**
@@ -36,26 +30,7 @@ class Config
     /**
      * @return string
      */
-    public function getNamespace(): string
-    {
-        return $this->namespace;
-    }
-
-    /**
-     * @param string $namespace
-     * @return self
-     */
-    public function setNamespace(string $namespace): self
-    {
-        $this->namespace = $namespace;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKey(): string
+    public function getKey(): ?string
     {
         return $this->key;
     }
@@ -74,7 +49,7 @@ class Config
     /**
      * @return string
      */
-    public function getValue(): string
+    public function getValue(): ?string
     {
         return $this->value;
     }

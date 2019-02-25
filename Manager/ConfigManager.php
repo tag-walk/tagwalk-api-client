@@ -40,12 +40,11 @@ class ConfigManager
     /**
      * @param string $id
      * @return Config
-     * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function get(string $id): Config
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/configs/' . $id);
+        $apiResponse = $this->apiProvider->request('GET', '/api/config/' . $id, ['http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
         $config = $this->serializer->denormalize($data, Config::class);
 
@@ -55,30 +54,32 @@ class ConfigManager
     /**
      * @param string $namespace
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function list(string $namespace): array
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/configs', ['query' => ['namespace' => $namespace], 'http_errors' => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/config', ['query' => ['namespace' => $namespace], 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
+        $list = [];
+        if (!empty($data)) {
+            foreach ($data as $datum) {
+                $list[] = $this->serializer->denormalize($datum, Config::class);
+            }
+        }
 
-        return $data === null ? [] : $data;
+        return $list;
     }
 
     /**
-     * @param string $namespace
      * @param string $key
      * @param string $value
-     * @return Config
+     * @return bool
      * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function set(string $namespace, string $key, string $value): Config
+    public function set(string $key, string $value): bool
     {
-        $apiResponse = $this->apiProvider->request('PUT', '/api/configs/' . $namespace . '/' . $key . '/' . $value);
-        $data = json_decode($apiResponse->getBody(), true);
-        $config = $this->serializer->denormalize($data, Config::class);
+        $apiResponse = $this->apiProvider->request('PUT', '/api/config/' . $key . '/' . $value);
 
-        return $config;
+        return $apiResponse->getStatusCode() === 200;
     }
 }

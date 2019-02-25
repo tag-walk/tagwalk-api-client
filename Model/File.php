@@ -34,6 +34,34 @@ class File extends AbstractDocument
      * @Assert\Type("string")
      * @Assert\NotBlank()
      */
+    protected $pathCover;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
+    protected $pathList;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
+    protected $pathThumbnail;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
+    protected $pathZoom;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
     protected $mimetype;
 
     /**
@@ -79,6 +107,82 @@ class File extends AbstractDocument
     public function setPath(string $path): self
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPathCover(): string
+    {
+        return $this->pathCover;
+    }
+
+    /**
+     * @param string $pathCover
+     * @return File
+     */
+    public function setPathCover(string $pathCover): self
+    {
+        $this->pathCover = $pathCover;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPathList(): string
+    {
+        return $this->pathList;
+    }
+
+    /**
+     * @param string $pathList
+     * @return File
+     */
+    public function setPathList(string $pathList): self
+    {
+        $this->pathList = $pathList;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPathThumbnail(): string
+    {
+        return $this->pathThumbnail;
+    }
+
+    /**
+     * @param string $pathThumbnail
+     * @return File
+     */
+    public function setPathThumbnail(string $pathThumbnail): self
+    {
+        $this->pathThumbnail = $pathThumbnail;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPathZoom(): string
+    {
+        return $this->pathZoom;
+    }
+
+    /**
+     * @param string $pathZoom
+     * @return File
+     */
+    public function setPathZoom(string $pathZoom): self
+    {
+        $this->pathZoom = $pathZoom;
 
         return $this;
     }
