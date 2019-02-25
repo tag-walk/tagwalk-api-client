@@ -67,15 +67,16 @@ class ConfigManager
     }
 
     /**
+     * @param string $namespace
      * @param string $key
      * @param string $value
      * @return Config
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function set(string $key, string $value): Config
+    public function set(string $namespace, string $key, string $value): Config
     {
-        $apiResponse = $this->apiProvider->request('PUT', '/api/configs/' . $key . '/' . $value);
+        $apiResponse = $this->apiProvider->request('PUT', '/api/configs/' . $namespace . '/' . $key . '/' . $value);
         $data = json_decode($apiResponse->getBody(), true);
         $config = $this->serializer->denormalize($data, Config::class);
 
