@@ -64,4 +64,14 @@ class Config
 
         return $this;
     }
+
+    /**
+     * @return null|string
+     */
+    public function getNamespace(): ?string
+    {
+        $split = explode('.', $this->key);
+
+        return !empty($split) ? reset($split) : null;
+    }
 }

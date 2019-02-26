@@ -11,10 +11,9 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
-use Symfony\Component\Serializer\Serializer;
-use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer;
 
 class ModelManager
 {
@@ -24,18 +23,18 @@ class ModelManager
     private $apiProvider;
 
     /**
-     * @var Serializer
+     * @var IndividualNormalizer
      */
-    private $serializer;
+    private $individualNormalizer;
 
     /**
      * @param ApiProvider $apiProvider
-     * @param Serializer $serializer
+     * @param IndividualNormalizer $individualNormalizer
      */
-    public function __construct(ApiProvider $apiProvider, Serializer $serializer)
+    public function __construct(ApiProvider $apiProvider, IndividualNormalizer $individualNormalizer)
     {
         $this->apiProvider = $apiProvider;
-        $this->serializer = $serializer;
+        $this->individualNormalizer = $individualNormalizer;
     }
 
     /**
@@ -146,10 +145,7 @@ class ModelManager
         $list = [];
         if (!empty($data)) {
             foreach ($data as $datum) {
-                if (isset($datum['cover'])) {
-                    $datum['cover'] = $this->serializer->denormalize($datum['cover'], File::class);
-                }
-                $list[] = $this->serializer->denormalize($datum, Individual::class);
+                $list[] = $this->individualNormalizer->denormalize($datum, Individual::class);
             }
         }
 

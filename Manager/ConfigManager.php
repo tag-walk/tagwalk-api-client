@@ -11,6 +11,8 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Config;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -39,14 +41,19 @@ class ConfigManager
 
     /**
      * @param string $id
-     * @return Config
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     * @return null|Config
      */
-    public function get(string $id): Config
+    public function get(string $id): ?Config
     {
+        $config = null;
         $apiResponse = $this->apiProvider->request('GET', '/api/config/' . $id, ['http_errors' => false]);
-        $data = json_decode($apiResponse->getBody(), true);
-        $config = $this->serializer->denormalize($data, Config::class);
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new AccessDeniedHttpException();
+        }
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $config = $this->serializer->denormalize($data, Config::class);
+        }
 
         return $config;
     }
@@ -54,16 +61,20 @@ class ConfigManager
     /**
      * @param string $namespace
      * @return array
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function list(string $namespace): array
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/config', ['query' => ['namespace' => $namespace], 'http_errors' => false]);
-        $data = json_decode($apiResponse->getBody(), true);
         $list = [];
-        if (!empty($data)) {
-            foreach ($data as $datum) {
-                $list[] = $this->serializer->denormalize($datum, Config::class);
+        $apiResponse = $this->apiProvider->request('GET', '/api/config', ['query' => ['namespace' => $namespace], 'http_errors' => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new AccessDeniedHttpException();
+        }
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $datum) {
+                    $list[] = $this->serializer->denormalize($datum, Config::class);
+                }
             }
         }
 
@@ -79,7 +90,10 @@ class ConfigManager
     public function set(string $key, string $value): bool
     {
         $apiResponse = $this->apiProvider->request('PUT', '/api/config/' . $key . '/' . $value);
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new AccessDeniedHttpException();
+        }
 
-        return $apiResponse->getStatusCode() === 200;
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 }
