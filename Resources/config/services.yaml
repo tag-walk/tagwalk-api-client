@@ -97,6 +97,11 @@ services:
         arguments:
           - '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\MoodboardManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $moodboardNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer'
+
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:
       - '%kernel.default_locale%'
@@ -145,6 +150,13 @@ services:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer:
+      tags: ['serializer.normalizer']
+      arguments:
+        - '@serializer.name_converter.camel_case_to_snake_case'
+        - '@serializer.property_accessor'
+        - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\UserNormalizer'
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
