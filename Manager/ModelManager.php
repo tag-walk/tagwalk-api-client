@@ -11,7 +11,9 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer;
 
 class ModelManager
 {
@@ -21,17 +23,23 @@ class ModelManager
     private $apiProvider;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @var IndividualNormalizer
      */
-    public function __construct(ApiProvider $apiProvider)
+    private $individualNormalizer;
+
+    /**
+     * @param ApiProvider $apiProvider
+     * @param IndividualNormalizer $individualNormalizer
+     */
+    public function __construct(ApiProvider $apiProvider, IndividualNormalizer $individualNormalizer)
     {
         $this->apiProvider = $apiProvider;
+        $this->individualNormalizer = $individualNormalizer;
     }
 
     /**
      * @param string $slug
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function get(string $slug)
     {
@@ -48,7 +56,6 @@ class ModelManager
      * @param int $length
      *
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10)
     {
@@ -64,7 +71,6 @@ class ModelManager
      * @param int $page
      * @param array $params
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function listMediasModels(int $size, int $page, array $params = []): array
     {
@@ -85,7 +91,6 @@ class ModelManager
      * @param int $page
      * @param array $params
      * @return int
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function countListMediasModels(int $size, int $page, array $params = [])
     {
@@ -106,7 +111,6 @@ class ModelManager
      * @param string $slug
      * @param array $params
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function listMediasModel(string $slug, array $params)
     {
@@ -121,11 +125,39 @@ class ModelManager
      * @param array $params
      *
      * @return int
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function countListMediasModel(string $slug, array $params)
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
+    }
+
+    /**
+     * @return array
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getNewFaces()
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
+        $data = json_decode($apiResponse->getBody(), true);
+        $list = [];
+        if (!empty($data)) {
+            foreach ($data as $datum) {
+                $list[] = $this->individualNormalizer->denormalize($datum, Individual::class);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return int
+     */
+    public function countNewFaces()
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
         $count = $apiResponse->getHeader('X-Total-Count');
 
         return isset($count[0]) ? $count[0] : 0;
