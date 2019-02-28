@@ -143,7 +143,7 @@ class UserManager
     public function findBy(array $params = [])
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET' , '/api/users/', [
+        $apiResponse = $this->apiProvider->request('GET' , '/api/users/find', [
             'query' => $params,
             'http_errors' => false
         ]);
