@@ -137,21 +137,18 @@ class UserManager
     }
 
     /**
-     * @param string $key
-     * @param string $value
+     * @param array $params
      * @return User|null
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function findBy(string $key, string $value)
+    public function findBy(array $params = [])
     {
         $data = null;
-
-        $apiResponse = $this->apiProvider->request('GET' , '/api/users/' . $key . "/" . $value, ['http_erros' => false]);
-
+        $apiResponse = $this->apiProvider->request('GET' , '/api/users/', [
+            'query' => $params,
+            'http_errors' => false
+        ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = $this->deserialize($apiResponse);
-        } else {
-            $this->logger->error('UserManager::findBy ' . $apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
         }
 
         return $data;
