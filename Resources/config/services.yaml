@@ -144,6 +144,12 @@ services:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\TagNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
   Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer:
     tags: ['serializer.normalizer']
     arguments:
