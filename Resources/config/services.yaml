@@ -19,6 +19,11 @@ services:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
+  Tagwalk\ApiClientBundle\Manager\TagManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
   Tagwalk\ApiClientBundle\Form\ExportModelsType:
     arguments:
       $router: '@router'
