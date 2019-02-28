@@ -23,8 +23,13 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('tagwalk_api_client');
+        $treeBuilder = new TreeBuilder('tagwalk_api_client');
+        if (method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $rootNode = $treeBuilder->root('tagwalk_api_client');
+        }
         $rootNode
             ->children()
                 ->arrayNode('api')
