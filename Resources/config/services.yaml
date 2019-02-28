@@ -15,15 +15,6 @@ services:
       - '@serializer'
       - '@session'
 
-  Tagwalk\ApiClientBundle\Manager\CityManager:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-
-  Tagwalk\ApiClientBundle\Manager\TagManager:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
-
   Tagwalk\ApiClientBundle\Form\ExportModelsType:
     arguments:
       $router: '@router'
@@ -93,6 +84,20 @@ services:
         $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
         $serializer: '@serializer'
 
+  Tagwalk\ApiClientBundle\Manager\CityManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
+  Tagwalk\ApiClientBundle\Manager\TagManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
+  Tagwalk\ApiClientBundle\Manager\DesignerManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
   Tagwalk\ApiClientBundle\Manager\UserManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
@@ -151,6 +156,12 @@ services:
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\CityNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
