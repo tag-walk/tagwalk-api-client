@@ -64,6 +64,8 @@ class DesignerManager
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, ['http_errors' => false, 'query' => $query]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $designer = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
+                $tokenCache->set($designer);
+                $tokenCache->expiresAfter(86400);
             }
         }
 
