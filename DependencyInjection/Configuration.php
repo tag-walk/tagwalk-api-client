@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 

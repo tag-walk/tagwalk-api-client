@@ -1,11 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -42,7 +42,6 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
      * @param null $format
      * @param array $context
      * @return array|bool|float|int|string
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function normalize($object, $format = null, array $context = [])
     {

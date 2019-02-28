@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * PHP version 7
  *
@@ -6,7 +6,7 @@
  *
  * @package     App\Event
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -47,8 +47,6 @@ class LocaleSubscriber implements EventSubscriberInterface
 
     /**
      * @param GetResponseEvent $event
-     *
-     * @throws \ReflectionException
      */
     public function onKernelRequest(GetResponseEvent $event)
     {

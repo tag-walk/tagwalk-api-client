@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * PHP version 7
  *
@@ -6,7 +6,7 @@
  *
  * @package     App\Document
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -27,10 +27,6 @@ class City extends AbstractDocument
     /**
      * @var bool
      * @Assert\Type("boolean")
-     * @SWG\Property(
-     *     description="City belongs to the main cities or to the rest of the world",
-     *     default=true
-     * )
      */
     private $main = true;
 
