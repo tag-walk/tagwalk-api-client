@@ -73,6 +73,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\ModelManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $individualNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer'
 
   Tagwalk\ApiClientBundle\Manager\CoverManager:
     arguments:
@@ -86,6 +87,11 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
+
+  Tagwalk\ApiClientBundle\Manager\ConfigManager:
+      arguments:
+        $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+        $serializer: '@serializer'
 
   Tagwalk\ApiClientBundle\Manager\UserManager:
     arguments:
@@ -137,6 +143,13 @@ services:
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'

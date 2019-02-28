@@ -11,7 +11,9 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer;
 
 class ModelManager
 {
@@ -21,11 +23,30 @@ class ModelManager
     private $apiProvider;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @var IndividualNormalizer
      */
-    public function __construct(ApiProvider $apiProvider)
+    private $individualNormalizer;
+
+    /**
+     * @param ApiProvider $apiProvider
+     * @param IndividualNormalizer $individualNormalizer
+     */
+    public function __construct(ApiProvider $apiProvider, IndividualNormalizer $individualNormalizer)
     {
         $this->apiProvider = $apiProvider;
+        $this->individualNormalizer = $individualNormalizer;
+    }
+
+    /**
+     * @param string $slug
+     * @return mixed
+     */
+    public function get(string $slug)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, ['http_errors' => false]);
+        $model = json_decode($apiResponse->getBody(), true);
+
+        return $model;
     }
 
     /**
@@ -35,7 +56,6 @@ class ModelManager
      * @param int $length
      *
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10)
     {
@@ -61,7 +81,6 @@ class ModelManager
             ]),
             'http_errors' => false
         ]);
-
         $data = json_decode($apiResponse->getBody(), true);
 
         return $data;
@@ -82,10 +101,65 @@ class ModelManager
             ]),
             'http_errors' => false
         ]);
-
         $count = $apiResponse->getHeader('X-Total-Count');
 
         return isset($count[0]) ? $count[0] : 0;
 
+    }
+
+    /**
+     * @param string $slug
+     * @param array $params
+     * @return mixed
+     */
+    public function listMediasModel(string $slug, array $params)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
+        $data = json_decode($apiResponse->getBody(), true);
+
+        return $data;
+    }
+
+    /**
+     * @param string $slug
+     * @param array $params
+     *
+     * @return int
+     */
+    public function countListMediasModel(string $slug, array $params)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
+    }
+
+    /**
+     * @return array
+     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     */
+    public function getNewFaces()
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
+        $data = json_decode($apiResponse->getBody(), true);
+        $list = [];
+        if (!empty($data)) {
+            foreach ($data as $datum) {
+                $list[] = $this->individualNormalizer->denormalize($datum, Individual::class);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return int
+     */
+    public function countNewFaces()
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
     }
 }
