@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Season;
@@ -67,16 +66,21 @@ class SeasonManager
     ): array {
         $seasons = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
-        $key = serialize($query);
-        $tokenCache = $this->cache->getItem($key);
-        if ($tokenCache->isHit()) {
-            $seasons = $tokenCache->get();
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $seasons = $cacheItem->get();
         } else {
+            var_export('seasons not in cache');
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $seasons = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Season::class, JsonEncoder::FORMAT);
-                $tokenCache->set($seasons);
-                $tokenCache->expiresAfter(3600);
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $seasons[] = $this->serializer->denormalize($datum, Season::class);
+                }
+                $cacheItem->set($seasons);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
             }
         }
 

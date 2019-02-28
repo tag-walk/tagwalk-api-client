@@ -56,16 +56,17 @@ class DesignerManager
     {
         $designer = null;
         $key = isset($locale) ? "{$locale}.{$slug}" : $slug;
-        $tokenCache = $this->cache->getItem($key);
-        if ($tokenCache->isHit()) {
-            $designer = $tokenCache->get();
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $designer = $cacheItem->get();
         } else {
             $query = isset($locale) ? ['language' => $locale] : [];
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, ['http_errors' => false, 'query' => $query]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $designer = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
-                $tokenCache->set($designer);
-                $tokenCache->expiresAfter(86400);
+                $cacheItem->set($designer);
+                $cacheItem->expiresAfter(86400);
+                $this->cache->save($cacheItem);
             }
         }
 

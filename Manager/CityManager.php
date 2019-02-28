@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\City;
@@ -67,16 +66,20 @@ class CityManager
     ): array {
         $cities = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
-        $key = serialize($query);
-        $tokenCache = $this->cache->getItem($key);
-        if ($tokenCache->isHit()) {
-            $cities = $tokenCache->get();
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $cities = $cacheItem->get();
         } else {
             $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $cities = $this->serializer->deserialize($apiResponse->getBody()->getContents(), City::class, JsonEncoder::FORMAT);
-                $tokenCache->set($cities);
-                $tokenCache->expiresAfter(86400);
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $cities[] = $this->serializer->denormalize($datum, City::class);
+                }
+                $cacheItem->set($cities);
+                $cacheItem->expiresAfter(86400);
+                $this->cache->save($cacheItem);
             }
         }
 

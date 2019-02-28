@@ -87,6 +87,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\CityManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
 
   Tagwalk\ApiClientBundle\Manager\TagManager:
     arguments:

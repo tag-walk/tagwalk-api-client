@@ -56,16 +56,17 @@ class TagManager
     {
         $tag = null;
         $key = isset($locale) ? "{$locale}.{$slug}" : $slug;
-        $tokenCache = $this->cache->getItem($key);
-        if ($tokenCache->isHit()) {
-            $tag = $tokenCache->get();
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $tag = $cacheItem->get();
         } else {
             $query = isset($locale) ? ['language' => $locale] : [];
             $apiResponse = $this->apiProvider->request('GET', '/api/tags/' . $slug, ['http_errors' => false, 'query' => $query]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $tag = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Tag::class, 'json');
-                $tokenCache->set($tag);
-                $tokenCache->expiresAfter(86400);
+                $cacheItem->set($tag);
+                $cacheItem->expiresAfter(86400);
+                $this->cache->save($cacheItem);
             }
         }
 
