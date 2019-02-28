@@ -12,10 +12,12 @@
 namespace Tagwalk\ApiClientBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Simple\FilesystemCache;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Tagwalk\ApiClientBundle\Manager\DesignerManager;
+use Tagwalk\ApiClientBundle\Manager\IndividualManager;
+use Tagwalk\ApiClientBundle\Manager\TagManager;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 /**
@@ -27,13 +29,31 @@ class AutocompleteController extends AbstractController
      * @var ApiProvider
      */
     protected $apiProvider;
+    /**
+     * @var DesignerManager
+     */
+    private $designerManager;
+    /**
+     * @var IndividualManager
+     */
+    private $individualManager;
+    /**
+     * @var TagManager
+     */
+    private $tagManager;
 
     /**
      * @param ApiProvider $apiProvider
+     * @param DesignerManager $designerManager
+     * @param IndividualManager $individualManager
+     * @param TagManager $tagManager
      */
-    public function __construct(ApiProvider $apiProvider)
+    public function __construct(ApiProvider $apiProvider, DesignerManager $designerManager, IndividualManager $individualManager, TagManager $tagManager)
     {
         $this->apiProvider = $apiProvider;
+        $this->designerManager = $designerManager;
+        $this->individualManager = $individualManager;
+        $this->tagManager = $tagManager;
     }
 
     /**
@@ -47,45 +67,23 @@ class AutocompleteController extends AbstractController
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
-            $cache = new FilesystemCache('autocomplete.designer', 3600);
-            if ($cache->has($search)) {
-                $results = $cache->get($search);
-            } else {
-                $query = [
-                    'prefix' => $search,
-                    'language' => $request->getLocale()
-                ];
-                $apiResponse = $this->apiProvider->request('GET', '/api/designers/suggestions', ['query' => $query, 'http_errors' => false]);
-                $results = json_decode($apiResponse->getBody(), true);
-                $cache->set($search, $results);
-            }
-            $count = 10;
+            $results = $this->designerManager->suggest($search, $request->getLocale());
+            $count = min(10, count($results));
         } else {
             $page = $request->query->get('page', 1);
-            $cache = new FilesystemCache('designer.list.page', 3600);
-            if ($cache->has($page) && $cache->has($page . '.count')) {
-                $results = $cache->get($page);
-                $count = $cache->get($page . '.count');
-            } else {
-                $query = [
-                    'from' => ($page - 1) * 10,
-                    'size' => 10,
-                    'sort' => 'name:asc',
-                    'status' => 'enabled',
-                    'language' => $request->getLocale()
-                ];
-                $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => $query, 'http_errors' => false]);
-                $results = json_decode($apiResponse->getBody(), true);
-                $count = (int)$apiResponse->getHeader('X-Total-Count')[0];
-                $cache->set($page, $results);
-                $cache->set($page . '.count', $count);
-            }
+            $results = $this->designerManager->list(
+                $request->getLocale(),
+                ($page - 1) * 20, 20,
+                $this->designerManager::DEFAULT_SORT,
+                $this->designerManager::DEFAULT_STATUS,
+                false
+            );
+            $count = $this->designerManager->count();
         }
         $data = [
             'results' => $results,
             'total_count' => $count
         ];
-
         $response = new JsonResponse($data);
         $response->setCache([
             'max_age' => 3600,
@@ -106,54 +104,24 @@ class AutocompleteController extends AbstractController
     public function tag(Request $request)
     {
         $search = $request->query->get('search');
-        $nameKey = $request->getLocale() === 'en' ? 'name' : 'name_' . $request->getLocale();
         if (false === empty($search)) {
-            $cache = new FilesystemCache('autocomplete.tag', 3600);
-            if ($cache->has($search)) {
-                $results = $cache->get($search);
-            } else {
-                $query = [
-                    'prefix' => $search,
-                    'language' => $request->getLocale()
-                ];
-                $apiResponse = $this->apiProvider->request('GET', '/api/tags/suggestions', ['query' => $query, 'http_errors' => false]);
-                $results = json_decode($apiResponse->getBody(), true);
-                $cache->set($search, $results);
-            }
-            $count = 10;
+            $results = $this->tagManager->suggest($search, $request->getLocale());
+            $count = min(10, count($results));
         } else {
             $page = $request->query->get('page', 1);
-            $cache = new FilesystemCache('tag.list.page', 3600);
-            if ($cache->has($page) && $cache->has($page . '.count')) {
-                $results = $cache->get($page);
-                $count = $cache->get($page . '.count');
-            } else {
-                $query = [
-                    'from' => ($page - 1) * 10,
-                    'size' => 10,
-                    'sort' => $nameKey . ':asc',
-                    'status' => 'enabled',
-                    'language' => $request->getLocale()
-                ];
-                $apiResponse = $this->apiProvider->request('GET', '/api/tags', ['query' => $query, 'http_errors' => false]);
-                $results = json_decode($apiResponse->getBody(), true);
-                $count = (int)$apiResponse->getHeader('X-Total-Count')[0];
-                $cache->set($page, $results);
-                $cache->set($page . '.count', $count);
-            }
+            $results = $this->tagManager->list(
+                $request->getLocale(),
+                ($page - 1) * 20, 20,
+                $request->getLocale() === 'en' ? 'name:asc' : 'name_' . $request->getLocale() . ':asc',
+                $this->tagManager::DEFAULT_STATUS,
+                false
+            );
+            $count = $this->tagManager->count();
         }
-        foreach ($results as &$result) {
-            $result = [
-                'slug' => $result['slug'],
-                'name' => $result['name']
-            ];
-        }
-
         $data = [
             'results' => $results,
             'total_count' => $count
         ];
-
         $response = new JsonResponse($data);
         $response->setCache([
             'max_age' => 3600,
@@ -175,52 +143,23 @@ class AutocompleteController extends AbstractController
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
-            $cache = new FilesystemCache('autocomplete.individual', 3600);
-            if ($cache->has($search)) {
-                $results = $cache->get($search);
-            } else {
-                $query = [
-                    'prefix' => $search,
-                    'language' => $request->getLocale()
-                ];
-                $apiResponse = $this->apiProvider->request('GET', '/api/individuals/suggestions', ['query' => $query, 'http_errors' => false]);
-                $results = json_decode($apiResponse->getBody(), true);
-                $cache->set($search, $results);
-            }
-            $count = 10;
+            $results = $this->designerManager->suggest($search, $request->getLocale());
+            $count = min(10, count($results));
         } else {
             $page = $request->query->get('page', 1);
-            $cache = new FilesystemCache('individual.list.page', 3600);
-            if ($cache->has($page) && $cache->has($page . '.count')) {
-                $results = $cache->get($page);
-                $count = $cache->get($page . '.count');
-            } else {
-                $query = [
-                    'from' => ($page - 1) * 10,
-                    'size' => 10,
-                    'sort' => 'name:asc',
-                    'status' => 'enabled',
-                    'language' => $request->getLocale()
-                ];
-                $apiResponse = $this->apiProvider->request('GET', '/api/individuals', ['query' => $query, 'http_errors' => false]);
-                $results = json_decode($apiResponse->getBody(), true);
-                $count = (int)$apiResponse->getHeader('X-Total-Count')[0];
-                $cache->set($page, $results);
-                $cache->set($page . '.count', $count);
-            }
+            $results = $this->designerManager->list(
+                $request->getLocale(),
+                ($page - 1) * 20, 20,
+                $this->designerManager::DEFAULT_SORT,
+                $this->designerManager::DEFAULT_STATUS,
+                false
+            );
+            $count = $this->designerManager->count();
         }
-        foreach ($results as &$result) {
-            $result = [
-                'slug' => $result['slug'],
-                'name' => $result['name']
-            ];
-        }
-
         $data = [
             'results' => $results,
             'total_count' => $count
         ];
-
         $response = new JsonResponse($data);
         $response->setCache([
             'max_age' => 3600,

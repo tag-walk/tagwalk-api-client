@@ -15,14 +15,14 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Tagwalk\ApiClientBundle\Model\Tag;
+use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
-class TagManager
+class IndividualManager
 {
     const DEFAULT_STATUS = 'enabled';
     const DEFAULT_SORT = 'name:asc';
-    
+
     /**
      * @var ApiProvider
      */
@@ -38,7 +38,6 @@ class TagManager
      */
     private $cache;
 
-
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
@@ -47,34 +46,33 @@ class TagManager
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('tags');
+        $this->cache = new FilesystemAdapter('individuals');
     }
 
     /**
      * @param string $slug
-     * @param string $locale
-     * @return Tag|null
+     * @return Individual|null
      */
-    public function get(string $slug, $locale = null): ?Tag
+    public function get(string $slug): ?Individual
     {
-        $tag = null;
-        $key = isset($locale) ? "{$locale}.{$slug}" : $slug;
-        $cacheItem = $this->cache->getItem($key);
+        $individual = null;
+        $cacheItem = $this->cache->getItem($slug);
         if ($cacheItem->isHit()) {
-            $tag = $cacheItem->get();
+            $individual = $cacheItem->get();
         } else {
             $query = isset($locale) ? ['language' => $locale] : [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/tags/' . $slug, ['http_errors' => false, 'query' => $query]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, ['http_errors' => false, 'query' => $query]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $tag = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Tag::class, 'json');
-                $cacheItem->set($tag);
+                $individual = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Individual::class, 'json');
+                $cacheItem->set($individual);
                 $cacheItem->expiresAfter(86400);
                 $this->cache->save($cacheItem);
             }
         }
 
-        return $tag;
+        return $individual;
     }
+
 
     /**
      * @param string|null $language
@@ -83,7 +81,7 @@ class TagManager
      * @param string $sort
      * @param string $status
      * @param bool $denormalize
-     * @return array|Tag[]
+     * @return array|Individual[]
      */
     public function list(
         string $language = null,
@@ -93,30 +91,30 @@ class TagManager
         string $status = self::DEFAULT_STATUS,
         bool $denormalize = true
     ): array {
-        $tags = [];
+        $individuals = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
         $key = md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
-            $tags = $cacheItem->get();
+            $individuals = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/tags', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 if ($denormalize) {
                     foreach ($data as $datum) {
-                        $tags[] = $this->serializer->denormalize($datum, Tag::class);
+                        $individuals[] = $this->serializer->denormalize($datum, Individual::class);
                     }
                 } else {
-                    $tags = $data;
+                    $individuals = $data;
                 }
-                $cacheItem->set($tags);
+                $cacheItem->set($individuals);
                 $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
             }
         }
 
-        return $tags;
+        return $individuals;
     }
 
     /**
@@ -130,7 +128,7 @@ class TagManager
         if ($cacheItem->isHit()) {
             $count = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/tags', ['query' => ['status' => $status, 'size' => 0], 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals', ['query' => ['status' => $status, 'size' => 0], 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $cacheItem->set($count);
@@ -151,22 +149,22 @@ class TagManager
         string $prefix,
         string $language = null
     ): array {
-        $tags = [];
+        $individuals = [];
         $query = array_filter(compact('prefix', 'language'));
         $key = md5(serialize($query));
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
-            $tags = $cacheItem->get();
+            $individuals = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/tags/suggestions', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/suggestions', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $tags = json_decode($apiResponse->getBody()->getContents(), true);
-                $cacheItem->set($tags);
+                $individuals = json_decode($apiResponse->getBody()->getContents(), true);
+                $cacheItem->set($individuals);
                 $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
             }
         }
 
-        return $tags;
+        return $individuals;
     }
 }

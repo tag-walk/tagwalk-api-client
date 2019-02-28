@@ -20,6 +20,9 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class DesignerManager
 {
+    const DEFAULT_STATUS = 'enabled';
+    const DEFAULT_SORT = 'name:asc';
+
     /**
      * @var ApiProvider
      */
@@ -35,7 +38,6 @@ class DesignerManager
      */
     private $cache;
 
-
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
@@ -50,9 +52,9 @@ class DesignerManager
     /**
      * @param string $slug
      * @param string $locale
-     * @return Designer
+     * @return Designer|null
      */
-    public function get(string $slug, $locale = null): Designer
+    public function get(string $slug, $locale = null): ?Designer
     {
         $designer = null;
         $key = isset($locale) ? "{$locale}.{$slug}" : $slug;
@@ -71,5 +73,99 @@ class DesignerManager
         }
 
         return $designer;
+    }
+
+    /**
+     * @param string|null $language
+     * @param int $from
+     * @param int $size
+     * @param string $sort
+     * @param string $status
+     * @param bool $denormalize
+     * @return array|Designer[]
+     */
+    public function list(
+        string $language = null,
+        int $from = 0,
+        int $size = 20,
+        string $sort = self::DEFAULT_SORT,
+        string $status = self::DEFAULT_STATUS,
+        bool $denormalize = true
+    ): array {
+        $designers = [];
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
+        $key = md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $designers = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                if ($denormalize) {
+                    foreach ($data as $datum) {
+                        $designers[] = $this->serializer->denormalize($datum, Designer::class);
+                    }
+                } else {
+                    $designers = $data;
+                }
+                $cacheItem->set($designers);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $designers;
+    }
+
+    /**
+     * @param string $status
+     * @return int
+     */
+    public function count(string $status = self::DEFAULT_STATUS): int
+    {
+        $count = 0;
+        $cacheItem = $this->cache->getItem('count');
+        if ($cacheItem->isHit()) {
+            $count = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => ['status' => $status, 'size' => 0], 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $cacheItem->set($count);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @param string $prefix
+     * @param string|null $language
+     * @return array
+     */
+    public function suggest(
+        string $prefix,
+        string $language = null
+    ): array {
+        $designers = [];
+        $query = array_filter(compact('prefix', 'language'));
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $designers = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/suggestions', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $designers = json_decode($apiResponse->getBody()->getContents(), true);
+                $cacheItem->set($designers);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $designers;
     }
 }

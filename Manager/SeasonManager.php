@@ -71,7 +71,6 @@ class SeasonManager
         if ($cacheItem->isHit()) {
             $seasons = $cacheItem->get();
         } else {
-            var_export('seasons not in cache');
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
