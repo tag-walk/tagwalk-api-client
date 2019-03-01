@@ -73,7 +73,6 @@ class IndividualManager
         return $individual;
     }
 
-
     /**
      * @param string|null $language
      * @param int $from
