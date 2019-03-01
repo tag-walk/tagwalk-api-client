@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -23,8 +23,13 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('tagwalk_api_client');
+        $treeBuilder = new TreeBuilder('tagwalk_api_client');
+        if (method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $rootNode = $treeBuilder->root('tagwalk_api_client');
+        }
         $rootNode
             ->children()
                 ->arrayNode('api')

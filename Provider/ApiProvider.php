@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -86,7 +86,6 @@ class ApiProvider
      * @param string $uri
      * @param array $options
      * @return mixed|\Psr\Http\Message\ResponseInterface
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function request($method, $uri, $options = [])
     {
@@ -109,7 +108,6 @@ class ApiProvider
 
     /**
      * @return string
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function getBearer()
     {
@@ -118,20 +116,18 @@ class ApiProvider
         return "Bearer {$token}";
     }
 
-    /** @noinspection PhpDocMissingThrowsInspection */
     /**
      * @return mixed|string
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function getToken()
     {
         if (null === $this->token) {
-            /** @noinspection PhpUnhandledExceptionInspection */
             $tokenCache = $this->cache->getItem('token');
             if (!$tokenCache->isHit()) {
                 $auth = $this->authenticate();
                 $tokenCache->set($auth['access_token']);
                 $tokenCache->expiresAfter(intval($auth['expires_in']) - 5);
+                $this->cache->save($tokenCache);
             }
             $this->token = $tokenCache->get();
         }
@@ -141,7 +137,6 @@ class ApiProvider
 
     /**
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function authenticate()
     {

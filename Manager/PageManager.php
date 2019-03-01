@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -52,7 +52,6 @@ class PageManager
      * @param null|string $name
      * @param null|string $text
      * @return Page[]
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function list(
         int $from = 0,
@@ -78,7 +77,6 @@ class PageManager
      * @param null|string $name
      * @param null|string $text
      * @return int
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function count(
         string $status = self::DEFAULT_STATUS,
@@ -115,7 +113,6 @@ class PageManager
     /**
      * @param string $slug
      * @return bool
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function delete(string $slug): bool
     {
@@ -130,7 +127,6 @@ class PageManager
     /**
      * @param Page $record
      * @return Page
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function create(Page $record): Page
     {
@@ -146,7 +142,6 @@ class PageManager
      * @param string $slug
      * @param Page $record
      * @return Page
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function update(string $slug, Page $record): Page
     {

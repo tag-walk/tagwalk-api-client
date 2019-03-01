@@ -29,8 +29,8 @@ class IndividualNormalizer extends DocumentNormalizer implements NormalizerInter
         PropertyAccessorInterface $propertyAccessor = null,
         FileNormalizer $fileNormalizer
     ) {
-        parent::__construct($nameConverter, $propertyAccessor);
         $this->fileNormalizer = $fileNormalizer;
+        parent::__construct($nameConverter, $propertyAccessor);
     }
 
     /**
@@ -56,6 +56,9 @@ class IndividualNormalizer extends DocumentNormalizer implements NormalizerInter
     {
         if (false === empty($data['cover'])) {
             $data['cover'] = $this->fileNormalizer->denormalize($data['cover'], File::class);
+        }
+        if (false === empty($data['birthdate'])) {
+            $data['birthdate'] = \DateTime::createFromFormat(DATE_ISO8601, $data['birthdate']);
         }
 
         return parent::denormalize($data, $class, $format, $context);

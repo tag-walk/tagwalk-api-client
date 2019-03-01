@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -35,18 +35,6 @@ class ModelManager
     {
         $this->apiProvider = $apiProvider;
         $this->individualNormalizer = $individualNormalizer;
-    }
-
-    /**
-     * @param string $slug
-     * @return mixed
-     */
-    public function get(string $slug)
-    {
-        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, ['http_errors' => false]);
-        $model = json_decode($apiResponse->getBody(), true);
-
-        return $model;
     }
 
     /**
@@ -92,7 +80,7 @@ class ModelManager
      * @param array $params
      * @return int
      */
-    public function countListMediasModels(int $size, int $page, array $params = [])
+    public function countListMediasModels(int $size, int $page, array $params = []): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/models', [
             'query' => array_merge($params, [
@@ -103,7 +91,7 @@ class ModelManager
         ]);
         $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? $count[0] : 0;
+        return isset($count[0]) ? (int)$count[0] : 0;
 
     }
 
@@ -126,19 +114,18 @@ class ModelManager
      *
      * @return int
      */
-    public function countListMediasModel(string $slug, array $params)
+    public function countListMediasModel(string $slug, array $params): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
         $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? $count[0] : 0;
+        return isset($count[0]) ? (int)$count[0] : 0;
     }
 
     /**
-     * @return array
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
+     * @return Individual[]
      */
-    public function getNewFaces()
+    public function getNewFaces(): array
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -155,11 +142,11 @@ class ModelManager
     /**
      * @return int
      */
-    public function countNewFaces()
+    public function countNewFaces(): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
         $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? $count[0] : 0;
+        return isset($count[0]) ? (int)$count[0] : 0;
     }
 }
