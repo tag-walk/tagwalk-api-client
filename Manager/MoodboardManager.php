@@ -40,18 +40,35 @@ class MoodboardManager
     }
 
     /**
-     * @param string $email
+     * @param array $params
      * @return array
      */
-    public function listByEmail(string $email): array
+    public function list(array $params): array
     {
         $list = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards', ['query' => ['email' => $email], [RequestOptions::HTTP_ERRORS => false]]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards', ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $list = json_decode($apiResponse->getBody(), true);
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $datum) {
+                    $list[] = $this->moodboardNormalizer->denormalize($datum, Moodboard::class);
+                }
+            }
         }
 
         return $list;
+    }
+
+    /**
+     * @param string $emmail
+     * @return int
+     */
+    public function countList(string $email): int
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards', ['query' => ['email' => $email], [RequestOptions::HTTP_ERRORS => false]]);
+        $count = $apiResponse->getHeader('X-Total-Count');
+
+        return isset($count[0]) ? $count[0] : 0;
     }
 
     /**
@@ -64,7 +81,6 @@ class MoodboardManager
         $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/' . $slug, ['http_errors' => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-            var_dump($data['user']);
             $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
         }
 
@@ -78,7 +94,7 @@ class MoodboardManager
      */
     public function create(Moodboard $moodboard): bool
     {
-        $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
+        $params = [RequestOptions::JSON => $this->moodboardNormalizer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('POST', '/api/moodboards', $params);
 
         return $apiResponse->getStatusCode() === Response::HTTP_CREATED;

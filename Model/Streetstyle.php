@@ -12,10 +12,15 @@
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
+use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
 use Tagwalk\ApiClientBundle\Utils\Reindexer;
 
 class Streetstyle extends AbstractDocument
 {
+    use Positionable;
+    use Watermarkable;
+
     /**
      * @var File[]|null
      * @Assert\Valid()

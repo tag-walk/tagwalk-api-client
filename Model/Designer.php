@@ -87,9 +87,9 @@ class Designer
     }
 
     /**
-     * @param string $details
+     * @param string|null $details
      */
-    public function setDetails(string $details)
+    public function setDetails(?string $details)
     {
         $this->details = $details;
     }
@@ -103,9 +103,9 @@ class Designer
     }
 
     /**
-     * @param string $detailsFr
+     * @param string|null $detailsFr
      */
-    public function setDetailsFr(string $detailsFr)
+    public function setDetailsFr(?string $detailsFr)
     {
         $this->detailsFr = $detailsFr;
     }
@@ -119,9 +119,9 @@ class Designer
     }
 
     /**
-     * @param string $detailsEs
+     * @param string|null $detailsEs
      */
-    public function setDetailsEs(string $detailsEs)
+    public function setDetailsEs(?string $detailsEs)
     {
         $this->detailsEs = $detailsEs;
     }
@@ -135,9 +135,9 @@ class Designer
     }
 
     /**
-     * @param string $detailsIt
+     * @param string|null $detailsIt
      */
-    public function setDetailsIt(string $detailsIt)
+    public function setDetailsIt(?string $detailsIt)
     {
         $this->detailsIt = $detailsIt;
     }
@@ -151,9 +151,9 @@ class Designer
     }
 
     /**
-     * @param string $detailsZh
+     * @param string|null $detailsZh
      */
-    public function setDetailsZh(string $detailsZh)
+    public function setDetailsZh(?string $detailsZh)
     {
         $this->detailsZh = $detailsZh;
     }
