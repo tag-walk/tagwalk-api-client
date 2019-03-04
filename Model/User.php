@@ -114,6 +114,11 @@ class User implements UserInterface, EquatableInterface
     private $facebookId;
 
     /**
+     * @var string|null
+     */
+    private $token;
+
+    /**
      * @param string $name
      * @param string|null $password
      * @param string|null $salt
@@ -363,6 +368,25 @@ class User implements UserInterface, EquatableInterface
     public function setPassword(?string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param string|null
+     * @return self
+     */
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
 
         return $this;
     }

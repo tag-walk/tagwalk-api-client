@@ -130,4 +130,26 @@ class UserManager
 
         return $updated;
     }
+
+    /**
+     * @param string $property
+     * @param string $value
+     * @return User|null
+     */
+    public function findBy(string $property, string $value)
+    {
+        $data = null;
+        $apiResponse = $this->apiProvider->request('GET' , '/api/users/find', [
+            'query' => [
+                'key' => $property,
+                'value' => $value
+            ],
+            'http_errors' => false
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = $this->deserialize($apiResponse);
+        }
+
+        return $data;
+    }
 }
