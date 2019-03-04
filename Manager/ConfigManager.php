@@ -89,7 +89,6 @@ class ConfigManager
      * @param string $key
      * @param string $value
      * @return bool
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function set(string $key, string $value): bool
     {

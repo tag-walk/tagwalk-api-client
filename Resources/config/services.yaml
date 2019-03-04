@@ -15,10 +15,6 @@ services:
       - '@serializer'
       - '@session'
 
-  Tagwalk\ApiClientBundle\Manager\CityManager:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-
   Tagwalk\ApiClientBundle\Form\ExportModelsType:
     arguments:
       $router: '@router'
@@ -64,6 +60,9 @@ services:
   Tagwalk\ApiClientBundle\Controller\AutocompleteController:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $designerManager: '@Tagwalk\ApiClientBundle\Manager\DesignerManager'
+      $individualManager: '@Tagwalk\ApiClientBundle\Manager\IndividualManager'
+      $tagManager: '@Tagwalk\ApiClientBundle\Manager\TagManager'
 
   Tagwalk\ApiClientBundle\Manager\ModelManager:
     arguments:
@@ -88,6 +87,31 @@ services:
         $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
         $serializer: '@serializer'
 
+  Tagwalk\ApiClientBundle\Manager\CityManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
+  Tagwalk\ApiClientBundle\Manager\TagManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
+  Tagwalk\ApiClientBundle\Manager\DesignerManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
+  Tagwalk\ApiClientBundle\Manager\SeasonManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
+  Tagwalk\ApiClientBundle\Manager\IndividualManager:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      - '@serializer'
+
   Tagwalk\ApiClientBundle\Manager\UserManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
@@ -106,6 +130,13 @@ services:
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer:
     tags: ['serializer.normalizer']
@@ -139,12 +170,29 @@ services:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer:
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\TagNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\CityNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\SeasonNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'

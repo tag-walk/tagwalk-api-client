@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -40,7 +40,6 @@ class TrendManager
      * @param string $sort
      * @param string $status
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function list(
         ?string $type = null,
@@ -61,7 +60,6 @@ class TrendManager
     /**
      * @param string $slug
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function get(string $slug)
     {

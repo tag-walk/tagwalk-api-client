@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -63,7 +63,6 @@ class ModelsWhoWalkedTheMostType extends AbstractType
 
     /**
      * @inheritdoc
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -118,7 +117,6 @@ class ModelsWhoWalkedTheMostType extends AbstractType
 
     /**
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function getSeasons()
     {
@@ -142,7 +140,6 @@ class ModelsWhoWalkedTheMostType extends AbstractType
 
     /**
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     private function getCities()
     {
