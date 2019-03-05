@@ -15,6 +15,9 @@ use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer;
 
+/**
+ * TODO implement cache + return objects
+ */
 class ModelManager
 {
     /**

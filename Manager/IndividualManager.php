@@ -117,6 +117,8 @@ class IndividualManager
     }
 
     /**
+     * TODO implement count API endpoint
+     *
      * @param string $status
      * @return int
      */
@@ -127,7 +129,7 @@ class IndividualManager
         if ($cacheItem->isHit()) {
             $count = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/individuals', ['query' => ['status' => $status, 'size' => 0], 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals', ['query' => ['status' => $status, 'size' => 1], 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $cacheItem->set($count);
