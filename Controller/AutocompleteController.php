@@ -143,18 +143,18 @@ class AutocompleteController extends AbstractController
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
-            $results = $this->designerManager->suggest($search, $request->getLocale());
+            $results = $this->individualManager->suggest($search, $request->getLocale());
             $count = min(10, count($results));
         } else {
             $page = $request->query->get('page', 1);
-            $results = $this->designerManager->list(
+            $results = $this->individualManager->list(
                 $request->getLocale(),
                 ($page - 1) * 20, 20,
-                $this->designerManager::DEFAULT_SORT,
-                $this->designerManager::DEFAULT_STATUS,
+                $this->individualManager::DEFAULT_SORT,
+                $this->individualManager::DEFAULT_STATUS,
                 false
             );
-            $count = $this->designerManager->count();
+            $count = $this->individualManager->count();
         }
         $data = [
             'results' => $results,
