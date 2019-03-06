@@ -119,6 +119,8 @@ class DesignerManager
     }
 
     /**
+     * TODO implement count API endpoint
+     *
      * @param string $status
      * @return int
      */
@@ -129,7 +131,7 @@ class DesignerManager
         if ($cacheItem->isHit()) {
             $count = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => ['status' => $status, 'size' => 0], 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => ['status' => $status, 'size' => 1], 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $cacheItem->set($count);
