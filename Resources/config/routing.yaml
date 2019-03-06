@@ -9,3 +9,15 @@ autocomplete_designer:
 autocomplete_individual:
     path:    /autocomplete/individual
     controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::individual
+
+analytics_media_view:
+    path:    /analytics/medias/{slug}
+    controller: Tagwalk\ApiClientBundle\Controller\AnalyticsController::addMediaView
+    options:
+        expose: true
+
+analytics_streetstyle_view:
+    path:    /analytics/medias/{slug}
+    controller: Tagwalk\ApiClientBundle\Controller\AnalyticsController::addStreetstyleView
+    options:
+        expose: true

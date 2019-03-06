@@ -64,6 +64,11 @@ services:
       $individualManager: '@Tagwalk\ApiClientBundle\Manager\IndividualManager'
       $tagManager: '@Tagwalk\ApiClientBundle\Manager\TagManager'
 
+  Tagwalk\ApiClientBundle\Controller\AnalyticsController:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $logger: '@logger'
+
   Tagwalk\ApiClientBundle\Manager\ModelManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
