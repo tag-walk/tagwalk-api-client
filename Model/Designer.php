@@ -18,7 +18,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Designer
+class Designer extends AbstractDocument
 {
     use Descriptable;
     use NameTranslatable;
