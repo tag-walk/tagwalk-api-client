@@ -4,9 +4,10 @@
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author    Thomas Barriac <thomas@tag-walk.com>
- * @copyright 2019 TAGWALK
- * @license   proprietary
+ * @package     App\Document
+ * @author      Florian Ajir <florian@tag-walk.com>
+ * @copyright   2016-2019 TAGWALK
+ * @license     proprietary
  */
 
 namespace Tagwalk\ApiClientBundle\Model;
@@ -16,7 +17,6 @@ use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Notable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class Designer extends AbstractDocument
 {
@@ -28,54 +28,52 @@ class Designer extends AbstractDocument
 
     /**
      * @var bool
-     * @Assert\Type("boolean")
      */
     private $talent = false;
 
     /**
      * @var string|null
-     * @Assert\Type("string")
      */
-    private $details;
+    private $details = null;
 
     /**
      * @var string|null
-     * @Assert\Type("string")
-     */
-    private $detailsFr;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
      */
     private $detailsEs;
 
     /**
      * @var string|null
-     * @Assert\Type("string")
+     */
+    private $detailsFr;
+
+    /**
+     * @var string|null
      */
     private $detailsIt;
 
     /**
      * @var string|null
-     * @Assert\Type("string")
      */
     private $detailsZh;
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function getTalent(): ?bool
+    public function getTalent(): bool
     {
         return $this->talent;
     }
 
     /**
      * @param bool $talent
+     *
+     * @return self
      */
-    public function setTalent(bool $talent)
+    public function setTalent(bool $talent): self
     {
         $this->talent = $talent;
+
+        return $this;
     }
 
     /**
@@ -87,27 +85,15 @@ class Designer extends AbstractDocument
     }
 
     /**
-     * @param string|null $details
+     * @param null|string $details
+     *
+     * @return self
      */
-    public function setDetails(?string $details)
+    public function setDetails(?string $details): self
     {
         $this->details = $details;
-    }
 
-    /**
-     * @return null|string
-     */
-    public function getDetailsFr(): ?string
-    {
-        return $this->detailsFr;
-    }
-
-    /**
-     * @param string|null $detailsFr
-     */
-    public function setDetailsFr(?string $detailsFr)
-    {
-        $this->detailsFr = $detailsFr;
+        return $this;
     }
 
     /**
@@ -119,11 +105,35 @@ class Designer extends AbstractDocument
     }
 
     /**
-     * @param string|null $detailsEs
+     * @param null|string $detailsEs
+     *
+     * @return self
      */
-    public function setDetailsEs(?string $detailsEs)
+    public function setDetailsEs(?string $detailsEs): self
     {
         $this->detailsEs = $detailsEs;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getDetailsFr(): ?string
+    {
+        return $this->detailsFr;
+    }
+
+    /**
+     * @param null|string $detailsFr
+     *
+     * @return self
+     */
+    public function setDetailsFr(?string $detailsFr): self
+    {
+        $this->detailsFr = $detailsFr;
+
+        return $this;
     }
 
     /**
@@ -135,11 +145,15 @@ class Designer extends AbstractDocument
     }
 
     /**
-     * @param string|null $detailsIt
+     * @param null|string $detailsIt
+     *
+     * @return self
      */
-    public function setDetailsIt(?string $detailsIt)
+    public function setDetailsIt(?string $detailsIt): self
     {
         $this->detailsIt = $detailsIt;
+
+        return $this;
     }
 
     /**
@@ -151,10 +165,14 @@ class Designer extends AbstractDocument
     }
 
     /**
-     * @param string|null $detailsZh
+     * @param null|string $detailsZh
+     *
+     * @return self
      */
-    public function setDetailsZh(?string $detailsZh)
+    public function setDetailsZh(?string $detailsZh): self
     {
         $this->detailsZh = $detailsZh;
+
+        return $this;
     }
 }

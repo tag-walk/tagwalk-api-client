@@ -1,11 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -112,6 +112,11 @@ class User implements UserInterface, EquatableInterface
      * @var string|null
      */
     private $facebookId;
+
+    /**
+     * @var string|null
+     */
+    private $token;
 
     /**
      * @param string $name
@@ -363,6 +368,25 @@ class User implements UserInterface, EquatableInterface
     public function setPassword(?string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param string|null
+     * @return self
+     */
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
 
         return $this;
     }

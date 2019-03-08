@@ -6,7 +6,7 @@
  *
  * @author      Florian Ajir <florian@tag-walk.com>
  * @author      Steve Valette <steve@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
@@ -59,7 +59,6 @@ class UserManager
     /**
      * @param string $email
      * @return User|null
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function get(string $email)
     {
@@ -88,8 +87,6 @@ class UserManager
     /**
      * @param User $user
      * @return User|null
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function create(User $user)
     {
@@ -112,8 +109,6 @@ class UserManager
      * @param string $email
      * @param User $user
      * @return User|null
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function update(string $email, User $user)
     {
@@ -134,5 +129,27 @@ class UserManager
         }
 
         return $updated;
+    }
+
+    /**
+     * @param string $property
+     * @param string $value
+     * @return User|null
+     */
+    public function findBy(string $property, string $value)
+    {
+        $data = null;
+        $apiResponse = $this->apiProvider->request('GET' , '/api/users/find', [
+            'query' => [
+                'key' => $property,
+                'value' => $value
+            ],
+            'http_errors' => false
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = $this->deserialize($apiResponse);
+        }
+
+        return $data;
     }
 }

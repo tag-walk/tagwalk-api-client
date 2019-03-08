@@ -4,23 +4,48 @@
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author    Thomas Barriac <thomas@tag-walk.com>
- * @copyright 2019 TAGWALK
- * @license   proprietary
+ * @package     App\Document
+ * @author      Florian Ajir <florian@tag-walk.com>
+ * @copyright   2016-2019 TAGWALK
+ * @license     proprietary
  */
 
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 
+/**
+ * Describe a Season Document
+ *
+ * @see Document
+ */
 class Season extends AbstractDocument
 {
+    use Positionable;
+
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 200
+     * )
+     */
+    protected $name;
+    /**
+     * @var string
+     * @Assert\NotBlank()
+     * @Assert\Regex("/^[a-z0-9]+(?:-[a-z0-9]+)*$/")
+     */
+    protected $slug;
+    /**
+     * @var string
+     * @Assert\NotBlank()
      * @Assert\Type("string")
      */
     private $shortname;
-
     /**
      * @var bool
      * @Assert\Type("boolean")
@@ -28,7 +53,7 @@ class Season extends AbstractDocument
     private $shopable = true;
 
     /**
-     * @return null|string
+     * @return string
      */
     public function getShortname(): ?string
     {
@@ -37,25 +62,32 @@ class Season extends AbstractDocument
 
     /**
      * @param string $shortname
+     * @return Season
      */
-    public function setShortname(string $shortname)
+    public function setShortname(string $shortname): Season
     {
         $this->shortname = $shortname;
+
+        return $this;
     }
 
     /**
-     * @return null|bool
+     * @return bool
      */
-    public function getShopable(): ?bool
+    public function isShopable(): ?bool
     {
         return $this->shopable;
     }
 
     /**
      * @param bool $shopable
+     *
+     * @return self
      */
-    public function setShopable(bool $shopable)
+    public function setShopable(?bool $shopable): self
     {
         $this->shopable = $shopable;
+
+        return $this;
     }
 }

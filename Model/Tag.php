@@ -4,23 +4,24 @@
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author    Thomas Barriac <thomas@tag-walk.com>
- * @copyright 2019 TAGWALK
- * @license   proprietary
+ * @package     App\Document
+ * @author      Florian Ajir <florian@tag-walk.com>
+ * @copyright   2019 TAGWALK
+ * @license     proprietary
  */
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Notable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\SlugTranslatable;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class Tag extends AbstractDocument
 {
-    use NameTranslatable;
     use SlugTranslatable;
+    use NameTranslatable;
     use Notable;
     use Positionable;
 
@@ -32,7 +33,7 @@ class Tag extends AbstractDocument
     private $similars;
 
     /**
-     * @var bool
+     * @var boolean
      * @Assert\Type("boolean")
      */
     private $beauty = false;
@@ -47,25 +48,33 @@ class Tag extends AbstractDocument
 
     /**
      * @param Tag[]|null $similars
+     *
+     * @return self
      */
-    public function setSimilars(?array $similars)
+    public function setSimilars(?array $similars): self
     {
         $this->similars = $similars;
+
+        return $this;
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function isBeauty(): ?bool
+    public function isBeauty(): bool
     {
         return $this->beauty;
     }
 
+
     /**
      * @param bool $beauty
+     * @return self
      */
-    public function setBeauty(bool $beauty)
+    public function setBeauty(bool $beauty): self
     {
         $this->beauty = $beauty;
+
+        return $this;
     }
 }
