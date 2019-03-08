@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer;
@@ -83,6 +84,8 @@ class MoodboardManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            throw new NotFoundHttpException();
         }
 
         return $moodboard;
@@ -136,5 +139,20 @@ class MoodboardManager
         }
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    /**
+     * @param string $slug
+     * @param Moodboard $moodboard
+     * @return Moodboard
+     */
+    public function update(string $slug, Moodboard $moodboard): Moodboard
+    {
+        $params = [RequestOptions::JSON => $this->moodboardNormalizer->normalize($moodboard, null, ['write' => true])];
+        $apiResponse = $this->apiProvider->request('PUT', '/api/moodboards/' . $slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        $data = json_decode($apiResponse->getBody(), true);
+        $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+
+        return $moodboard;
     }
 }
