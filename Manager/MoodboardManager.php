@@ -80,7 +80,7 @@ class MoodboardManager
      * @param array $params
      * @return int
      */
-    public function countList(array $params): int
+    public function count(array $params): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', ['query' => array_merge($params, ['analytics' => 0]), RequestOptions::HTTP_ERRORS => false]);
         $count = $apiResponse->getHeader('X-Total-Count');
@@ -178,6 +178,7 @@ class MoodboardManager
             throw new NotFoundHttpException();
         } else {
             $this->logger->error($apiResponse->getBody()->getContents());
+            throw new BadRequestHttpException();
         }
 
         return $moodboard;
