@@ -130,6 +130,10 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $moodboardNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:

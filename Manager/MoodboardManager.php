@@ -12,8 +12,10 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -32,6 +34,11 @@ class MoodboardManager
     private $moodboardNormalizer;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param MoodboardNormalizer $moodboardNormalizer
      */
@@ -39,6 +46,14 @@ class MoodboardManager
     {
         $this->apiProvider = $apiProvider;
         $this->moodboardNormalizer = $moodboardNormalizer;
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -62,12 +77,12 @@ class MoodboardManager
     }
 
     /**
-     * @param string $emmail
+     * @param array $params
      * @return int
      */
-    public function countList(string $email): int
+    public function countList(array $params): int
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', ['query' => ['email' => $email], [RequestOptions::HTTP_ERRORS => false]]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', ['query' => array_merge($params, ['analytics' => 0]), RequestOptions::HTTP_ERRORS => false]);
         $count = $apiResponse->getHeader('X-Total-Count');
 
         return isset($count[0]) ? $count[0] : 0;
@@ -86,6 +101,8 @@ class MoodboardManager
             $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException();
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
         }
 
         return $moodboard;
@@ -100,7 +117,12 @@ class MoodboardManager
     {
         $params = [RequestOptions::JSON => $this->moodboardNormalizer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('POST', '/api/moodboards', $params);
-        $data = json_decode($apiResponse->getBody(), true);
+        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
+            $data = json_decode($apiResponse->getBody(), true);
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
+            throw new BadRequestHttpException();
+        }
         $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
 
         return $moodboard;
@@ -110,7 +132,7 @@ class MoodboardManager
      * @param string $slug
      * @return bool
      */
-    public function delete(string $slug)
+    public function delete(string $slug): bool
     {
         $apiResponse = $this->apiProvider->request('DELETE', '/api/moodboards/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
@@ -126,14 +148,13 @@ class MoodboardManager
      * @param string $lookSlug
      * @return bool
      */
-    public function removeLook(string $slug, string $type, string $lookSlug)
+    public function removeLook(string $slug, string $type, string $lookSlug): bool
     {
-        $apiResponse = null;
-        if ($type === 'media') {
-            $apiResponse = $this->apiProvider->request('DELETE', '/api/moodboards/' . $slug . '/medias/' . $lookSlug, [RequestOptions::HTTP_ERRORS => false]);
-        } else {
-            $apiResponse = $this->apiProvider->request('DELETE', '/api/moodboards/' . $slug . '/streetstyles/' . $lookSlug, [RequestOptions::HTTP_ERRORS => false]);
-        }
+        $apiResponse = $this->apiProvider->request(
+            'DELETE',
+            '/api/moodboards/' . $slug . ($type === 'media' ? '/medias/' : '/streetstyles/') . $lookSlug,
+            [RequestOptions::HTTP_ERRORS => false]
+        );
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
             throw new AccessDeniedHttpException();
         }
@@ -150,8 +171,14 @@ class MoodboardManager
     {
         $params = [RequestOptions::JSON => $this->moodboardNormalizer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('PUT', '/api/moodboards/' . $slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
-        $data = json_decode($apiResponse->getBody(), true);
-        $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            throw new NotFoundHttpException();
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
+        }
 
         return $moodboard;
     }
