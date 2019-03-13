@@ -59,6 +59,11 @@ class User implements UserInterface, EquatableInterface
     private $gender;
 
     /**
+     * @var bool|null
+     */
+    private $fashionIndustry;
+
+    /**
      * @var string|null
      */
     private $jobTitle;
@@ -188,6 +193,25 @@ class User implements UserInterface, EquatableInterface
     public function setGender(string $gender): self
     {
         $this->gender = $gender;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getFashionIndustry(): ?bool
+    {
+        return $this->fashionIndustry;
+    }
+
+    /**
+     * @param bool|null $fashionIndustry
+     * @return User
+     */
+    public function setFashionIndustry(?bool $fashionIndustry): self
+    {
+        $this->fashionIndustry = $fashionIndustry;
 
         return $this;
     }
