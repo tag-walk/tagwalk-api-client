@@ -17,6 +17,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Notable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\SlugTranslatable;
+use Tagwalk\ApiClientBundle\Model\Traits\Suggestable;
 
 class Tag extends AbstractDocument
 {
@@ -24,6 +25,7 @@ class Tag extends AbstractDocument
     use NameTranslatable;
     use Notable;
     use Positionable;
+    use Suggestable;
 
     /**
      * @var Tag[]|null
@@ -37,6 +39,51 @@ class Tag extends AbstractDocument
      * @Assert\Type("boolean")
      */
     private $beauty = false;
+
+    /**
+     * @var string[]|null
+     * @SWG\Property(
+     *     description="Synonyms slug (english)",
+     *     property="synonyms"
+     * )
+     */
+    private $synonyms;
+
+    /**
+     * @var string[]|null
+     * @SWG\Property(
+     *     description="Synonyms slug (french)",
+     *     property="synonyms_fr"
+     * )
+     */
+    private $synonymsFr;
+
+    /**
+     * @var string[]|null
+     * @SWG\Property(
+     *     description="Synonyms slug (spanish)",
+     *     property="synonyms_es"
+     * )
+     */
+    private $synonymsEs;
+
+    /**
+     * @var string[]|null
+     * @SWG\Property(
+     *     description="Synonyms slug (italian)",
+     *     property="synonyms_it"
+     * )
+     */
+    private $synonymsIt;
+
+    /**
+     * @var string[]|null
+     * @SWG\Property(
+     *     description="Synonyms slug (chinese)",
+     *     property="synonyms_zh"
+     * )
+     */
+    private $synonymsZh;
 
     /**
      * @return Tag[]|null
@@ -74,6 +121,106 @@ class Tag extends AbstractDocument
     public function setBeauty(bool $beauty): self
     {
         $this->beauty = $beauty;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string[]
+     */
+    public function getSynonyms(): ?array
+    {
+        return $this->synonyms;
+    }
+
+    /**
+     * @param null|string[] $synonyms
+     *
+     * @return self
+     */
+    public function setSynonyms(?array $synonyms): self
+    {
+        $this->synonyms = $synonyms;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string[]
+     */
+    public function getSynonymsFr(): ?array
+    {
+        return $this->synonymsFr;
+    }
+
+    /**
+     * @param null|string[] $synonymsFr
+     *
+     * @return self
+     */
+    public function setSynonymsFr(?array $synonymsFr): self
+    {
+        $this->synonymsFr = $synonymsFr;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string[]
+     */
+    public function getSynonymsEs(): ?array
+    {
+        return $this->synonymsEs;
+    }
+
+    /**
+     * @param null|string[] $synonymsEs
+     *
+     * @return self
+     */
+    public function setSynonymsEs(?array $synonymsEs): self
+    {
+        $this->synonymsEs = $synonymsEs;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string[]
+     */
+    public function getSynonymsIt(): ?array
+    {
+        return $this->synonymsIt;
+    }
+
+    /**
+     * @param null|string[] $synonymsIt
+     *
+     * @return self
+     */
+    public function setSynonymsIt(?array $synonymsIt): self
+    {
+        $this->synonymsIt = $synonymsIt;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string[]
+     */
+    public function getSynonymsZh(): ?array
+    {
+        return $this->synonymsZh;
+    }
+
+    /**
+     * @param null|string[] $synonymsZh
+     *
+     * @return self
+     */
+    public function setSynonymsZh(?array $synonymsZh): self
+    {
+        $this->synonymsZh = $synonymsZh;
 
         return $this;
     }
