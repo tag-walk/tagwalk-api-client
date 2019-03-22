@@ -28,22 +28,16 @@ class Live extends AbstractDocument
      *      min = 2,
      *      max = 255
      * )
-     * @SWG\Property(
-     *     description="The title of the live",
-     *     example="Paris Resort 2019"
-     * )
      */
     protected $title;
 
     /**
      * @var City|null
-     * @Assert\Type("object")
      */
     private $city;
 
     /**
      * @var Season
-     * @Assert\Type("object")
      * @Assert\NotBlank()
      */
     private $season;
