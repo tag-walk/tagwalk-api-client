@@ -65,7 +65,7 @@ class LiveManager
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
                 $cacheItem->set($live);
-                $cacheItem->expiresAfter(86400);
+                $cacheItem->expiresAfter(120);
                 $this->cache->save($cacheItem);
             }
         }
@@ -112,7 +112,7 @@ class LiveManager
                     $lives = $data;
                 }
                 $cacheItem->set($lives);
-                $cacheItem->expiresAfter(3600);
+                $cacheItem->expiresAfter(120);
                 $this->cache->save($cacheItem);
             }
         }
