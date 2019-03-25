@@ -26,17 +26,17 @@ class IndividualManager
     /**
      * @var ApiProvider
      */
-    private $apiProvider;
+    protected $apiProvider;
 
     /**
      * @var Serializer
      */
-    private $serializer;
+    protected $serializer;
 
     /**
      * @var FilesystemAdapter
      */
-    private $cache;
+    protected $cache;
 
     /**
      * @param ApiProvider $apiProvider
