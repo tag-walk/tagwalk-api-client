@@ -85,4 +85,43 @@ class CityManager
 
         return $cities;
     }
+
+    /**
+     * @param null|string $type
+     * @param null|string $season
+     * @param null|string $designer
+     * @param null|string $tags
+     * @param null|string $models
+     * @param string|null $language
+     * @return City[]
+     */
+    public function listFilters(
+        ?string $type,
+        ?string $season,
+        ?string $designer,
+        ?string $tags,
+        ?string $models,
+        ?string $language = null
+    ): array {
+        $cities = [];
+        $query = array_filter(compact('type', 'season', 'designer', 'tags', 'models', 'language'));
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $cities = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $cities[] = $this->serializer->denormalize($datum, City::class);
+                }
+                $cacheItem->set($cities);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $cities;
+    }
 }

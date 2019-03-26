@@ -72,7 +72,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\ModelManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $individualNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer'
+      $serializer: '@serializer'
 
   Tagwalk\ApiClientBundle\Manager\CoverManager:
     arguments:
