@@ -99,7 +99,7 @@ class UserManager
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             $created = $this->deserialize($apiResponse);
         } else {
-            $this->logger->error('UserManager::create ' . $apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
+            $this->logger->error('UserManager::create ' . $apiResponse->getBody()->getContents());
         }
 
         return $created;
@@ -125,7 +125,7 @@ class UserManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $updated = $this->deserialize($apiResponse);
         } else {
-            $this->logger->error('UserManager::update ' . $apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
+            $this->logger->error('UserManager::update ' . $apiResponse->getBody()->getContents());
         }
 
         return $updated;

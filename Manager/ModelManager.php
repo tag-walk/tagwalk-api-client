@@ -11,33 +11,23 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer;
 
 /**
  * TODO implement cache + return objects
  */
-class ModelManager
+class ModelManager extends IndividualManager
 {
     /**
-     * @var ApiProvider
-     */
-    private $apiProvider;
-
-    /**
-     * @var IndividualNormalizer
-     */
-    private $individualNormalizer;
-
-    /**
      * @param ApiProvider $apiProvider
-     * @param IndividualNormalizer $individualNormalizer
+     * @param Serializer $serializer
      */
-    public function __construct(ApiProvider $apiProvider, IndividualNormalizer $individualNormalizer)
+    public function __construct(ApiProvider $apiProvider, Serializer $serializer)
     {
-        $this->apiProvider = $apiProvider;
-        $this->individualNormalizer = $individualNormalizer;
+        parent::__construct($apiProvider, $serializer);
     }
 
     /**
@@ -135,7 +125,7 @@ class ModelManager
         $list = [];
         if (!empty($data)) {
             foreach ($data as $datum) {
-                $list[] = $this->individualNormalizer->denormalize($datum, Individual::class);
+                $list[] = $this->serializer->denormalize($datum, Individual::class);
             }
         }
 
@@ -151,5 +141,44 @@ class ModelManager
         $count = $apiResponse->getHeader('X-Total-Count');
 
         return isset($count[0]) ? (int)$count[0] : 0;
+    }
+
+    /**
+     * @param null|string $type
+     * @param null|string $season
+     * @param null|string $city
+     * @param null|string $designer
+     * @param null|string $tags
+     * @param string|null $language
+     * @return Individual[]
+     */
+    public function listFilters(
+        ?string $type,
+        ?string $season,
+        ?string $city,
+        ?string $designer,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $models = [];
+        $query = array_filter(compact('type', 'season', 'city', 'designer', 'tags', 'language'));
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $models = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/models/filter', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $models[] = $this->serializer->denormalize($datum, Individual::class);
+                }
+                $cacheItem->set($models);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $models;
     }
 }

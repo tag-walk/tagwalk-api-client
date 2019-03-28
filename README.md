@@ -1,6 +1,8 @@
 Tagwalk API Client Bundle
 =========================
 
+[![Build Status](https://travis-ci.org/tag-walk/tagwalk-api-client.svg?branch=master)](https://travis-ci.org/tag-walk/tagwalk-api-client)
+
 ### Step 1: Download the Bundle
 
 Open a command console, enter your project directory and execute the

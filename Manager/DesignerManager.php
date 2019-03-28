@@ -170,4 +170,43 @@ class DesignerManager
 
         return $designers;
     }
+
+    /**
+     * @param null|string $type
+     * @param null|string $season
+     * @param null|string $city
+     * @param null|string $tags
+     * @param null|string $models
+     * @param string|null $language
+     * @return Designer[]
+     */
+    public function listFilters(
+        ?string $type,
+        ?string $season,
+        ?string $city,
+        ?string $tags,
+        ?string $models,
+        ?string $language = null
+    ): array {
+        $designers = [];
+        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'language'));
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $designers = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $designers[] = $this->serializer->denormalize($datum, Designer::class);
+                }
+                $cacheItem->set($designers);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $designers;
+    }
 }
