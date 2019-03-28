@@ -183,4 +183,24 @@ class MoodboardManager
 
         return $moodboard;
     }
+
+    /**
+     * @param string $slug
+     * @param string $type
+     * @param string $lookSlug
+     * @return bool
+     */
+    public function addLook(string $slug, string $type, string $lookSlug): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            'PUT',
+            '/api/moodboards/' . $slug . ($type === 'media' ? '/medias/' : '/streetstyles/') . $lookSlug,
+            [RequestOptions::HTTP_ERRORS => false]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
