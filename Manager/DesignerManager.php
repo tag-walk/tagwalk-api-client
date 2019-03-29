@@ -81,6 +81,8 @@ class DesignerManager
      * @param int $size
      * @param string $sort
      * @param string $status
+     * @param bool $talent
+     * @param bool $tagbook
      * @param bool $denormalize
      * @return array|Designer[]
      */
@@ -90,10 +92,12 @@ class DesignerManager
         int $size = 20,
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS,
+        bool $talent = false,
+        bool $tagbook = false,
         bool $denormalize = true
     ): array {
         $designers = [];
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook'));
         $key = md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
