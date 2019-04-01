@@ -86,7 +86,7 @@ class PageManager
         $query = array_filter(compact('status', 'name', 'text'));
         $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
 
-        return (int)$apiResponse->getHeader('X-Total-Count')[0];
+        return (int)$apiResponse->getHeaderLine('X-Total-Count');
     }
 
     /**

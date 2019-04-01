@@ -39,6 +39,11 @@ class DesignerManager
     private $cache;
 
     /**
+     * @var null|int
+     */
+    public $lastQueryCount;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
      */
@@ -100,8 +105,10 @@ class DesignerManager
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook'));
         $key = md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
         $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
+        $countCacheItem = $this->cache->getItem("count.$key");
+        if ($cacheItem->isHit() && $countCacheItem->isHit()) {
             $designers = $cacheItem->get();
+            $this->lastQueryCount = $countCacheItem->get();
         } else {
             $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -116,6 +123,12 @@ class DesignerManager
                 $cacheItem->set($designers);
                 $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
+
+                $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $this->lastQueryCount = $count;
+                $countCacheItem->set($count);
+                $countCacheItem->expiresAfter(3600);
+                $this->cache->save($countCacheItem);
             }
         }
 
@@ -181,6 +194,7 @@ class DesignerManager
      * @param null|string $city
      * @param null|string $tags
      * @param null|string $models
+     * @param bool|null $talent
      * @param string|null $language
      * @return Designer[]
      */
@@ -190,10 +204,11 @@ class DesignerManager
         ?string $city,
         ?string $tags,
         ?string $models,
+        ?bool $talent = false,
         ?string $language = null
     ): array {
         $designers = [];
-        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'language'));
+        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language'));
         $key = md5(serialize($query));
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
