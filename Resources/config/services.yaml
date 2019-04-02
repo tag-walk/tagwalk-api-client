@@ -194,11 +194,11 @@ services:
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\CoverableDesignerNormalizer'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\CityNormalizer'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\SeasonNormalizer'
 
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\CoverableDesignerNormalizer:
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
@@ -224,12 +224,6 @@ services:
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\TagNormalizer:
-    tags: ['serializer.normalizer']
-    arguments:
-      - '@serializer.name_converter.camel_case_to_snake_case'
-      - '@serializer.property_accessor'
-
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'

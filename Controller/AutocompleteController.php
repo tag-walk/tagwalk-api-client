@@ -76,6 +76,8 @@ class AutocompleteController extends AbstractController
                 ($page - 1) * 20, 20,
                 $this->designerManager::DEFAULT_SORT,
                 $this->designerManager::DEFAULT_STATUS,
+                false,
+                false,
                 false
             );
             $count = $this->designerManager->count();

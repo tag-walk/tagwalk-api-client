@@ -15,7 +15,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\City;
-use Tagwalk\ApiClientBundle\Model\CoverableDesigner;
+use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\Live;
 use Tagwalk\ApiClientBundle\Model\Season;
 
@@ -27,9 +27,9 @@ use Tagwalk\ApiClientBundle\Model\Season;
 class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
-     * @var CoverableDesignerNormalizer
+     * @var DesignerNormalizer
      */
-    private $coverableDesignerNormalizer;
+    private $designerNormalizer;
     /**
      * @var CityNormalizer
      */
@@ -45,12 +45,12 @@ class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
     public function __construct(
         NameConverterInterface $nameConverter = null,
         PropertyAccessorInterface $propertyAccessor = null,
-        CoverableDesignerNormalizer $coverableDesignerNormalizer,
+        DesignerNormalizer $designerNormalizer,
         CityNormalizer $cityNormalizer,
         SeasonNormalizer $seasonNormalizer
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->coverableDesignerNormalizer = $coverableDesignerNormalizer;
+        $this->designerNormalizer = $designerNormalizer;
         $this->cityNormalizer = $cityNormalizer;
         $this->seasonNormalizer = $seasonNormalizer;
     }
@@ -84,7 +84,7 @@ class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
         }
         if (false === empty($data['designers'])) {
             foreach ($data['designers'] as &$designer) {
-                $designer = $this->coverableDesignerNormalizer->denormalize($designer, CoverableDesigner::class);
+                $designer = $this->designerNormalizer->denormalize($designer, Designer::class);
             }
         }
 

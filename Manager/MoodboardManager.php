@@ -83,9 +83,8 @@ class MoodboardManager
     public function count(array $params): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', ['query' => array_merge($params, ['analytics' => 0]), RequestOptions::HTTP_ERRORS => false]);
-        $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? $count[0] : 0;
+        return (int)$apiResponse->getHeaderLine('X-Total-Count');
     }
 
     /**

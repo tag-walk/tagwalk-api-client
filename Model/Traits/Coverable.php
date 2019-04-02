@@ -27,7 +27,7 @@ trait Coverable
      * @Assert\Valid()
      * @Assert\Type("object")
      */
-    private $cover;
+    protected $cover;
 
     /**
      * @return File|null

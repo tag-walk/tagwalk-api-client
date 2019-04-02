@@ -12,6 +12,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Notable;
@@ -20,6 +21,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
 
 class Designer extends AbstractDocument
 {
+    use Coverable;
     use Descriptable;
     use NameTranslatable;
     use Notable;
