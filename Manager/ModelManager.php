@@ -82,9 +82,8 @@ class ModelManager extends IndividualManager
             ]),
             'http_errors' => false
         ]);
-        $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? (int)$count[0] : 0;
+        return (int)$apiResponse->getHeaderLine('X-Total-Count');
 
     }
 
@@ -110,9 +109,8 @@ class ModelManager extends IndividualManager
     public function countListMediasModel(string $slug, array $params): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', ['query' => $params, 'http_errors' => false]);
-        $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? (int)$count[0] : 0;
+        return (int)$apiResponse->getHeaderLine('X-Total-Count');
     }
 
     /**
@@ -138,9 +136,8 @@ class ModelManager extends IndividualManager
     public function countNewFaces(): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', ['http_errors' => false]);
-        $count = $apiResponse->getHeader('X-Total-Count');
 
-        return isset($count[0]) ? (int)$count[0] : 0;
+        return (int)$apiResponse->getHeaderLine('X-Total-Count');
     }
 
     /**

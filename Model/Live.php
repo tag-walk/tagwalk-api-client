@@ -43,7 +43,7 @@ class Live extends AbstractDocument
     private $season;
 
     /**
-     * @var CoverableDesigner[]
+     * @var Designer[]
      * @Assert\Type("array")
      */
     private $designers;
@@ -95,7 +95,7 @@ class Live extends AbstractDocument
     }
 
     /**
-     * @return CoverableDesigner[]
+     * @return Designer[]
      */
     public function getDesigners(): array
     {
@@ -103,7 +103,7 @@ class Live extends AbstractDocument
     }
 
     /**
-     * @param CoverableDesigner[] $designers
+     * @param Designer[] $designers
      *
      * @return self
      */
