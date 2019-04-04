@@ -110,7 +110,42 @@ class SeasonManager
         if ($cacheItem->isHit()) {
             $seasons = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-media', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $seasons[] = $this->serializer->denormalize($datum, Season::class);
+                }
+                $cacheItem->set($seasons);
+                $cacheItem->expiresAfter(3600);
+                $this->cache->save($cacheItem);
+            }
+        }
+
+        return $seasons;
+    }
+
+    /**
+     * @param null|string $city
+     * @param null|string $designers
+     * @param null|string $tags
+     * @param string|null $language
+     * @return Season[]
+     */
+    public function listFiltersStreet(
+        ?string $city,
+        ?string $designers,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $seasons = [];
+        $query = array_filter(compact('city', 'designers', 'tags', 'language'));
+        $key = md5(serialize($query));
+        $cacheItem = $this->cache->getItem($key);
+        if ($cacheItem->isHit()) {
+            $seasons = $cacheItem->get();
+        } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
