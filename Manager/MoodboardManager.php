@@ -171,7 +171,7 @@ class MoodboardManager
     {
         $apiResponse = $this->apiProvider->request(
             'DELETE',
-            '/api/moodboards/' . $slug . ($type === 'media' ? '/medias/' : '/streetstyles/') . $lookSlug,
+            sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
@@ -213,7 +213,7 @@ class MoodboardManager
     {
         $apiResponse = $this->apiProvider->request(
             'PUT',
-            '/api/moodboards/' . $slug . ($type === 'media' ? '/medias/' : '/streetstyles/') . $lookSlug,
+            sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
