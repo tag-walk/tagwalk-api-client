@@ -108,6 +108,26 @@ class MoodboardManager
     }
 
     /**
+     * @param string $token
+     * @return null|Moodboard
+     */
+    public function getByToken(string $token): ?Moodboard
+    {
+        $moodboard = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/shared/' . $token, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            throw new NotFoundHttpException();
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
+        }
+
+        return $moodboard;
+    }
+
+    /**
      * @param Moodboard $moodboard
      * @return Moodboard
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -151,7 +171,7 @@ class MoodboardManager
     {
         $apiResponse = $this->apiProvider->request(
             'DELETE',
-            '/api/moodboards/' . $slug . ($type === 'media' ? '/medias/' : '/streetstyles/') . $lookSlug,
+            sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
@@ -181,5 +201,25 @@ class MoodboardManager
         }
 
         return $moodboard;
+    }
+
+    /**
+     * @param string $slug
+     * @param string $type
+     * @param string $lookSlug
+     * @return bool
+     */
+    public function addLook(string $slug, string $type, string $lookSlug): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            'PUT',
+            sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
+            [RequestOptions::HTTP_ERRORS => false]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new AccessDeniedHttpException();
+        }
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 }
