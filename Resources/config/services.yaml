@@ -158,6 +158,16 @@ services:
         arguments:
           - '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\HomepageManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $homepageNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer'
+
+  Tagwalk\ApiClientBundle\Manager\GalleryManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $galleryNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer'
+
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:
       - '%kernel.default_locale%'
@@ -271,6 +281,14 @@ services:
       - '@serializer.property_accessor'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\AffiliationNormalizer'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer'
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
