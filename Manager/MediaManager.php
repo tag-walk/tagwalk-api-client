@@ -73,4 +73,33 @@ class MediaManager
 
         return $media;
     }
+
+    /**
+     * @param string $type
+     * @param string $season
+     * @param string $designer
+     * @param string $look
+     * @return null|Media
+     */
+    public function findByTypeSeasonDesignerLook(string $type, string $season, string $designer, string $look): ?Media
+    {
+        $media = null;
+        if ($type && $season && $designer && $look) {
+            $apiResponse = $this->apiProvider->request(
+                'GET',
+                sprintf('/api/medias/%s/%s/%s/%s', $type, $season, $designer, $look),
+                [RequestOptions::HTTP_ERRORS => false]
+            );
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                $media = $this->mediaNormalizer->denormalize($data, Media::class);
+            } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+                throw new NotFoundHttpException();
+            } else {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
+        }
+
+        return $media;
+    }
 }
