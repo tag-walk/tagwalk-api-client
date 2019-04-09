@@ -62,6 +62,13 @@ class File extends AbstractDocument
      * @Assert\Type("string")
      * @Assert\NotBlank()
      */
+    protected $pathStreet;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
     protected $mimetype;
 
     /**
@@ -183,6 +190,25 @@ class File extends AbstractDocument
     public function setPathZoom(string $pathZoom): self
     {
         $this->pathZoom = $pathZoom;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPathStreet(): string
+    {
+        return $this->pathStreet;
+    }
+
+    /**
+     * @param string $pathStreet
+     * @return File
+     */
+    public function setPathStreet(string $pathStreet): self
+    {
+        $this->pathStreet = $pathStreet;
 
         return $this;
     }

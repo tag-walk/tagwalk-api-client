@@ -13,11 +13,11 @@ namespace Tagwalk\ApiClientBundle\Model;
 
 use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
-use Tagwalk\ApiClientBundle\Model\Traits\StreetstyleRefable;
+use Tagwalk\ApiClientBundle\Model\Traits\Streetstyleable;
 
 class Gallery extends AbstractDocument
 {
     use Descriptable;
     use Coverable;
-    use StreetstyleRefable;
+    use Streetstyleable;
 }
