@@ -77,14 +77,14 @@ class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (false === empty($data['city'])) {
-            $data['city'] = $this->cityNormalizer->denormalize($data['city'], City::class);
+            $data['city'] = $this->cityNormalizer->denormalize($data['city'], City::class, $format, $context);
         }
         if (false === empty($data['season'])) {
-            $data['season'] = $this->seasonNormalizer->denormalize($data['season'], Season::class);
+            $data['season'] = $this->seasonNormalizer->denormalize($data['season'], Season::class, $format, $context);
         }
         if (false === empty($data['designers'])) {
             foreach ($data['designers'] as &$designer) {
-                $designer = $this->designerNormalizer->denormalize($designer, Designer::class);
+                $designer = $this->designerNormalizer->denormalize($designer, Designer::class, $format, $context);
             }
         }
 

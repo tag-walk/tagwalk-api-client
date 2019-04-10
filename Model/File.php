@@ -79,7 +79,7 @@ class File extends AbstractDocument
     protected $extension;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      * @Assert\Choice(callback={"Tagwalk\ApiClientBundle\Utils\Constants\DisplayMode", "getAllowedValues"})
      */
@@ -236,7 +236,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getDisplay(): string
+    public function getDisplay(): ?string
     {
         return $this->display;
     }
@@ -246,7 +246,7 @@ class File extends AbstractDocument
      *
      * @return File
      */
-    public function setDisplay(string $display): self
+    public function setDisplay(?string $display): self
     {
         $this->display = $display;
 
