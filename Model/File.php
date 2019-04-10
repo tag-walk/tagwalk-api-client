@@ -30,7 +30,7 @@ class File extends AbstractDocument
     protected $path;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      * @Assert\NotBlank()
      */
@@ -121,7 +121,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getFilename(): string
+    public function getFilename(): ?string
     {
         return $this->filename;
     }
@@ -130,7 +130,7 @@ class File extends AbstractDocument
      * @param string $filename
      * @return File
      */
-    public function setFilename(string $filename): File
+    public function setFilename(?string $filename): File
     {
         $this->filename = $filename;
 
