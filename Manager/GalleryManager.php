@@ -42,12 +42,13 @@ class GalleryManager
 
     /**
      * @param string $slug
+     * @param array|null $params
      * @return null|Gallery
      */
-    public function get(string $slug): ?Gallery
+    public function get(string $slug, array $params = null): ?Gallery
     {
         $gallery = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params !== null ? $params : [], RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException();
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -56,5 +57,23 @@ class GalleryManager
         }
 
         return $gallery;
+    }
+
+    /**
+     * @param string $slug
+     * @return int|null
+     */
+    public function count(string $slug)
+    {
+        $count = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            throw new NotFoundHttpException();
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $count = count($data['streetstyles']);
+        }
+
+        return $count;
     }
 }
