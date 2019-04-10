@@ -34,6 +34,13 @@ class File extends AbstractDocument
      * @Assert\Type("string")
      * @Assert\NotBlank()
      */
+    protected $filename;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
     protected $pathCover;
 
     /**
@@ -107,6 +114,25 @@ class File extends AbstractDocument
     public function setPath(string $path): self
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename(): string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     * @return File
+     */
+    public function setFilename(string $filename): File
+    {
+        $this->filename = $filename;
 
         return $this;
     }
