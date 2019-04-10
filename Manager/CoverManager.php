@@ -11,6 +11,10 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Model\Cover;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class CoverManager
@@ -21,23 +25,33 @@ class CoverManager
     private $apiProvider;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @var Serializer
      */
-    public function __construct(ApiProvider $apiProvider)
+    private $serializer;
+
+    /**
+     * @param ApiProvider $apiProvider
+     * @param SerializerInterface $serializer
+     */
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
     {
         $this->apiProvider = $apiProvider;
+        $this->serializer = $serializer;
     }
 
     /**
      * @param string $slug
      *
-     * @return array
+     * @return Cover
      */
     public function get(string $slug)
     {
+        $cover = null;
         $apiResponse = $this->apiProvider->request('GET', '/api/covers/' . $slug, ['http_errors' => false]);
-        $data = json_decode($apiResponse->getBody(), true);
+        if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
+            $cover = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, 'json');
+        }
 
-        return $data;
+        return $cover;
     }
 }
