@@ -42,18 +42,21 @@ class GalleryManager
 
     /**
      * @param string $slug
-     * @param array|null $params
-     * @return null|Gallery
+     * @param array $params
+     * @param bool $denormalize
+     * @return null|array|Gallery
      */
-    public function get(string $slug, array $params = null): ?Gallery
+    public function get(string $slug, array $params = [], bool $denormalize = false)
     {
         $gallery = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params !== null ? $params : [], RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException();
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $gallery = $this->galleryNormalizer->denormalize($data, Gallery::class);
+            $gallery = json_decode($apiResponse->getBody(), true);
+            if ($denormalize) {
+                $gallery = $this->galleryNormalizer->denormalize($gallery, Gallery::class);
+            }
         }
 
         return $gallery;

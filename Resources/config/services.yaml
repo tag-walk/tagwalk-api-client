@@ -281,6 +281,7 @@ services:
       - '@serializer.property_accessor'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\AffiliationNormalizer'
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer:
     tags: ['serializer.normalizer']
