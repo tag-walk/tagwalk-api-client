@@ -77,6 +77,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\CoverManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
 
   Tagwalk\ApiClientBundle\Manager\TrendManager:
     arguments:
@@ -209,6 +210,13 @@ services:
       - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\SeasonNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\CoverNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'

@@ -30,6 +30,13 @@ class File extends AbstractDocument
     protected $path;
 
     /**
+     * @var string|null
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
+    protected $filename;
+
+    /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank()
@@ -72,7 +79,7 @@ class File extends AbstractDocument
     protected $extension;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      * @Assert\Choice(callback={"Tagwalk\ApiClientBundle\Utils\Constants\DisplayMode", "getAllowedValues"})
      */
@@ -107,6 +114,25 @@ class File extends AbstractDocument
     public function setPath(string $path): self
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param string $filename
+     * @return File
+     */
+    public function setFilename(?string $filename): File
+    {
+        $this->filename = $filename;
 
         return $this;
     }
@@ -210,7 +236,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getDisplay(): string
+    public function getDisplay(): ?string
     {
         return $this->display;
     }
@@ -220,7 +246,7 @@ class File extends AbstractDocument
      *
      * @return File
      */
-    public function setDisplay(string $display): self
+    public function setDisplay(?string $display): self
     {
         $this->display = $display;
 
