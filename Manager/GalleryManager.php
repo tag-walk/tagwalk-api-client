@@ -12,8 +12,9 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Model\Gallery;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer;
@@ -31,13 +32,34 @@ class GalleryManager
     private $galleryNormalizer;
 
     /**
+     * @var FilesystemAdapter
+     */
+    private $cache;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param GalleryNormalizer $galleryNormalizer
+     * @param int $cacheTTL
+     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, GalleryNormalizer $galleryNormalizer)
+    public function __construct(ApiProvider $apiProvider, GalleryNormalizer $galleryNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->galleryNormalizer = $galleryNormalizer;
+        $this->cache = new FilesystemAdapter('galleries', $cacheTTL, $cacheDirectory);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -48,16 +70,22 @@ class GalleryManager
      */
     public function get(string $slug, array $params = [], bool $denormalize = false)
     {
-        $gallery = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new NotFoundHttpException();
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $gallery = json_decode($apiResponse->getBody(), true);
-            if ($denormalize) {
-                $gallery = $this->galleryNormalizer->denormalize($gallery, Gallery::class);
+        $gallery = $this->cache->get($slug, function () use ($slug, $params, $denormalize) {
+            $data = null;
+            $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+                return null;
+            } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                if ($denormalize) {
+                    $data = $this->galleryNormalizer->denormalize($data, Gallery::class);
+                }
+            } else {
+                $this->logger->error($apiResponse->getBody()->getContents());
             }
-        }
+
+            return $data;
+        });
 
         return $gallery;
     }
@@ -68,14 +96,20 @@ class GalleryManager
      */
     public function count(string $slug)
     {
-        $count = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new NotFoundHttpException();
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $count = count($data['streetstyles']);
-        }
+        $count = $this->cache->get("count.$slug", function () use ($slug) {
+            $count = null;
+            $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+                return null;
+            } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                $count = count($data['streetstyles']);
+            } else {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
+
+            return $count;
+        });
 
         return $count;
     }

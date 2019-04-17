@@ -41,12 +41,14 @@ class SeasonManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
+     * @param int $cacheTTL
+     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 3600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('seasons');
+        $this->cache = new FilesystemAdapter('seasons', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -64,24 +66,21 @@ class SeasonManager
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS
     ): array {
-        $seasons = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
         $key = md5(serialize($query));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $seasons = $cacheItem->get();
-        } else {
+
+        $seasons = $this->cache->get($key, function () use ($query) {
+            $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
-                    $seasons[] = $this->serializer->denormalize($datum, Season::class);
+                    $results[] = $this->serializer->denormalize($datum, Season::class);
                 }
-                $cacheItem->set($seasons);
-                $cacheItem->expiresAfter(3600);
-                $this->cache->save($cacheItem);
             }
-        }
+
+            return $results;
+        });
 
         return $seasons;
     }
@@ -103,24 +102,21 @@ class SeasonManager
         ?string $models,
         ?string $language = null
     ): array {
-        $seasons = [];
         $query = array_filter(compact('type', 'city', 'designer', 'tags', 'models', 'language'));
         $key = md5(serialize($query));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $seasons = $cacheItem->get();
-        } else {
+
+        $seasons = $this->cache->get($key, function () use ($query) {
+            $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-media', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
-                    $seasons[] = $this->serializer->denormalize($datum, Season::class);
+                    $results[] = $this->serializer->denormalize($datum, Season::class);
                 }
-                $cacheItem->set($seasons);
-                $cacheItem->expiresAfter(3600);
-                $this->cache->save($cacheItem);
             }
-        }
+
+            return $results;
+        });
 
         return $seasons;
     }
@@ -138,24 +134,21 @@ class SeasonManager
         ?string $tags,
         ?string $language = null
     ): array {
-        $seasons = [];
         $query = array_filter(compact('city', 'designers', 'tags', 'language'));
         $key = md5(serialize($query));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $seasons = $cacheItem->get();
-        } else {
+
+        $seasons = $this->cache->get($key, function () use ($query) {
+            $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
-                    $seasons[] = $this->serializer->denormalize($datum, Season::class);
+                    $results[] = $this->serializer->denormalize($datum, Season::class);
                 }
-                $cacheItem->set($seasons);
-                $cacheItem->expiresAfter(3600);
-                $this->cache->save($cacheItem);
             }
-        }
+
+            return $results;
+        });
 
         return $seasons;
     }

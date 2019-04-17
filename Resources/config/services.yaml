@@ -165,11 +165,23 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $homepageNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\GalleryManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $galleryNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:

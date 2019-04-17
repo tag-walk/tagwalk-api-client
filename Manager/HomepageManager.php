@@ -12,8 +12,9 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Model\Homepage;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer;
@@ -31,13 +32,34 @@ class HomepageManager
     private $homepageNormalizer;
 
     /**
+     * @var FilesystemAdapter
+     */
+    private $cache;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param HomepageNormalizer $homepageNormalizer
+     * @param int $cacheTTL
+     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, HomepageNormalizer $homepageNormalizer)
+    public function __construct(ApiProvider $apiProvider, HomepageNormalizer $homepageNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->homepageNormalizer = $homepageNormalizer;
+        $this->cache = new FilesystemAdapter('homepages', $cacheTTL, $cacheDirectory);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -46,14 +68,20 @@ class HomepageManager
      */
     public function get(string $section): ?Homepage
     {
-        $homepage = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/homepages/show/' . $section, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new NotFoundHttpException();
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $homepage = $this->homepageNormalizer->denormalize($data, Homepage::class);
-        }
+        $homepage = $this->cache->get($section, function () use ($section) {
+            $data = null;
+            $apiResponse = $this->apiProvider->request('GET', '/api/homepages/show/' . $section, [RequestOptions::HTTP_ERRORS => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
+                return null;
+            } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                $data = $this->homepageNormalizer->denormalize($data, Homepage::class);
+            } else {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
+
+            return $data;
+        });
 
         return $homepage;
     }
