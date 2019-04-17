@@ -13,8 +13,8 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer;
@@ -37,13 +37,21 @@ class StreetstyleManager
     private $logger;
 
     /**
+     * @var FilesystemAdapter
+     */
+    private $cache;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param StreetstyleNormalizer $streetstyleNormalizer
+     * @param int $cacheTTL
+     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer)
+    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->streetstyleNormalizer = $streetstyleNormalizer;
+        $this->cache = new FilesystemAdapter('streetstyles', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -60,17 +68,19 @@ class StreetstyleManager
      */
     public function get(string $slug): ?Streetstyle
     {
-        $media = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $media = $this->streetstyleNormalizer->denormalize($data, Streetstyle::class);
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new NotFoundHttpException();
-        } else {
-            $this->logger->error($apiResponse->getBody()->getContents());
-        }
+        $streetstyle = $this->cache->get($slug, function () use ($slug) {
+            $data = null;
+            $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                $data = $this->streetstyleNormalizer->denormalize($data, Streetstyle::class);
+            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
 
-        return $media;
+            return $data;
+        });
+
+        return $streetstyle;
     }
 }

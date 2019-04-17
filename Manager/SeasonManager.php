@@ -107,7 +107,7 @@ class SeasonManager
 
         $seasons = $this->cache->get($key, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-media', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
