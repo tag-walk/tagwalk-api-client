@@ -96,7 +96,8 @@ class MediaManager
     {
         $media = null;
         if ($type && $season && $designer && $look) {
-            $media = $this->cache->get(md5(serialize(compact($type, $season, $designer, $look))), function () use ($type, $season, $designer, $look) {
+            $query = compact('type', 'season', 'designer', 'look');
+            $media = $this->cache->get(md5(serialize($query)), function () use ($type, $season, $designer, $look) {
                 $result = null;
                 $apiResponse = $this->apiProvider->request(
                     'GET',
