@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Tagwalk\ApiClientBundle\Model\Cover;
 use Tagwalk\ApiClientBundle\Model\Homepage;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Utils\Constants\HomepageSection;
@@ -56,7 +55,6 @@ class HomepageManager
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
         $this->cache = new FilesystemAdapter('homepages', $cacheTTL, $cacheDirectory);
-
     }
 
     /**
@@ -69,10 +67,9 @@ class HomepageManager
 
     /**
      * @param string $section
-     *
-     * @return Cover
+     * @return Homepage
      */
-    public function getBySection(string $section)
+    public function getBySection(string $section): ?Homepage
     {
         if (false === in_array($section, HomepageSection::VALUES)) {
             throw new \InvalidArgumentException('Invalid homepage section argument');
