@@ -163,6 +163,17 @@ services:
         arguments:
           - '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\SellerManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
+
   Tagwalk\ApiClientBundle\Manager\StreetstyleManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
