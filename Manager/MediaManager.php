@@ -130,7 +130,7 @@ class MediaManager
             'analytics' => 0,
             'from' => 0,
             'size' => 6
-        ], compact($type, $season, $designer, $city));
+        ], compact('type', 'season', 'designer', 'city'));
         $cacheKey = md5(serialize($query));
 
         $data = $this->cache->get($cacheKey, function () use ($query) {
