@@ -19,15 +19,6 @@ class Homepage extends AbstractDocument
 {
     use Programmable;
 
-    /** @var string homepage */
-    const SECTION_HOME = 'home';
-    /** @var string streetstyle */
-    const SECTION_STREET = 'street';
-    /** @var string shop */
-    const SECTION_SHOP = 'shop';
-    /** @var array available sections */
-    const SECTIONS = [self::SECTION_HOME, self::SECTION_STREET, self::SECTION_SHOP];
-
     /**
      * @var string
      * @Assert\NotBlank()
