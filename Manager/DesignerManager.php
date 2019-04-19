@@ -209,7 +209,7 @@ class DesignerManager
         $key = md5(serialize($query));
 
         $designers = $this->cache->get($key, function () use ($query) {
-           $results = [];
+            $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
@@ -237,7 +237,7 @@ class DesignerManager
         ?string $tags,
         ?string $language = null
     ): array {
-        $query = array_filter(compact('city','season', 'tags', 'language'));
+        $query = array_filter(compact('city', 'season', 'tags', 'language'));
         $key = md5(serialize($query));
 
         $designers = $this->cache->get($key, function () use ($query) {

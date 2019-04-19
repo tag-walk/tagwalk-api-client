@@ -11,9 +11,9 @@
 
 namespace Tagwalk\ApiClientBundle\Model\Traits;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Utils\Reindexer;
-use Symfony\Component\Validator\Constraints as Assert;
 
 trait Streetstyleable
 {
@@ -26,6 +26,7 @@ trait Streetstyleable
 
     /**
      * Get the streetstyles collection
+     *
      * @return Streetstyle[]|null
      */
     public function getStreetstyles(): ?array
@@ -39,6 +40,7 @@ trait Streetstyleable
 
     /**
      * Set the streetstyle collection
+     *
      * @param Streetstyle[]|null $streetstyles
      * @return self
      */
@@ -55,6 +57,7 @@ trait Streetstyleable
 
     /**
      * Add an element to the streetstyle collection
+     *
      * @param Streetstyle $streetstyle
      * @return self
      */
@@ -74,6 +77,7 @@ trait Streetstyleable
 
     /**
      * Remove an element from the streetstyle collection
+     *
      * @param string $slug
      * @return bool
      */
