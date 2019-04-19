@@ -70,7 +70,9 @@ class GalleryManager
      */
     public function get(string $slug, array $params = [], bool $denormalize = false)
     {
-        $gallery = $this->cache->get($slug, function () use ($slug, $params, $denormalize) {
+        $query = compact('slug', 'params', 'denormalize');
+        $key = md5(serialize($query));
+        $gallery = $this->cache->get($key, function () use ($slug, $params, $denormalize) {
             $data = null;
             $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
