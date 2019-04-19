@@ -53,22 +53,23 @@ class SeasonManager
 
     /**
      * @param string|null $language
-     * @param int $from
-     * @param int $size
-     * @param string $sort
-     * @param string $status
+     * @param int|null $from
+     * @param int|null $size
+     * @param string|null $sort
+     * @param string|null $status
+     * @param bool|null $shopable
      * @return Season[]
      */
     public function list(
-        string $language = null,
-        int $from = 0,
-        int $size = 100,
-        string $sort = self::DEFAULT_SORT,
-        string $status = self::DEFAULT_STATUS
+        ?string $language = null,
+        ?int $from = 0,
+        ?int $size = 100,
+        ?string $sort = self::DEFAULT_SORT,
+        ?string $status = self::DEFAULT_STATUS,
+        ?bool $shopable = false
     ): array {
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'shopable'));
         $key = md5(serialize($query));
-
         $seasons = $this->cache->get($key, function () use ($query) {
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);

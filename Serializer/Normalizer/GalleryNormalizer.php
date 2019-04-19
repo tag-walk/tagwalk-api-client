@@ -73,6 +73,7 @@ class GalleryNormalizer extends DocumentNormalizer implements NormalizerInterfac
                 $streetstyle = $this->streetstyleNormalizer->denormalize($streetstyle, Streetstyle::class);
             }
         }
+
         return parent::denormalize($data, $class, $format, $context);
     }
 }
