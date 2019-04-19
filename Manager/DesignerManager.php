@@ -46,12 +46,14 @@ class DesignerManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
+     * @param $cacheTTL
+     * @param $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 3600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('designers');
+        $this->cache = new FilesystemAdapter('designers', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -61,21 +63,17 @@ class DesignerManager
      */
     public function get(string $slug, $locale = null): ?Designer
     {
-        $designer = null;
         $key = isset($locale) ? "{$locale}.{$slug}" : $slug;
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $designer = $cacheItem->get();
-        } else {
+        $designer = $this->cache->get($key, function () use ($slug) {
+            $data = null;
             $query = isset($locale) ? ['language' => $locale] : [];
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, ['http_errors' => false, 'query' => $query]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $designer = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
-                $cacheItem->set($designer);
-                $cacheItem->expiresAfter(86400);
-                $this->cache->save($cacheItem);
+                $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
             }
-        }
+
+            return $data;
+        });
 
         return $designer;
     }
@@ -207,24 +205,53 @@ class DesignerManager
         ?bool $talent = false,
         ?string $language = null
     ): array {
-        $designers = [];
         $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language'));
         $key = md5(serialize($query));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $designers = $cacheItem->get();
-        } else {
+
+        $designers = $this->cache->get($key, function () use ($query) {
+           $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
-                    $designers[] = $this->serializer->denormalize($datum, Designer::class);
+                    $results[] = $this->serializer->denormalize($datum, Designer::class);
                 }
-                $cacheItem->set($designers);
-                $cacheItem->expiresAfter(3600);
-                $this->cache->save($cacheItem);
             }
-        }
+
+            return $results;
+        });
+
+        return $designers;
+    }
+
+    /**
+     * @param null|string $city
+     * @param null|string $season
+     * @param null|string $tags
+     * @param string|null $language
+     * @return Designer[]
+     */
+    public function listFiltersStreet(
+        ?string $city,
+        ?string $season,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $query = array_filter(compact('city','season', 'tags', 'language'));
+        $key = md5(serialize($query));
+
+        $designers = $this->cache->get($key, function () use ($query) {
+            $results = [];
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $results[] = $this->serializer->denormalize($datum, Designer::class);
+                }
+            }
+
+            return $results;
+        });
 
         return $designers;
     }
