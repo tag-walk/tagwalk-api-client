@@ -41,12 +41,14 @@ class CityManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
+     * @param int $cacheTTL
+     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 3600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('cities');
+        $this->cache = new FilesystemAdapter('cities', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -64,24 +66,21 @@ class CityManager
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS
     ): array {
-        $cities = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
         $key = md5(serialize($query));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $cities = $cacheItem->get();
-        } else {
+
+        $cities = $this->cache->get($key, function () use ($query) {
+            $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
-                    $cities[] = $this->serializer->denormalize($datum, City::class);
+                    $results[] = $this->serializer->denormalize($datum, City::class);
                 }
-                $cacheItem->set($cities);
-                $cacheItem->expiresAfter(86400);
-                $this->cache->save($cacheItem);
             }
-        }
+
+            return $results;
+        });
 
         return $cities;
     }
@@ -103,24 +102,53 @@ class CityManager
         ?string $models,
         ?string $language = null
     ): array {
-        $cities = [];
         $query = array_filter(compact('type', 'season', 'designer', 'tags', 'models', 'language'));
         $key = md5(serialize($query));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $cities = $cacheItem->get();
-        } else {
+
+        $cities = $this->cache->get($key, function () use ($query) {
+            $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
-                    $cities[] = $this->serializer->denormalize($datum, City::class);
+                    $results[] = $this->serializer->denormalize($datum, City::class);
                 }
-                $cacheItem->set($cities);
-                $cacheItem->expiresAfter(3600);
-                $this->cache->save($cacheItem);
             }
-        }
+
+            return $results;
+        });
+
+        return $cities;
+    }
+
+    /**
+     * @param null|string $season
+     * @param null|string $designers
+     * @param null|string $tags
+     * @param string|null $language
+     * @return City[]
+     */
+    public function listFiltersStreet(
+        ?string $season,
+        ?string $designers,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $query = array_filter(compact('season', 'designers', 'tags', 'language'));
+        $key = md5(serialize($query));
+
+        $cities = $this->cache->get($key, function () use ($query) {
+            $results = [];
+            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody()->getContents(), true);
+                foreach ($data as $datum) {
+                    $results[] = $this->serializer->denormalize($datum, City::class);
+                }
+            }
+
+            return $results;
+        });
 
         return $cities;
     }
