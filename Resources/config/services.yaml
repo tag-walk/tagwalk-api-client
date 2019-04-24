@@ -73,6 +73,12 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\CoverManager:
     arguments:
@@ -82,6 +88,12 @@ services:
   Tagwalk\ApiClientBundle\Manager\TrendManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\PageManager:
     arguments:
