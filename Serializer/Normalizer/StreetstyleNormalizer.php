@@ -19,6 +19,7 @@ use Tagwalk\ApiClientBundle\Model\Affiliation;
 use Tagwalk\ApiClientBundle\Model\City;
 use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\File;
+use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Model\Season;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Model\Tag;
@@ -36,20 +37,28 @@ class StreetstyleNormalizer extends DocumentNormalizer implements NormalizerInte
     private $fileNormalizer;
 
     /**
+     * @var IndividualNormalizer
+     */
+    private $individualNormalizer;
+
+    /**
      * @param NameConverterInterface|null $nameConverter
      * @param PropertyAccessorInterface|null $propertyAccessor
      * @param AffiliationNormalizer $affiliationNormalizer
      * @param FileNormalizer $fileNormalizer
+     * @param IndividualNormalizer $individualNormalizer
      */
     public function __construct(
         NameConverterInterface $nameConverter = null,
         PropertyAccessorInterface $propertyAccessor = null,
         AffiliationNormalizer $affiliationNormalizer,
-        FileNormalizer $fileNormalizer
+        FileNormalizer $fileNormalizer,
+        IndividualNormalizer $individualNormalizer
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
         $this->affiliationNormalizer = $affiliationNormalizer;
         $this->fileNormalizer = $fileNormalizer;
+        $this->individualNormalizer = $individualNormalizer;
     }
 
     /**
@@ -94,6 +103,11 @@ class StreetstyleNormalizer extends DocumentNormalizer implements NormalizerInte
         if (!empty($data['files'])) {
             foreach ($data['files'] as &$file) {
                 $file = $this->fileNormalizer->denormalize($file, File::class);
+            }
+        }
+        if (!empty($data['individuals'])) {
+            foreach ($data['individuals'] as &$individual) {
+                $individual = $this->individualNormalizer->denormalize($individual, Individual::class);
             }
         }
 
