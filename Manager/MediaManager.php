@@ -21,6 +21,14 @@ use Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer;
 
 class MediaManager
 {
+    /** @var int default list size */
+    const DEFAULT_SIZE = 24;
+
+    /**
+     * @var int last query result count
+     */
+    public $lastCount;
+
     /**
      * @var ApiProvider
      */
@@ -146,5 +154,39 @@ class MediaManager
         });
 
         return $data;
+    }
+
+    /**
+     * @param array $query
+     * @param int $from
+     * @param int $size
+     * @return Media[]
+     */
+    public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE)
+    {
+        $query = array_merge($query, compact('from', 'size'));
+        $cacheKey = md5(serialize($query));
+        $countCacheKey = "count.$cacheKey";
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+
+        return $this->cache->get($cacheKey, function () use ($query, $cacheKey, $countCacheKey) {
+            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
+                'query' => $query,
+                'http_errors' => false
+            ]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
+                $this->logger->error($apiResponse->getBody()->getContents());
+                throw new \OutOfRangeException();
+            }
+            $data = json_decode($apiResponse->getBody(), true);
+            foreach ($data as &$datum) {
+                $datum = $this->mediaNormalizer->denormalize($datum, Media::class);
+            }
+            $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
+            $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
+            $this->cache->save($countCacheItem);
+
+            return $data;
+        });
     }
 }
