@@ -15,6 +15,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Homepage;
 use Tagwalk\ApiClientBundle\Model\HomepageCell;
 
@@ -25,15 +26,19 @@ use Tagwalk\ApiClientBundle\Model\HomepageCell;
  */
 class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
 {
-    private $cellNormalizer;
+    /**
+     * @var Serializer
+     */
+    protected $serializer;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        HomepageCellNormalizer $cellNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->cellNormalizer = $cellNormalizer;
     }
 
     /**
@@ -72,7 +77,7 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         foreach ($data['cells'] as &$cell) {
-            $cell = $this->cellNormalizer->denormalize($cell, HomepageCell::class);
+            $cell = $this->serializer->denormalize($cell, HomepageCell::class);
         }
         if (isset($data['begin_at'])) {
             $data['begin_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['begin_at']);
