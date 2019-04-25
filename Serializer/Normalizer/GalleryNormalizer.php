@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\Gallery;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
@@ -21,27 +22,18 @@ use Tagwalk\ApiClientBundle\Model\Streetstyle;
 class GalleryNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
-     * @var FileNormalizer
+     * @var Serializer
      */
-    private $fileNormalizer;
-
-    /**
-     * @var StreetstyleNormalizer
-     */
-    private $streetstyleNormalizer;
+    protected $serializer;
 
     /**
      * {@inheritdoc}
      */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        FileNormalizer $fileNormalizer,
-        StreetstyleNormalizer $streetstyleNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->fileNormalizer = $fileNormalizer;
-        $this->streetstyleNormalizer = $streetstyleNormalizer;
     }
 
     /**
@@ -66,11 +58,11 @@ class GalleryNormalizer extends DocumentNormalizer implements NormalizerInterfac
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (false === empty($data['cover'])) {
-            $data['cover'] = $this->fileNormalizer->denormalize($data['cover'], File::class);
+            $data['cover'] = $this->serializer->denormalize($data['cover'], File::class);
         }
         if (false === empty($data['streetstyles'])) {
             foreach ($data['streetstyles'] as &$streetstyle) {
-                $streetstyle = $this->streetstyleNormalizer->denormalize($streetstyle, Streetstyle::class);
+                $streetstyle = $this->serializer->denormalize($streetstyle, Streetstyle::class);
             }
         }
 

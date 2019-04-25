@@ -15,6 +15,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Affiliation;
 use Tagwalk\ApiClientBundle\Model\City;
 use Tagwalk\ApiClientBundle\Model\Designer;
@@ -27,38 +28,19 @@ use Tagwalk\ApiClientBundle\Model\Tag;
 class StreetstyleNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     /**
-     * @var AffiliationNormalizer
+     * @var Serializer
      */
-    private $affiliationNormalizer;
-
-    /**
-     * @var FileNormalizer
-     */
-    private $fileNormalizer;
-
-    /**
-     * @var IndividualNormalizer
-     */
-    private $individualNormalizer;
+    protected $serializer;
 
     /**
      * @param NameConverterInterface|null $nameConverter
      * @param PropertyAccessorInterface|null $propertyAccessor
-     * @param AffiliationNormalizer $affiliationNormalizer
-     * @param FileNormalizer $fileNormalizer
-     * @param IndividualNormalizer $individualNormalizer
      */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        AffiliationNormalizer $affiliationNormalizer,
-        FileNormalizer $fileNormalizer,
-        IndividualNormalizer $individualNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->affiliationNormalizer = $affiliationNormalizer;
-        $this->fileNormalizer = $fileNormalizer;
-        $this->individualNormalizer = $individualNormalizer;
     }
 
     /**
@@ -80,34 +62,34 @@ class StreetstyleNormalizer extends DocumentNormalizer implements NormalizerInte
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (isset($data['city'])) {
-            $data['city'] = $this->denormalize($data['city'], City::class);
+            $data['city'] = $this->serializer->denormalize($data['city'], City::class);
         }
         if (isset($data['season'])) {
-            $data['season'] = $this->denormalize($data['season'], Season::class);
+            $data['season'] = $this->serializer->denormalize($data['season'], Season::class);
         }
         if (!empty($data['designers'])) {
             foreach ($data['designers'] as &$designer) {
-                $designer = $this->denormalize($designer, Designer::class);
+                $designer = $this->serializer->denormalize($designer, Designer::class);
             }
         }
         if (!empty($data['tags'])) {
             foreach ($data['tags'] as &$tag) {
-                $tag = $this->denormalize($tag, Tag::class);
+                $tag = $this->serializer->denormalize($tag, Tag::class);
             }
         }
         if (!empty($data['affiliations'])) {
             foreach ($data['affiliations'] as &$affiliation) {
-                $affiliation = $this->affiliationNormalizer->denormalize($affiliation, Affiliation::class);
+                $affiliation = $this->serializer->denormalize($affiliation, Affiliation::class);
             }
         }
         if (!empty($data['files'])) {
             foreach ($data['files'] as &$file) {
-                $file = $this->fileNormalizer->denormalize($file, File::class);
+                $file = $this->serializer->denormalize($file, File::class);
             }
         }
         if (!empty($data['individuals'])) {
             foreach ($data['individuals'] as &$individual) {
-                $individual = $this->individualNormalizer->denormalize($individual, Individual::class);
+                $individual = $this->serializer->denormalize($individual, Individual::class);
             }
         }
 

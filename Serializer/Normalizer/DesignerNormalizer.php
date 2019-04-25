@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\File;
 
@@ -25,20 +26,18 @@ use Tagwalk\ApiClientBundle\Model\File;
 class DesignerNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
-     * @var FileNormalizer
+     * @var Serializer
      */
-    private $fileNormalizer;
+    protected $serializer;
 
     /**
      * {@inheritdoc}
      */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        FileNormalizer $fileNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->fileNormalizer = $fileNormalizer;
     }
 
     /**
@@ -63,7 +62,7 @@ class DesignerNormalizer extends DocumentNormalizer implements NormalizerInterfa
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (false === empty($data['cover'])) {
-            $data['cover'] = $this->fileNormalizer->denormalize($data['cover'], File::class, $format, $context);
+            $data['cover'] = $this->serializer->denormalize($data['cover'], File::class, $format, $context);
         }
 
         return parent::denormalize($data, $class, $format, $context);

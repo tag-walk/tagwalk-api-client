@@ -88,6 +88,12 @@ services:
   Tagwalk\ApiClientBundle\Manager\TrendManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\PageManager:
     arguments:
@@ -215,44 +221,36 @@ services:
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\LiveNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\CityNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\SeasonNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\CoverNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\UserNormalizer:
     tags: ['serializer.normalizer']
@@ -295,9 +293,6 @@ services:
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\UserNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\AffiliationNormalizer:
     tags: ['serializer.normalizer']
@@ -310,25 +305,18 @@ services:
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\AffiliationNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\AffiliationNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer'
-      - '@Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer'
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
