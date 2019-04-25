@@ -13,19 +13,19 @@
   "require": {
     "php": ">=7.2",
     "guzzlehttp/guzzle": "^6.3",
-    "symfony/framework-bundle": "^4.1",
-    "symfony/security-bundle": "^4.1",
-    "symfony/validator": "^4.1",
-    "symfony/form": "^4.1",
-    "symfony/asset": "^4.1",
-    "symfony/translation": "^4.1",
-    "symfony/serializer": "^4.1",
-    "symfony/property-info": "^4.1",
-    "symfony/routing": "^4.1",
-    "symfony/cache": "^4.1"
+    "symfony/framework-bundle": "^4.2",
+    "symfony/security-bundle": "^4.2",
+    "symfony/validator": "^4.2",
+    "symfony/form": "^4.2",
+    "symfony/asset": "^4.2",
+    "symfony/translation": "^4.2",
+    "symfony/serializer": "^4.2",
+    "symfony/property-info": "^4.2",
+    "symfony/routing": "^4.2",
+    "symfony/cache": "^4.2"
   },
   "require-dev": {
-    "symfony/phpunit-bridge": "^4.1"
+    "symfony/phpunit-bridge": "^4.2"
   },
   "autoload": {
     "psr-4": {
