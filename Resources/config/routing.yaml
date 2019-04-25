@@ -1,23 +1,30 @@
 autocomplete_tag:
-    path:     /autocomplete/tag
+    path:       /autocomplete/tag
     controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::tag
 
 autocomplete_designer:
-    path:     /autocomplete/designer
+    path:       /autocomplete/designer
     controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::designer
 
 autocomplete_individual:
-    path:    /autocomplete/individual
+    path:       /autocomplete/individual
     controller: Tagwalk\ApiClientBundle\Controller\AutocompleteController::individual
 
 analytics_media_view:
-    path:    /analytics/medias/{slug}
+    path:       /analytics/medias/{slug}
     controller: Tagwalk\ApiClientBundle\Controller\AnalyticsController::addMediaView
     options:
         expose: true
 
 analytics_streetstyle_view:
-    path:    /analytics/medias/{slug}
+    path:       /analytics/streetstyles/{slug}
     controller: Tagwalk\ApiClientBundle\Controller\AnalyticsController::addStreetstyleView
+    options:
+        expose: true
+
+analytics_create:
+    path:       /analytics
+    methods:    POST
+    controller: Tagwalk\ApiClientBundle\Controller\AnalyticsController::create
     options:
         expose: true
