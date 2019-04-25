@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\HomepageCell;
 
@@ -25,20 +26,18 @@ use Tagwalk\ApiClientBundle\Model\HomepageCell;
 class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
-     * @var FileNormalizer
+     * @var Serializer
      */
-    private $fileNormalizer;
+    protected $serializer;
 
     /**
      * {@inheritdoc}
      */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        FileNormalizer $fileNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->fileNormalizer = $fileNormalizer;
     }
 
     /**
@@ -64,7 +63,7 @@ class HomepageCellNormalizer extends DocumentNormalizer implements NormalizerInt
     {
         if (false === empty($data['files'])) {
             foreach ($data['files'] as &$file) {
-                $file = $this->fileNormalizer->denormalize($file, File::class);
+                $file = $this->serializer->denormalize($file, File::class);
             }
         }
 

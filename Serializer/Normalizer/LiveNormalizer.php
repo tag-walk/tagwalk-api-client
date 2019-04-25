@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\City;
 use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\Live;
@@ -27,32 +28,18 @@ use Tagwalk\ApiClientBundle\Model\Season;
 class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
-     * @var DesignerNormalizer
+     * @var Serializer
      */
-    private $designerNormalizer;
-    /**
-     * @var CityNormalizer
-     */
-    private $cityNormalizer;
-    /**
-     * @var SeasonNormalizer
-     */
-    private $seasonNormalizer;
+    protected $serializer;
 
     /**
      * {@inheritdoc}
      */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        DesignerNormalizer $designerNormalizer,
-        CityNormalizer $cityNormalizer,
-        SeasonNormalizer $seasonNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
         parent::__construct($nameConverter, $propertyAccessor);
-        $this->designerNormalizer = $designerNormalizer;
-        $this->cityNormalizer = $cityNormalizer;
-        $this->seasonNormalizer = $seasonNormalizer;
     }
 
     /**
@@ -77,14 +64,14 @@ class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (false === empty($data['city'])) {
-            $data['city'] = $this->cityNormalizer->denormalize($data['city'], City::class, $format, $context);
+            $data['city'] = $this->serializer->denormalize($data['city'], City::class, $format, $context);
         }
         if (false === empty($data['season'])) {
-            $data['season'] = $this->seasonNormalizer->denormalize($data['season'], Season::class, $format, $context);
+            $data['season'] = $this->serializer->denormalize($data['season'], Season::class, $format, $context);
         }
         if (false === empty($data['designers'])) {
             foreach ($data['designers'] as &$designer) {
-                $designer = $this->designerNormalizer->denormalize($designer, Designer::class, $format, $context);
+                $designer = $this->serializer->denormalize($designer, Designer::class, $format, $context);
             }
         }
 

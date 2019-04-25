@@ -14,22 +14,24 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\Individual;
 
 class IndividualNormalizer extends DocumentNormalizer implements NormalizerInterface
 {
     /**
-     * @var FileNormalizer
+     * @var Serializer
      */
-    private $fileNormalizer;
+    protected $serializer;
 
+    /**
+     * {@inheritdoc}
+     */
     public function __construct(
         NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null,
-        FileNormalizer $fileNormalizer
+        PropertyAccessorInterface $propertyAccessor = null
     ) {
-        $this->fileNormalizer = $fileNormalizer;
         parent::__construct($nameConverter, $propertyAccessor);
     }
 
@@ -55,7 +57,7 @@ class IndividualNormalizer extends DocumentNormalizer implements NormalizerInter
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (false === empty($data['cover'])) {
-            $data['cover'] = $this->fileNormalizer->denormalize($data['cover'], File::class);
+            $data['cover'] = $this->serializer->denormalize($data['cover'], File::class);
         }
         if (false === empty($data['birthdate'])) {
             $data['birthdate'] = \DateTime::createFromFormat(DATE_ISO8601, $data['birthdate']);
