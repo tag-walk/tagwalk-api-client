@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer;
+use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 
 class MediaManager
 {
@@ -161,11 +162,12 @@ class MediaManager
      * @param array $query
      * @param int $from
      * @param int $size
+     * @param string $status
      * @return Media[]
      */
-    public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE)
+    public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
-        $query = array_merge($query, compact('from', 'size'));
+        $query = array_merge($query, compact('from', 'size', 'status'));
         $cacheKey = md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
