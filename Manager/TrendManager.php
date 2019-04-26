@@ -28,6 +28,11 @@ class TrendManager
     private $apiProvider;
 
     /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
+
+    /**
      * @var FilesystemAdapter
      */
     private $cache;
@@ -38,13 +43,20 @@ class TrendManager
     private $logger;
 
     /**
+     * @var int
+     */
+    private $lastCount;
+
+    /**
      * @param ApiProvider $apiProvider
+     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
+        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('medias', $cacheTTL, $cacheDirectory);
     }
 
@@ -76,14 +88,26 @@ class TrendManager
         $status = self::DEFAULT_STATUS
     ) {
         $query = array_filter(compact('type', 'season', 'city', 'from', 'size', 'sort', 'status'));
+        $cacheKey = 'list.' . md5(serialize($query));
+        $countCacheKey = "count.$cacheKey";
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        return $this->cache->get(md5(serialize($query)), function () use ($query) {
+        if ($this->cache->hasItem($cacheKey)) {
+            $analytics = array_merge($query, ['count' => $this->lastCount]);
+            $this->analytics->page('trend_list', $analytics);
+        }
+
+        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/trends', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/trends', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
+                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
+                $this->cache->save($countCacheItem);
             } else {
                 $this->logger->error($apiResponse->getBody()->getContents());
+                $this->lastCount = 0;
             }
 
             return $data;
@@ -96,6 +120,10 @@ class TrendManager
      */
     public function get(string $slug)
     {
+        if ($this->cache->hasItem($slug)) {
+            $this->analytics->page('trend_show', compact('slug'));
+        }
+
         return $this->cache->get($slug, function () use ($slug) {
             $data = null;
             $apiResponse = $this->apiProvider->request('GET', '/api/trends/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
@@ -118,8 +146,12 @@ class TrendManager
     public function findBy(string $type, string $season, ?string $city = null): array
     {
         $query = array_filter(compact('type', 'season', 'city'));
+        $cacheKey = 'findBy.' . md5(serialize($query));
+        if ($this->cache->hasItem($cacheKey)) {
+            $this->analytics->page('trend_season_list', $query);
+        }
 
-        return $this->cache->get(md5(serialize($query)), function () use ($type, $season, $city) {
+        return $this->cache->get($cacheKey, function () use ($type, $season, $city) {
             $data = [];
             $query = array_filter(compact('city'));
             $apiResponse = $this->apiProvider->request('GET', "/api/trends/$type/$season", [

@@ -89,7 +89,18 @@ class ApiProvider
      */
     public function request($method, $uri, $options = [])
     {
-        $default = [
+        $options = array_merge($this->getDefaultOptions(), $options);
+        $response = $this->client->request($method, $uri, $options);
+
+        return $response;
+    }
+
+    /**
+     * @return array
+     */
+    private function getDefaultOptions()
+    {
+        return [
             RequestOptions::HTTP_ERRORS => true,
             RequestOptions::HEADERS => [
                 'Authorization' => $this->getBearer(),
@@ -100,10 +111,6 @@ class ApiProvider
                 'Cookie' => $this->session->get('Cookie')
             ]
         ];
-        $options = array_merge($default, $options);
-        $response = $this->client->request($method, $uri, $options);
-
-        return $response;
     }
 
     /**
@@ -153,6 +160,19 @@ class ApiProvider
         );
 
         return json_decode($response->getBody(), true);
+    }
+
+    /**
+     * @param string $method
+     * @param string $uri
+     * @param array $options
+     * @return \GuzzleHttp\Promise\PromiseInterface
+     */
+    public function requestAsync($method, $uri, $options = [])
+    {
+        $options = array_merge($this->getDefaultOptions(), $options);
+
+        return $this->client->requestAsync($method, $uri, $options);
     }
 
     /**
