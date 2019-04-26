@@ -72,7 +72,8 @@ class PressManager
      * @param array $query
      * @return Press[]
      */
-    public function list(array $query): array {
+    public function list(array $query): array
+    {
         $key = md5(serialize($query));
 
         $press = $this->cache->get($key, function () use ($query) {
