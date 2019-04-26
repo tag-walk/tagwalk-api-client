@@ -51,15 +51,22 @@ class StreetstyleManager
     private $cache;
 
     /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param StreetstyleNormalizer $streetstyleNormalizer
+     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->streetstyleNormalizer = $streetstyleNormalizer;
+        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('streetstyles', $cacheTTL, $cacheDirectory);
     }
 
@@ -77,6 +84,9 @@ class StreetstyleManager
      */
     public function get(string $slug): ?Streetstyle
     {
+        if ($this->cache->hasItem($slug)) {
+            $this->analytics->streetstyle($slug);
+        }
         $streetstyle = $this->cache->get($slug, function () use ($slug) {
             $data = null;
             $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
@@ -103,8 +113,20 @@ class StreetstyleManager
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
         $query = array_merge($query, compact('from', 'size', 'status'));
-        $cacheKey = md5(serialize($query));
+        $cacheKey = 'list.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+
+        if ($this->cache->hasItem($cacheKey)) {
+            /** @var Streetstyle[] $streetstyles */
+            $streetstyles = $this->cache->getItem($cacheKey)->get();
+            $analytics = array_merge($query, ['count' => $this->lastCount]);
+            $this->analytics->page('streetstyle_list', $analytics);
+            $analytics = array_merge($analytics, ['event' => AnalyticsManager::EVENT_PHOTO_LIST]);
+            $this->analytics->streetstyles($streetstyles, $analytics);
+
+            return $streetstyles;
+        }
 
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];

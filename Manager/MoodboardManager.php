@@ -63,7 +63,7 @@ class MoodboardManager
     public function list(array $params): array
     {
         $list = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', [RequestOptions::QUERY => $params, RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
@@ -82,7 +82,7 @@ class MoodboardManager
      */
     public function count(array $params): int
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', ['query' => array_merge($params, ['analytics' => 0]), RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', [RequestOptions::QUERY => array_merge($params, ['analytics' => 0]), RequestOptions::HTTP_ERRORS => false]);
 
         return (int)$apiResponse->getHeaderLine('X-Total-Count');
     }

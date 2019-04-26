@@ -11,61 +11,77 @@
 
 namespace Tagwalk\ApiClientBundle\Controller;
 
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Annotation\Route;
+use Tagwalk\ApiClientBundle\Manager\AnalyticsManager;
 
+/**
+ * @Route("/analytics")
+ */
 class AnalyticsController extends AbstractController
 {
     /**
-     * @var ApiProvider
+     * @var AnalyticsManager
      */
-    private $apiProvider;
+    private $manager;
 
     /**
-     * @var LoggerInterface
+     * @param AnalyticsManager $manager
      */
-    private $logger;
-
-    /**
-     * @param ApiProvider $apiProvider
-     * @param LoggerInterface $logger
-     */
-    public function __construct(ApiProvider $apiProvider, LoggerInterface $logger)
+    public function __construct(AnalyticsManager $manager)
     {
-        $this->apiProvider = $apiProvider;
-        $this->logger = $logger;
+        $this->manager = $manager;
     }
 
     /**
+     * @Route("/media/{slug}", name="analytics_media", methods={"POST"}, options={"expose"=true})
+     *
      * @param Request $request
      * @param string $slug
      * @return Response
      */
-    public function addMediaView(Request $request, string $slug): Response
+    public function media(Request $request, string $slug): Response
     {
-        $response = $this->apiProvider->request('POST', "/api/analytics/media/$slug", ['query' => $request->query->all()]);
-        if ($response->getStatusCode() !== Response::HTTP_CREATED) {
-            $this->logger->critical('Analytics API error', $response->getBody()->getContents());
+        if ($request->isXmlHttpRequest() === false) {
+            throw new BadRequestHttpException();
         }
+        $this->manager->media($slug, $request->request->all());
 
-        return new Response('', $response->getStatusCode());
+        return new Response();
     }
 
     /**
+     * @Route("/streetstyle/{slug}", name="analytics_streetstyle", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param string $slug
      * @return Response
      */
-    public function addStreetstyleView(Request $request, string $slug): Response
+    public function streetstyle(Request $request, string $slug): Response
     {
-        $response = $this->apiProvider->request('POST', "/api/analytics/streetstyle/$slug", ['query' => $request->query->all()]);
-        if ($response->getStatusCode() !== Response::HTTP_CREATED) {
-            $this->logger->critical('Analytics API error', $response->getBody()->getContents());
+        if ($request->isXmlHttpRequest() === false) {
+            throw new BadRequestHttpException();
         }
+        $this->manager->streetstyle($slug, $request->request->all());
 
-        return new Response('', $response->getStatusCode());
+        return new Response();
+    }
+
+    /**
+     * @Route("/page/{slug}", name="analytics_page", methods={"POST"}, options={"expose"=true})
+     * @param Request $request
+     * @param string $route
+     * @return Response
+     */
+    public function page(Request $request, string $route): Response
+    {
+        if ($request->isXmlHttpRequest() === false) {
+            throw new BadRequestHttpException();
+        }
+        $this->manager->page($route, $request->request->all());
+
+        return new Response();
     }
 }

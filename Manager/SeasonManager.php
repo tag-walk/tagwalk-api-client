@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use GuzzleHttp\RequestOptions;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
@@ -70,7 +71,8 @@ class SeasonManager
     ): array {
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'shopable'));
         $key = md5(serialize($query));
-        $seasons = $this->cache->get($key, function () use ($query) {
+
+        return $this->cache->get($key, function () use ($query) {
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -82,8 +84,6 @@ class SeasonManager
 
             return $results;
         });
-
-        return $seasons;
     }
 
     /**
@@ -104,11 +104,14 @@ class SeasonManager
         ?string $language = null
     ): array {
         $query = array_filter(compact('type', 'city', 'designer', 'tags', 'models', 'language'));
-        $key = md5(serialize($query));
+        $cacheKey = md5(serialize($query));
 
-        $seasons = $this->cache->get($key, function () use ($query) {
+        $seasons = $this->cache->get($cacheKey, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', [
+                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
@@ -136,11 +139,14 @@ class SeasonManager
         ?string $language = null
     ): array {
         $query = array_filter(compact('city', 'designers', 'tags', 'language'));
-        $key = md5(serialize($query));
+        $cacheKey = md5(serialize($query));
 
-        $seasons = $this->cache->get($key, function () use ($query) {
+        return $this->cache->get($cacheKey, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', [
+                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
@@ -150,7 +156,5 @@ class SeasonManager
 
             return $results;
         });
-
-        return $seasons;
     }
 }

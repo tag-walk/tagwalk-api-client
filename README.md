@@ -30,6 +30,17 @@ return [
 ];
 ```
 
+### Step 3: Load bundle routes (optionnal)
+
+Edit your project file `routes.yaml` to include the routes from the bundle
+
+```yaml
+api_client_bundle:
+    resource: "@TagwalkApiClientBundle/Controller/"
+    type:     annotation
+    prefix:   /api
+```
+
 ### More
 
 * [Configuration](Resources/doc/index.md)
