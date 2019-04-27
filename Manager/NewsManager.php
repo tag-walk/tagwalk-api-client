@@ -15,49 +15,54 @@ use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Model\News;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
-class TrendManager
+class NewsManager
 {
     const DEFAULT_STATUS = 'enabled';
     const DEFAULT_SORT = 'created_at:desc';
-
+    const DEFAULT_SIZE = 12;
+    /**
+     * @var int
+     */
+    public $lastCount;
     /**
      * @var ApiProvider
      */
     private $apiProvider;
-
+    /**
+     * @var Serializer
+     */
+    private $serializer;
     /**
      * @var AnalyticsManager
      */
     private $analytics;
-
     /**
      * @var FilesystemAdapter
      */
     private $cache;
-
     /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @var int
-     */
-    private $lastCount;
-
-    /**
      * @param ApiProvider $apiProvider
+     * @param SerializerInterface $serializer
      * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
+        $this->serializer = $serializer;
         $this->analytics = $analytics;
-        $this->cache = new FilesystemAdapter('trends', $cacheTTL, $cacheDirectory);
+        $this->cache = new FilesystemAdapter('news', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -69,39 +74,44 @@ class TrendManager
     }
 
     /**
-     * @param null|string $type
-     * @param null|string $season
-     * @param null|string $city
+     * @param null|string $search
+     * @param null|string|array $categories
+     * @param null|string $language
      * @param int $from
      * @param int $size
      * @param string $sort
      * @param string $status
-     * @return array
+     * @return News[]
      */
     public function list(
-        ?string $type = null,
-        ?string $season = null,
-        ?string $city = null,
+        ?string $search = null,
+        $categories = null,
+        ?string $language = null,
         $from = 0,
         $size = 10,
         $sort = self::DEFAULT_SORT,
         $status = self::DEFAULT_STATUS
     ) {
-        $query = array_filter(compact('type', 'season', 'city', 'from', 'size', 'sort', 'status'));
+        $categories = isset($categories) && is_array($categories) ? implode($categories, ',') : $categories;
+        $query = array_filter(compact('search', 'categories', 'language', 'from', 'size', 'sort', 'status'));
         $cacheKey = 'list.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
         if ($this->cache->hasItem($cacheKey)) {
+            $this->cache->delete($cacheKey);
             $analytics = array_merge($query, ['count' => $this->lastCount]);
-            $this->analytics->page('trend_list', $analytics);
+            $this->analytics->page('news_list', $analytics);
         }
 
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/trends', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/news', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
+                foreach ($data as &$datum) {
+                    $datum = $this->serializer->denormalize($datum, News::class);
+                }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
                 $this->cache->save($countCacheItem);
@@ -116,51 +126,24 @@ class TrendManager
 
     /**
      * @param string $slug
+     * @param null|string $language
      * @return array
      */
-    public function get(string $slug)
+    public function get(string $slug, ?string $language = null)
     {
         if ($this->cache->hasItem($slug)) {
-            $this->analytics->page('trend_show', compact('slug'));
+            $this->analytics->page('news_show', compact('slug', 'language'));
         }
 
-        return $this->cache->get($slug, function () use ($slug) {
+        return $this->cache->get($slug, function () use ($slug, $language) {
             $data = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/trends/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
-
-            return $data;
-        });
-    }
-
-    /**
-     * @param string $type
-     * @param string $season
-     * @param null|string $city
-     * @return array
-     */
-    public function findBy(string $type, string $season, ?string $city = null): array
-    {
-        $query = array_filter(compact('type', 'season', 'city'));
-        $cacheKey = 'findBy.' . md5(serialize($query));
-        if ($this->cache->hasItem($cacheKey)) {
-            $this->analytics->page('trend_season_list', $query);
-        }
-
-        return $this->cache->get($cacheKey, function () use ($type, $season, $city) {
-            $data = [];
-            $query = array_filter(compact('city'));
-            $apiResponse = $this->apiProvider->request('GET', "/api/trends/$type/$season", [
-                'query' => $query,
-                RequestOptions::HTTP_ERRORS => false
+            $apiResponse = $this->apiProvider->request('GET', '/api/news/' . $slug, [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY => array_filter(['language' => $language])
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
-            } else {
+            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
                 $this->logger->error($apiResponse->getBody()->getContents());
             }
 
