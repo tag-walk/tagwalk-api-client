@@ -15,6 +15,7 @@ use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\News;
@@ -91,7 +92,8 @@ class NewsManager
         $size = 10,
         $sort = self::DEFAULT_SORT,
         $status = self::DEFAULT_STATUS
-    ) {
+    ): array
+    {
         $categories = isset($categories) && is_array($categories) ? implode($categories, ',') : $categories;
         $query = array_filter(compact('search', 'categories', 'language', 'from', 'size', 'sort', 'status'));
         $cacheKey = 'list.' . md5(serialize($query));
@@ -127,9 +129,9 @@ class NewsManager
     /**
      * @param string $slug
      * @param null|string $language
-     * @return array
+     * @return News|null
      */
-    public function get(string $slug, ?string $language = null)
+    public function get(string $slug, ?string $language = null): ?News
     {
         if ($this->cache->hasItem($slug)) {
             $this->analytics->page('news_show', compact('slug', 'language'));
@@ -142,7 +144,7 @@ class NewsManager
                 RequestOptions::QUERY => array_filter(['language' => $language])
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
+                $data = $this->serializer->deserialize($apiResponse->getBody(), News::class, JsonEncoder::FORMAT);
             } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
                 $this->logger->error($apiResponse->getBody()->getContents());
             }
