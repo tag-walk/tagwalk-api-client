@@ -57,7 +57,7 @@ class TrendManager
     {
         $this->apiProvider = $apiProvider;
         $this->analytics = $analytics;
-        $this->cache = new FilesystemAdapter('medias', $cacheTTL, $cacheDirectory);
+        $this->cache = new FilesystemAdapter('trends', $cacheTTL, $cacheDirectory);
     }
 
     /**
