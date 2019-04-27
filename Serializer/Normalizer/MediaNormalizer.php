@@ -22,6 +22,7 @@ use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Model\Season;
+use Tagwalk\ApiClientBundle\Model\Seller;
 use Tagwalk\ApiClientBundle\Model\Tag;
 
 class MediaNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
@@ -84,6 +85,9 @@ class MediaNormalizer extends DocumentNormalizer implements NormalizerInterface,
         }
         if (!empty($data['affiliations'])) {
             foreach ($data['affiliations'] as &$affiliation) {
+                if (!empty($affiliation['seller'])) {
+                    $affiliation['seller'] = $this->serializer->denormalize($affiliation['seller'], Seller::class);
+                }
                 $affiliation = $this->serializer->denormalize($affiliation, Affiliation::class);
             }
         }
