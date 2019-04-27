@@ -66,13 +66,19 @@ services:
 
   Tagwalk\ApiClientBundle\Controller\AnalyticsController:
     arguments:
+      $manager: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+
+  Tagwalk\ApiClientBundle\Manager\AnalyticsManager:
+    arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $logger: '@logger'
+      $enabled: '%analytics%'
 
   Tagwalk\ApiClientBundle\Manager\ModelManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
       $cacheTTL: '%cache_ttl%'
       $cacheDirectory: '%cache_directory%'
     calls:
@@ -84,10 +90,25 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
 
   Tagwalk\ApiClientBundle\Manager\TrendManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
+
+  Tagwalk\ApiClientBundle\Manager\NewsManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
       $cacheTTL: '%cache_ttl%'
       $cacheDirectory: '%cache_directory%'
     calls:
@@ -99,6 +120,13 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\ConfigManager:
       arguments:
@@ -127,13 +155,27 @@ services:
 
   Tagwalk\ApiClientBundle\Manager\IndividualManager:
     arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\LiveManager:
     arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: 300
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\UserManager:
     arguments:
@@ -157,6 +199,7 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $mediaNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
       $cacheTTL: '%cache_ttl%'
       $cacheDirectory: '%cache_directory%'
     calls:
@@ -190,6 +233,9 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $streetstyleNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -235,6 +281,12 @@ services:
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\LiveNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\NewsNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.name_converter.camel_case_to_snake_case'

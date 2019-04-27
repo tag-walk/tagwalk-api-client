@@ -49,6 +49,9 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('cache_directory')
                             ->defaultNull()
                         ->end()
+                        ->booleanNode('analytics')
+                            ->defaultTrue()
+                        ->end()
                     ->end()
                 ->end()
             ->end();

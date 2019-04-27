@@ -12,9 +12,12 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Page;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -35,13 +38,46 @@ class PageManager
     private $serializer;
 
     /**
-     * @param ApiProvider $apiProvider
-     * @param Serializer $serializer
+     * @var FilesystemAdapter
      */
-    public function __construct(ApiProvider $apiProvider, Serializer $serializer)
-    {
+    private $cache;
+
+    /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
+     * @param ApiProvider $apiProvider
+     * @param SerializerInterface $serializer
+     * @param AnalyticsManager $analytics
+     * @param int $cacheTTL
+     * @param string|null $cacheDirectory
+     */
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        AnalyticsManager $analytics,
+        int $cacheTTL = 600,
+        string $cacheDirectory = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->analytics = $analytics;
+        $this->cache = new FilesystemAdapter('pages', $cacheTTL, $cacheDirectory);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -62,11 +98,16 @@ class PageManager
         ?string $text = null
     ): array {
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
-        $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
-        $data = json_decode($apiResponse->getBody(), true);
         $pages = [];
-        foreach ($data as $datum) {
-            $pages[] = $this->serializer->denormalize($datum, Page::class);
+        $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $pages = [];
+            foreach ($data as $datum) {
+                $pages[] = $this->serializer->denormalize($datum, Page::class);
+            }
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
         }
 
         return $pages;
@@ -97,17 +138,27 @@ class PageManager
     public function get(string $slug, ?string $language = null): ?Page
     {
         $page = null;
-        $params = [RequestOptions::HTTP_ERRORS => false];
-        if (isset($language)) {
-            $params['query'] = ['language' => $language];
-        }
-        $apiResponse = $this->apiProvider->request('GET', '/api/page/' . $slug, $params);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $page = $this->serializer->denormalize($data, Page::class);
-        }
+        $query = compact('language');
+        $cacheKey = md5(serialize(compact('slug', 'language')));
 
-        return $page;
+        return $this->cache->get($cacheKey, function () use ($slug, $query) {
+            $page = null;
+            $apiResponse = $this->apiProvider->request(
+                'GET',
+                '/api/page/' . $slug,
+                [
+                    RequestOptions::HTTP_ERRORS => false,
+                    RequestOptions::QUERY => $query
+                ]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                $page = $this->serializer->denormalize($data, Page::class);
+            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
+
+            return $page;
+        });
     }
 
     /**
@@ -116,7 +167,9 @@ class PageManager
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE', '/api/page/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('DELETE', '/api/page/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false
+        ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
             throw new AccessDeniedHttpException();
         }

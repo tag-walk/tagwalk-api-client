@@ -11,6 +11,8 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
@@ -36,36 +38,68 @@ class IndividualManager
     /**
      * @var FilesystemAdapter
      */
-    protected $cache;
+    private $cache;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var AnalyticsManager
+     */
+    protected $analytics;
 
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
+     * @param AnalyticsManager $analytics
+     * @param int $cacheTTL
+     * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        AnalyticsManager $analytics,
+        int $cacheTTL = 600,
+        string $cacheDirectory = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('individuals');
+        $this->analytics = $analytics;
+        $this->cache = new FilesystemAdapter('individuals', $cacheTTL, $cacheDirectory);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
      * @param string $slug
+     * @param null|string $language
      * @return Individual|null
      */
-    public function get(string $slug): ?Individual
+    public function get(string $slug, ?string $language = null): ?Individual
     {
         $individual = null;
-        $cacheItem = $this->cache->getItem($slug);
+        $cacheKey = $slug . '.' . $language;
+        $cacheItem = $this->cache->getItem($cacheKey);
         if ($cacheItem->isHit()) {
             $individual = $cacheItem->get();
+            $this->analytics->page('individual_show', array_filter(compact('slug', 'language')));
         } else {
-            $query = isset($locale) ? ['language' => $locale] : [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, ['http_errors' => false, 'query' => $query]);
+            $query = array_filter(compact('language'));
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY => $query
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $individual = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Individual::class, 'json');
                 $cacheItem->set($individual);
-                $cacheItem->expiresAfter(86400);
                 $this->cache->save($cacheItem);
             }
         }
@@ -96,8 +130,12 @@ class IndividualManager
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
             $individuals = $cacheItem->get();
+            $this->analytics->page('individual_list', $query);
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/individuals', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals', [
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 if ($denormalize) {
@@ -108,7 +146,6 @@ class IndividualManager
                     $individuals = $data;
                 }
                 $cacheItem->set($individuals);
-                $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
             }
         }
@@ -157,7 +194,10 @@ class IndividualManager
         if ($cacheItem->isHit()) {
             $individuals = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/suggestions', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/suggestions', [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY => $query
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $individuals = json_decode($apiResponse->getBody()->getContents(), true);
                 $cacheItem->set($individuals);

@@ -21,7 +21,7 @@ use Tagwalk\ApiClientBundle\Manager\TagManager;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 /**
- * @Route("/api/autocomplete")
+ * @Route("/autocomplete")
  */
 class AutocompleteController extends AbstractController
 {

@@ -41,9 +41,9 @@ class MediaManager
     private $mediaNormalizer;
 
     /**
-     * @var LoggerInterface
+     * @var AnalyticsManager
      */
-    private $logger;
+    private $analytics;
 
     /**
      * @var FilesystemAdapter
@@ -51,15 +51,22 @@ class MediaManager
     private $cache;
 
     /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param MediaNormalizer $mediaNormalizer
-     * @param string $cacheDirectory
+     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
+     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->mediaNormalizer = $mediaNormalizer;
+        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('medias', $cacheTTL, $cacheDirectory);
     }
 
@@ -77,6 +84,9 @@ class MediaManager
      */
     public function get(string $slug): ?Media
     {
+        if ($this->cache->hasItem($slug)) {
+            $this->analytics->media($slug);
+        }
         $media = $this->cache->get($slug, function () use ($slug) {
             $data = null;
             $apiResponse = $this->apiProvider->request('GET', '/api/medias/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
@@ -106,7 +116,8 @@ class MediaManager
         $media = null;
         if ($type && $season && $designer && $look) {
             $query = compact('type', 'season', 'designer', 'look');
-            $media = $this->cache->get(md5(serialize($query)), function () use ($type, $season, $designer, $look) {
+            $cacheKey = 'findByTypeSeasonDesignerLook' . md5(serialize($query));
+            $media = $this->cache->get($cacheKey, function () use ($type, $season, $designer, $look) {
                 $result = null;
                 $apiResponse = $this->apiProvider->request(
                     'GET',
@@ -141,11 +152,11 @@ class MediaManager
             'from' => 0,
             'size' => 6
         ], compact('type', 'season', 'designer', 'city'));
-        $cacheKey = md5(serialize($query));
+        $cacheKey = 'listRelated.' . md5(serialize($query));
 
         $data = $this->cache->get($cacheKey, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/medias', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $results = json_decode($apiResponse->getBody(), true);
             } else {
@@ -168,15 +179,26 @@ class MediaManager
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
         $query = array_merge($query, compact('from', 'size', 'status'));
-        $cacheKey = md5(serialize($query));
+        $cacheKey = 'list.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+
+        if ($this->cache->hasItem($cacheKey)) {
+            /** @var Media[] $medias */
+            $medias = $this->cache->getItem($cacheKey)->get();
+            $analytics = array_merge($query, ['count' => $this->lastCount]);
+            $this->analytics->page('media_list', $analytics);
+            $analytics = array_merge($analytics, ['event' => AnalyticsManager::EVENT_PHOTO_LIST]);
+            $this->analytics->medias($medias, $analytics);
+
+            return $medias;
+        }
 
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
-                'query' => $query,
-                'http_errors' => false
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
@@ -193,6 +215,56 @@ class MediaManager
             } else {
                 $this->lastCount = 0;
                 $this->logger->error($apiResponse->getBody()->getContents());
+            }
+
+            return $data;
+        });
+    }
+
+    /**
+     * Find medias looks by model slug
+     *
+     * @param string $slug
+     * @param array $query
+     *
+     * @return Media[]
+     */
+    public function listByModel(string $slug, array $query = []): array
+    {
+        $cacheKey = 'listByModel.' . md5(serialize(array_filter(compact('slug', 'query'))));
+        $countCacheKey = "count.$cacheKey";
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+
+        if ($this->cache->hasItem($cacheKey)) {
+            /** @var Media[] $medias */
+            $medias = $this->cache->getItem($cacheKey)->get();
+            $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount]);
+            $this->analytics->page('individual_medias_list', $analytics);
+            $analytics = array_merge($analytics, ['event' => AnalyticsManager::EVENT_PHOTO_LIST]);
+            $this->analytics->medias($medias, $analytics);
+
+            return $medias;
+        }
+
+        return $this->cache->get($cacheKey, function () use ($slug, $query, $countCacheKey) {
+            $data = [];
+            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', [
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
+            ]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                if (!empty($data)) {
+                    foreach ($data as &$datum) {
+                        $datum = $this->mediaNormalizer->denormalize($datum, Media::class);
+                    }
+                }
+                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
+                $this->cache->save($countCacheItem);
+            } else {
+                $this->logger->error($apiResponse->getBody()->getContents());
+                $this->lastCount = 0;
             }
 
             return $data;
