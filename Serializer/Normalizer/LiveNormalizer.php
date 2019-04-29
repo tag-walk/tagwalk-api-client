@@ -11,8 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\City;
@@ -31,16 +29,6 @@ class LiveNormalizer extends DocumentNormalizer implements NormalizerInterface
      * @var Serializer
      */
     protected $serializer;
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(
-        NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null
-    ) {
-        parent::__construct($nameConverter, $propertyAccessor);
-    }
 
     /**
      * {@inheritdoc}

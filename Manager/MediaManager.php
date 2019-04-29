@@ -186,10 +186,12 @@ class MediaManager
         if ($this->cache->hasItem($cacheKey)) {
             /** @var Media[] $medias */
             $medias = $this->cache->getItem($cacheKey)->get();
-            $analytics = array_merge($query, ['count' => $this->lastCount]);
+            $slugs = [];
+            foreach ($medias as $media) {
+                $slugs[] = $media->getSlug();
+            }
+            $analytics = array_merge($query, ['count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
             $this->analytics->page('media_list', $analytics);
-            $analytics = array_merge($analytics, ['event' => AnalyticsManager::EVENT_PHOTO_LIST]);
-            $this->analytics->medias($medias, $analytics);
 
             return $medias;
         }
@@ -238,10 +240,12 @@ class MediaManager
         if ($this->cache->hasItem($cacheKey)) {
             /** @var Media[] $medias */
             $medias = $this->cache->getItem($cacheKey)->get();
-            $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount]);
+            $slugs = [];
+            foreach ($medias as $media) {
+                $slugs[] = $media->getSlug();
+            }
+            $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
             $this->analytics->page('individual_medias_list', $analytics);
-            $analytics = array_merge($analytics, ['event' => AnalyticsManager::EVENT_PHOTO_LIST]);
-            $this->analytics->medias($medias, $analytics);
 
             return $medias;
         }

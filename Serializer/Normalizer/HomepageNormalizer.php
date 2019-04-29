@@ -11,8 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
@@ -34,16 +32,6 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
     /**
      * {@inheritdoc}
      */
-    public function __construct(
-        NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null
-    ) {
-        parent::__construct($nameConverter, $propertyAccessor);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Homepage;
@@ -55,20 +43,6 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
     public function supportsDenormalization($data, $type, $format = null)
     {
         return $type === Homepage::class;
-    }
-
-    /**
-     * @param Homepage $object
-     * @param string $format
-     * @param array $context
-     *
-     * @return array|bool|float|int|string
-     */
-    public function normalize($object, $format = null, array $context = [])
-    {
-        $data = parent::normalize($object, $format, $context);
-
-        return $data;
     }
 
     /**
