@@ -120,10 +120,12 @@ class StreetstyleManager
         if ($this->cache->hasItem($cacheKey)) {
             /** @var Streetstyle[] $streetstyles */
             $streetstyles = $this->cache->getItem($cacheKey)->get();
-            $analytics = array_merge($query, ['count' => $this->lastCount]);
+            $slugs = [];
+            foreach ($streetstyles as $streetstyle) {
+                $slugs[] = $streetstyle->getSlug();
+            }
+            $analytics = array_merge($query, ['count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
             $this->analytics->page('streetstyle_list', $analytics);
-            $analytics = array_merge($analytics, ['event' => AnalyticsManager::EVENT_PHOTO_LIST]);
-            $this->analytics->streetstyles($streetstyles, $analytics);
 
             return $streetstyles;
         }

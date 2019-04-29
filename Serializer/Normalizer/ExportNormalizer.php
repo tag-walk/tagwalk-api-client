@@ -13,6 +13,7 @@
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Export;
 
 /**
@@ -20,7 +21,7 @@ use Tagwalk\ApiClientBundle\Model\Export;
  *
  * @extends DocumentNormalizer
  */
-class ExportNormalizer extends DocumentNormalizer implements NormalizerInterface
+class ExportNormalizer extends ObjectNormalizer implements NormalizerInterface
 {
     /**
      * {@inheritdoc}
@@ -40,6 +41,10 @@ class ExportNormalizer extends DocumentNormalizer implements NormalizerInterface
     public function normalize($object, $format = null, array $context = [])
     {
         $data = parent::normalize($object, $format, $context);
+        if (false === empty($context['write'])) {
+            unset($data['created_at']);
+            unset($data['updated_at']);
+        }
 
         return $data;
     }

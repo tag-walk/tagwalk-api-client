@@ -15,9 +15,11 @@ use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Gallery;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer;
 
 class GalleryManager
 {
@@ -27,9 +29,14 @@ class GalleryManager
     private $apiProvider;
 
     /**
-     * @var GalleryNormalizer
+     * @var Serializer
      */
-    private $galleryNormalizer;
+    private $serializer;
+
+    /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
 
     /**
      * @var FilesystemAdapter
@@ -42,15 +49,22 @@ class GalleryManager
     private $logger;
 
     /**
+     * @var int
+     */
+    public $lastCount;
+
+    /**
      * @param ApiProvider $apiProvider
-     * @param GalleryNormalizer $galleryNormalizer
+     * @param SerializerInterface $serializer
+     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, GalleryNormalizer $galleryNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
-        $this->galleryNormalizer = $galleryNormalizer;
+        $this->serializer = $serializer;
+        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('galleries', $cacheTTL, $cacheDirectory);
     }
 
@@ -64,55 +78,44 @@ class GalleryManager
 
     /**
      * @param string $slug
-     * @param array $params
-     * @param bool $denormalize
+     * @param array $query
      * @return null|array|Gallery
      */
-    public function get(string $slug, array $params = [], bool $denormalize = false)
+    public function get(string $slug, array $query = [])
     {
-        $query = compact('slug', 'params', 'denormalize');
-        $key = md5(serialize($query));
-        $gallery = $this->cache->get($key, function () use ($slug, $params, $denormalize) {
+        $cacheKey = md5(serialize(compact('slug', 'query')));
+        $countCacheKey = "count.$cacheKey";
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+
+        if ($this->cache->hasItem($cacheKey)) {
+            /** @var Gallery $gallery */
+            $gallery = $this->cache->getItem($cacheKey)->get();
+            $slugs = [];
+            foreach ($gallery->getStreetstyles() as $streetstyle) {
+                $slugs[] = $streetstyle->getSlug();
+            }
+            $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
+            $this->analytics->page('gallery_show', $analytics);
+
+            return $gallery;
+        }
+
+        return $this->cache->get($cacheKey, function () use ($slug, $query, $countCacheKey) {
             $data = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, ['query' => $params, RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-                return null;
-            } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                if ($denormalize) {
-                    $data = $this->galleryNormalizer->denormalize($data, Gallery::class);
-                }
-            } else {
+            $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
+            ]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Gallery::class, JsonEncoder::FORMAT);
+                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $this->cache->save($this->cache->getItem($countCacheKey)->set($this->lastCount));
+            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
                 $this->logger->error($apiResponse->getBody()->getContents());
+                $this->lastCount = 0;
             }
 
             return $data;
         });
-
-        return $gallery;
-    }
-
-    /**
-     * @param string $slug
-     * @return int|null
-     */
-    public function count(string $slug)
-    {
-        $count = $this->cache->get("count.$slug", function () use ($slug) {
-            $count = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-                return null;
-            } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                $count = count($data['streetstyles']);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
-
-            return $count;
-        });
-
-        return $count;
     }
 }
