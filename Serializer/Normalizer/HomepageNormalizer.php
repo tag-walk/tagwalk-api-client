@@ -46,20 +46,6 @@ class HomepageNormalizer extends DocumentNormalizer implements NormalizerInterfa
     }
 
     /**
-     * @param Homepage $object
-     * @param string $format
-     * @param array $context
-     *
-     * @return array|bool|float|int|string
-     */
-    public function normalize($object, $format = null, array $context = [])
-    {
-        $data = parent::normalize($object, $format, $context);
-
-        return $data;
-    }
-
-    /**
      * @inheritDoc
      */
     public function denormalize($data, $class, $format = null, array $context = [])
