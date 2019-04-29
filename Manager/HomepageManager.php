@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Homepage;
@@ -82,12 +83,12 @@ class HomepageManager
                 Request::METHOD_GET,
                 "/api/homepages/show/{$section}",
                 [
-                    'query' => ['language' => $language],
+                    RequestOptions::QUERY => ['language' => $language],
                     RequestOptions::HTTP_ERRORS => false
                 ]
             );
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, 'json');
+                $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, JsonEncoder::FORMAT);
             } else {
                 $this->logger->error($apiResponse->getBody()->getContents());
             }
@@ -112,12 +113,12 @@ class HomepageManager
                 Request::METHOD_GET,
                 "/api/homepages/{$slug}",
                 [
-                    'query' => ['language' => $language],
+                    RequestOptions::QUERY => ['language' => $language],
                     RequestOptions::HTTP_ERRORS => false
                 ]
             );
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, 'json');
+                $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, JsonEncoder::FORMAT);
             } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
                 $this->logger->error($apiResponse->getBody()->getContents());
             }

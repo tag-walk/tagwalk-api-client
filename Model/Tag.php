@@ -42,46 +42,26 @@ class Tag extends AbstractDocument
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Synonyms slug (english)",
-     *     property="synonyms"
-     * )
      */
     private $synonyms;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Synonyms slug (french)",
-     *     property="synonyms_fr"
-     * )
      */
     private $synonymsFr;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Synonyms slug (spanish)",
-     *     property="synonyms_es"
-     * )
      */
     private $synonymsEs;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Synonyms slug (italian)",
-     *     property="synonyms_it"
-     * )
      */
     private $synonymsIt;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Synonyms slug (chinese)",
-     *     property="synonyms_zh"
-     * )
      */
     private $synonymsZh;
 

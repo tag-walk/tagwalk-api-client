@@ -11,8 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\Affiliation;
@@ -20,17 +18,6 @@ use Tagwalk\ApiClientBundle\Model\Seller;
 
 class AffiliationNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
 {
-    /**
-     * @param NameConverterInterface|null $nameConverter
-     * @param PropertyAccessorInterface|null $propertyAccessor
-     */
-    public function __construct(
-        NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null
-    ) {
-        parent::__construct($nameConverter, $propertyAccessor);
-    }
-
     /**
      * {@inheritdoc}
      */

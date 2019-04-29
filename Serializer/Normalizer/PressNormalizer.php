@@ -28,16 +28,6 @@ class PressNormalizer extends DocumentNormalizer implements NormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function __construct(
-        NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null
-    ) {
-        parent::__construct($nameConverter, $propertyAccessor);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Press;

@@ -244,7 +244,8 @@ services:
   Tagwalk\ApiClientBundle\Manager\GalleryManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $galleryNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer'
+      $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
       $cacheTTL: '%cache_ttl%'
       $cacheDirectory: '%cache_directory%'
     calls:
@@ -256,6 +257,9 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $pressNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\PressNormalizer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -268,120 +272,140 @@ services:
   Tagwalk\ApiClientBundle\Serializer\Normalizer\FileNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\IndividualNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageCellNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\HomepageNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\LiveNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\NewsNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\DesignerNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\CoverNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\UserNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
-      - '@serializer.property_accessor'
-
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
-    tags: ['serializer.normalizer']
-    arguments:
-      - '@serializer.name_converter.camel_case_to_spinal_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\PageNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\TagNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\CityNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\SeasonNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\AffiliationNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\GalleryNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.mapping.class_metadata_factory'
+      - '@serializer.name_converter.camel_case_to_spinal_case'
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\PressNormalizer:
     tags: ['serializer.normalizer']
     arguments:
+      - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
