@@ -38,6 +38,11 @@ class PressManager
     private $pressNormalizer;
 
     /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
+
+    /**
      * @var FilesystemAdapter
      */
     private $cache;
@@ -50,13 +55,15 @@ class PressManager
     /**
      * @param ApiProvider $apiProvider
      * @param PressNormalizer $pressNormalizer
+     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer, int $cacheTTL = 3600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer, AnalyticsManager $analytics, int $cacheTTL = 3600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->pressNormalizer = $pressNormalizer;
+        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('press', $cacheTTL, $cacheDirectory);
     }
 
@@ -74,9 +81,15 @@ class PressManager
      */
     public function list(array $query): array
     {
-        $key = md5(serialize($query));
+        $cacheKey = 'list' . md5(serialize($query));
+        $countCacheKey = "count.$cacheKey";
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        $press = $this->cache->get($key, function () use ($query) {
+        if ($this->cache->hasItem($cacheKey)) {
+            $this->analytics->page('press_list', array_merge($query, ['count' => $this->lastCount]));
+        }
+
+        $press = $this->cache->get($cacheKey, function () use ($query) {
             $results = [];
             $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/press', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
