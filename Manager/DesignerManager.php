@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use GuzzleHttp\RequestOptions;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
@@ -58,16 +59,19 @@ class DesignerManager
 
     /**
      * @param string $slug
-     * @param string $locale
+     * @param string $language
      * @return Designer|null
      */
-    public function get(string $slug, $locale = null): ?Designer
+    public function get(string $slug, $language = null): ?Designer
     {
-        $key = isset($locale) ? "{$locale}.{$slug}" : $slug;
-        $designer = $this->cache->get($key, function () use ($slug) {
+        $cacheKey = md5(serialize(compact('slug', 'language')));
+        $designer = $this->cache->get($cacheKey, function () use ($slug, $language) {
             $data = null;
-            $query = isset($locale) ? ['language' => $locale] : [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, ['http_errors' => false, 'query' => $query]);
+            $query = array_filter(compact('language'));
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY => $query
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
             }
@@ -101,9 +105,9 @@ class DesignerManager
     ): array {
         $designers = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook'));
-        $key = md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
-        $cacheItem = $this->cache->getItem($key);
-        $countCacheItem = $this->cache->getItem("count.$key");
+        $cacheKey = 'list.' . md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
+        $cacheItem = $this->cache->getItem($cacheKey);
+        $countCacheItem = $this->cache->getItem("count.$cacheKey");
         if ($cacheItem->isHit() && $countCacheItem->isHit()) {
             $designers = $cacheItem->get();
             $this->lastQueryCount = $countCacheItem->get();
@@ -142,15 +146,18 @@ class DesignerManager
     public function count(string $status = self::DEFAULT_STATUS): int
     {
         $count = 0;
-        $cacheItem = $this->cache->getItem('count');
+        $cacheKey = 'count.' . md5(serialize(compact('status')));
+        $cacheItem = $this->cache->getItem($cacheKey);
         if ($cacheItem->isHit()) {
             $count = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/designers', ['query' => ['status' => $status, 'size' => 1], 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers', [
+                RequestOptions::QUERY => ['status' => $status, 'size' => 1],
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $cacheItem->set($count);
-                $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
             }
         }
@@ -174,11 +181,13 @@ class DesignerManager
         if ($cacheItem->isHit()) {
             $designers = $cacheItem->get();
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/designers/suggestions', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/suggestions', [
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $designers = json_decode($apiResponse->getBody()->getContents(), true);
                 $cacheItem->set($designers);
-                $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
             }
         }
@@ -210,7 +219,10 @@ class DesignerManager
 
         $designers = $this->cache->get($key, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', [
+                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
@@ -242,7 +254,10 @@ class DesignerManager
 
         $designers = $this->cache->get($key, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter-streetstyle', [
+                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {

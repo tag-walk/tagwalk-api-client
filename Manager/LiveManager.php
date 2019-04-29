@@ -11,6 +11,8 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
@@ -40,14 +42,41 @@ class LiveManager
     private $cache;
 
     /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
+    /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
+     * @param AnalyticsManager $analytics
+     * @param int $cacheTTL
+     * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        AnalyticsManager $analytics,
+        int $cacheTTL = 600,
+        string $cacheDirectory = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('live');
+        $this->analytics = $analytics;
+        $this->cache = new FilesystemAdapter('live', $cacheTTL, $cacheDirectory);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -60,12 +89,12 @@ class LiveManager
         $cacheItem = $this->cache->getItem($slug);
         if ($cacheItem->isHit()) {
             $live = $cacheItem->get();
+            $this->analytics->page('live_show', compact('slug'));
         } else {
-            $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", ['http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", [RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
                 $cacheItem->set($live);
-                $cacheItem->expiresAfter(120);
                 $this->cache->save($cacheItem);
             }
         }
@@ -96,12 +125,16 @@ class LiveManager
     ): array {
         $lives = [];
         $query = array_filter(compact('type', 'season', 'city', 'from', 'size', 'sort', 'status'));
-        $key = md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
+        $key = 'list.' . md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
             $lives = $cacheItem->get();
+            $this->analytics->page('live_list', $query);
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/live', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/live', [
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 if ($denormalize) {
@@ -112,7 +145,6 @@ class LiveManager
                     $lives = $data;
                 }
                 $cacheItem->set($lives);
-                $cacheItem->expiresAfter(120);
                 $this->cache->save($cacheItem);
             }
         }

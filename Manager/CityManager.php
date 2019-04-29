@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
+use GuzzleHttp\RequestOptions;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
@@ -107,7 +108,10 @@ class CityManager
 
         $cities = $this->cache->get($key, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', [
+                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {
@@ -139,7 +143,10 @@ class CityManager
 
         $cities = $this->cache->get($key, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', ['query' => $query, 'http_errors' => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', [
+                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
                 foreach ($data as $datum) {

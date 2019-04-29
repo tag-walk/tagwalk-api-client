@@ -55,9 +55,8 @@ class TagwalkApiClientExtension extends Extension
         if (isset($api['timeout'])) {
             $definition->replaceArgument('$timeout', $api['timeout']);
         }
-        $cacheTTL = isset($api['cache_ttl']) ? $api['cache_ttl'] : 600;
-        $container->setParameter('cache_ttl', $cacheTTL);
-        $cacheDir = isset($api['cache_directory']) ? $api['cache_directory'] : null;
-        $container->setParameter('cache_directory', $cacheDir);
+        $container->setParameter('cache_ttl', isset($api['cache_ttl']) ? $api['cache_ttl'] : 600);
+        $container->setParameter('cache_directory', isset($api['cache_directory']) ? $api['cache_directory'] : null);
+        $container->setParameter('analytics', isset($api['analytics']) ? $api['analytics'] : true);
     }
 }
