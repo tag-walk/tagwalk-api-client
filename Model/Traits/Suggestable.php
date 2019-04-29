@@ -19,46 +19,26 @@ trait Suggestable
 {
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Autocomplete suggestions (english)",
-     *     property="suggest"
-     * )
      */
     private $suggest;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Autocomplete suggestions (french)",
-     *     property="suggest_fr"
-     * )
      */
     private $suggestFr;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Autocomplete suggestions (spanish)",
-     *     property="suggest_es"
-     * )
      */
     private $suggestEs;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Autocomplete suggestions (italian)",
-     *     property="suggest_it"
-     * )
      */
     private $suggestIt;
 
     /**
      * @var string[]|null
-     * @SWG\Property(
-     *     description="Autocomplete suggestions (chinese)",
-     *     property="suggest_zh"
-     * )
      */
     private $suggestZh;
 

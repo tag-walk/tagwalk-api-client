@@ -34,7 +34,6 @@ class HomepageCell extends AbstractDocument
      * @var File[]|null
      * @Assert\Valid()
      * @Assert\Type("array")
-     * @TagwalkAssert\Exists\FilesExists()
      */
     private $files;
 

@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -28,10 +29,11 @@ class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
      * @inheritdoc
      */
     public function __construct(
+        ClassMetadataFactoryInterface $classMetadataFactory = null,
         NameConverterInterface $nameConverter = null,
         PropertyAccessorInterface $propertyAccessor = null
     ) {
-        parent::__construct(null, $nameConverter, $propertyAccessor);
+        parent::__construct($classMetadataFactory, $nameConverter, $propertyAccessor);
     }
 
     /**
