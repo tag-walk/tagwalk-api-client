@@ -42,6 +42,19 @@ class Individual extends AbstractDocument
     private $birthdate;
 
     /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $nationality;
+
+    /**
+     * @var Agency[]|null
+     * @Assert\Valid()
+     * @Assert\Type("array")
+     */
+    private $agencies;
+
+    /**
      * @return bool
      */
     public function isModel(): bool
@@ -94,6 +107,44 @@ class Individual extends AbstractDocument
     public function setBirthdate(?\DateTime $birthdate): self
     {
         $this->birthdate = $birthdate;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNationality(): ?string
+    {
+        return $this->nationality;
+    }
+
+    /**
+     * @param string|null $nationality
+     * @return self
+     */
+    public function setNationality(?string $nationality): self
+    {
+        $this->nationality = $nationality;
+
+        return $this;
+    }
+
+    /**
+     * @return Agency[]|null
+     */
+    public function getAgencies(): ?array
+    {
+        return $this->agencies;
+    }
+
+    /**
+     * @param Agency[]|null $agencies
+     * @return self
+     */
+    public function setAgencies(?array $agencies): self
+    {
+        $this->agencies = $agencies;
 
         return $this;
     }

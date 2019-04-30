@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
+use Tagwalk\ApiClientBundle\Model\Agency;
 use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\Individual;
 
@@ -49,6 +50,11 @@ class IndividualNormalizer extends DocumentNormalizer implements NormalizerInter
         }
         if (false === empty($data['birthdate'])) {
             $data['birthdate'] = \DateTime::createFromFormat(DATE_ISO8601, $data['birthdate']);
+        }
+        if (false === empty($data['agencies'])) {
+            foreach ($data['agencies'] as &$agency) {
+                $agency = $this->serializer->denormalize($agency, Agency::class);
+            }
         }
 
         return parent::denormalize($data, $class, $format, $context);
