@@ -253,6 +253,18 @@ services:
         arguments:
           - '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\PressManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $pressNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\PressNormalizer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+      $cacheTTL: '%cache_ttl%'
+      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
+
   Tagwalk\ApiClientBundle\Manager\AgencyManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
@@ -407,6 +419,13 @@ services:
     arguments:
       - '@serializer.mapping.class_metadata_factory'
       - '@serializer.name_converter.camel_case_to_spinal_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\PressNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.mapping.class_metadata_factory'
+      - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
   serializer.name_converter.camel_case_to_spinal_case:
