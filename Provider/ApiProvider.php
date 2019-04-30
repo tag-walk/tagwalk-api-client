@@ -12,13 +12,22 @@
 namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ApiProvider
 {
+    /**
+     * @var string cache key for access token bearer
+     */
+    private const CACHE_KEY_TOKEN = 'access_token';
+
     /**
      * @var string
      */
@@ -85,12 +94,15 @@ class ApiProvider
      * @param string $method
      * @param string $uri
      * @param array $options
-     * @return mixed|\Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
-    public function request($method, $uri, $options = [])
+    public function request($method, $uri, $options = []): ResponseInterface
     {
         $options = array_merge($this->getDefaultOptions(), $options);
         $response = $this->client->request($method, $uri, $options);
+        if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
+            $this->cache->deleteItem(self::CACHE_KEY_TOKEN);
+        }
 
         return $response;
     }
@@ -98,7 +110,7 @@ class ApiProvider
     /**
      * @return array
      */
-    private function getDefaultOptions()
+    private function getDefaultOptions(): array
     {
         return [
             RequestOptions::HTTP_ERRORS => true,
@@ -116,7 +128,7 @@ class ApiProvider
     /**
      * @return string
      */
-    private function getBearer()
+    private function getBearer(): string
     {
         $token = $this->getToken();
 
@@ -124,19 +136,17 @@ class ApiProvider
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    private function getToken()
+    private function getToken(): string
     {
         if (null === $this->token) {
-            $tokenCache = $this->cache->getItem('token');
-            if (!$tokenCache->isHit()) {
+            return $this->cache->get(self::CACHE_KEY_TOKEN, function (ItemInterface $item) {
                 $auth = $this->authenticate();
-                $tokenCache->set($auth['access_token']);
-                $tokenCache->expiresAfter(intval($auth['expires_in']) - 5);
-                $this->cache->save($tokenCache);
-            }
-            $this->token = $tokenCache->get();
+                $item->expiresAfter((int)$auth['expires_in'] - 5);
+
+                return $this->token = $auth['access_token'];
+            });
         }
 
         return $this->token;
@@ -145,7 +155,7 @@ class ApiProvider
     /**
      * @return array
      */
-    private function authenticate()
+    private function authenticate(): array
     {
         $response = $this->client->request(
             'POST',
@@ -155,7 +165,8 @@ class ApiProvider
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
                     'grant_type' => 'client_credentials'
-                ]
+                ],
+                RequestOptions::HTTP_ERRORS => true
             ]
         );
 
@@ -166,9 +177,9 @@ class ApiProvider
      * @param string $method
      * @param string $uri
      * @param array $options
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return PromiseInterface
      */
-    public function requestAsync($method, $uri, $options = [])
+    public function requestAsync($method, $uri, $options = []): PromiseInterface
     {
         $options = array_merge($this->getDefaultOptions(), $options);
 

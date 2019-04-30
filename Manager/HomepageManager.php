@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +62,7 @@ class HomepageManager
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -73,8 +74,8 @@ class HomepageManager
      */
     public function getBySection(string $section, ?string $language = null): ?Homepage
     {
-        if (false === in_array($section, HomepageSection::VALUES)) {
-            throw new \InvalidArgumentException('Invalid homepage section argument');
+        if (false === in_array($section, HomepageSection::VALUES, true)) {
+            throw new InvalidArgumentException('Invalid homepage section argument');
         }
         $key = md5(serialize(compact('section', 'language')));
         $homepage = $this->cache->get($key, function () use ($section, $language) {
