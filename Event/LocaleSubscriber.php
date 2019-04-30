@@ -38,7 +38,7 @@ class LocaleSubscriber implements EventSubscriberInterface
     /**
      * @inheritdoc
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => [['onKernelRequest', 20]]
@@ -48,19 +48,23 @@ class LocaleSubscriber implements EventSubscriberInterface
     /**
      * @param GetResponseEvent $event
      */
-    public function onKernelRequest(GetResponseEvent $event)
+    public function onKernelRequest(GetResponseEvent $event): void
     {
         $request = $event->getRequest();
-
-        if ($locale = $request->attributes->get('_locale')) {
-            $request->getSession()->set('_locale', $locale);
+        $requestLocale = $request->attributes->get('_locale');
+        $session = $request->getSession();
+        if ($requestLocale) {
+            if ($session) {
+                $session->set('_locale', $requestLocale);
+            }
         } else {
             // if no explicit locale has been set on this request:
             // 1: use one from the session
             // 2: use prefered from browser config
             // 3: use application default locale
+            $sessionLocale = $session ? $session->get('_locale') : null;
             $request->setLocale(
-                $request->getSession()->get('_locale')
+                $sessionLocale
                 ?? $request->getPreferredLanguage(array_values(Language::getAllowedValues()))
                 ?? $this->defaultLocale
             );
