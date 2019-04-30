@@ -18,16 +18,16 @@ namespace Tagwalk\ApiClientBundle\Utils\Constants;
 final class HomepageSection extends Constants
 {
     /** @var string home section */
-    const HOME = 'home';
+    public const HOME = 'home';
 
     /** @var string shop section */
-    const SHOP = 'shop';
+    public const SHOP = 'shop';
 
     /** @var string street section */
-    const STREET = 'street';
+    public const STREET = 'street';
 
     /** @var array */
-    const VALUES = [
+    public const VALUES = [
         self::HOME,
         self::SHOP,
         self::STREET
