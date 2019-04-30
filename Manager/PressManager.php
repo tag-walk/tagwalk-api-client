@@ -81,7 +81,7 @@ class PressManager
      */
     public function list(array $query): array
     {
-        $cacheKey = 'list' . md5(serialize($query));
+        $cacheKey = 'list.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
@@ -89,7 +89,7 @@ class PressManager
             $this->analytics->page('press_list', array_merge($query, ['count' => $this->lastCount]));
         }
 
-        $press = $this->cache->get($cacheKey, function () use ($query) {
+        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $results = [];
             $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/press', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -98,6 +98,8 @@ class PressManager
                     $results[] = $this->pressNormalizer->denormalize($datum, Press::class);
                 }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
+                $this->cache->save($countCacheItem);
             } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
                 $this->logger->error($apiResponse->getBody()->getContents());
                 $this->lastCount = 0;
@@ -109,7 +111,5 @@ class PressManager
 
             return $results;
         });
-
-        return $press;
     }
 }
