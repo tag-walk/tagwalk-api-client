@@ -257,6 +257,7 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
+      $analytics: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
       $cacheTTL: '%cache_ttl%'
       $cacheDirectory: '%cache_directory%'
     calls:

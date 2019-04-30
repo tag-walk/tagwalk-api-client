@@ -34,6 +34,11 @@ class AgencyManager
     private $serializer;
 
     /**
+     * @var AnalyticsManager
+     */
+    private $analytics;
+
+    /**
      * @var FilesystemAdapter
      */
     private $cache;
@@ -46,13 +51,15 @@ class AgencyManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
+     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('agencies', $cacheTTL, $cacheDirectory);
     }
 
@@ -71,7 +78,11 @@ class AgencyManager
     public function get(string $slug): ?Agency
     {
         $cacheKey = md5(serialize(compact('slug')));
-        $agency = $this->cache->get($cacheKey, function () use ($slug) {
+        if ($this->cache->hasItem($cacheKey)) {
+            $this->analytics->page('agency_show', compact('slug'));
+        }
+
+        return $this->cache->get($cacheKey, function () use ($slug) {
             $record = null;
             $apiResponse = $this->apiProvider->request(
                 Request::METHOD_GET,
@@ -86,7 +97,5 @@ class AgencyManager
 
             return $record;
         });
-
-        return $agency;
     }
 }

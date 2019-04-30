@@ -20,7 +20,6 @@ use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Model\Season;
-use Tagwalk\ApiClientBundle\Model\Seller;
 use Tagwalk\ApiClientBundle\Model\Tag;
 
 class MediaNormalizer extends DocumentNormalizer implements NormalizerInterface, DenormalizerInterface
