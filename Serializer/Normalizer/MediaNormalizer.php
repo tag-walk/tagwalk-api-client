@@ -72,9 +72,6 @@ class MediaNormalizer extends DocumentNormalizer implements NormalizerInterface,
         }
         if (!empty($data['affiliations'])) {
             foreach ($data['affiliations'] as &$affiliation) {
-                if (!empty($affiliation['seller'])) {
-                    $affiliation['seller'] = $this->serializer->denormalize($affiliation['seller'], Seller::class);
-                }
                 $affiliation = $this->serializer->denormalize($affiliation, Affiliation::class);
             }
         }
