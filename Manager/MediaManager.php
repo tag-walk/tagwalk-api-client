@@ -23,7 +23,7 @@ use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 class MediaManager
 {
     /** @var int default list size */
-    const DEFAULT_SIZE = 24;
+    const DEFAULT_SIZE = 12;
 
     /**
      * @var int last query result count
