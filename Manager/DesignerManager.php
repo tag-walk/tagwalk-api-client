@@ -21,6 +21,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class DesignerManager
 {
+    const DEFAULT_SIZE = 24;
     const DEFAULT_STATUS = 'enabled';
     const DEFAULT_SORT = 'name:asc';
 
