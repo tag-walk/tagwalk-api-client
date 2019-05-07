@@ -23,7 +23,7 @@ use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 class StreetstyleManager
 {
     /** @var int default listing size */
-    const DEFAULT_SIZE = 10;
+    const DEFAULT_SIZE = 12;
 
     /**
      * @var int last list count
@@ -135,6 +135,9 @@ class StreetstyleManager
             $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
+                foreach ($data as &$datum) {
+                    $datum = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
+                }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
                 $this->cache->save($countCacheItem);
