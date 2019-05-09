@@ -101,7 +101,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getPath(): string
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -111,7 +111,7 @@ class File extends AbstractDocument
      *
      * @return File
      */
-    public function setPath(string $path): self
+    public function setPath(?string $path): self
     {
         $this->path = $path;
 
@@ -140,7 +140,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getPathCover(): string
+    public function getPathCover(): ?string
     {
         return $this->pathCover;
     }
@@ -149,7 +149,7 @@ class File extends AbstractDocument
      * @param string $pathCover
      * @return File
      */
-    public function setPathCover(string $pathCover): self
+    public function setPathCover(?string $pathCover): self
     {
         $this->pathCover = $pathCover;
 
@@ -159,7 +159,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getPathList(): string
+    public function getPathList(): ?string
     {
         return $this->pathList;
     }
@@ -168,7 +168,7 @@ class File extends AbstractDocument
      * @param string $pathList
      * @return File
      */
-    public function setPathList(string $pathList): self
+    public function setPathList(?string $pathList): self
     {
         $this->pathList = $pathList;
 
@@ -178,7 +178,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getPathThumbnail(): string
+    public function getPathThumbnail(): ?string
     {
         return $this->pathThumbnail;
     }
@@ -187,7 +187,7 @@ class File extends AbstractDocument
      * @param string $pathThumbnail
      * @return File
      */
-    public function setPathThumbnail(string $pathThumbnail): self
+    public function setPathThumbnail(?string $pathThumbnail): self
     {
         $this->pathThumbnail = $pathThumbnail;
 
@@ -197,7 +197,7 @@ class File extends AbstractDocument
     /**
      * @return string
      */
-    public function getPathZoom(): string
+    public function getPathZoom(): ?string
     {
         return $this->pathZoom;
     }
@@ -206,7 +206,7 @@ class File extends AbstractDocument
      * @param string $pathZoom
      * @return File
      */
-    public function setPathZoom(string $pathZoom): self
+    public function setPathZoom(?string $pathZoom): self
     {
         $this->pathZoom = $pathZoom;
 
