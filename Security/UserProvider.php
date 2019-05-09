@@ -12,12 +12,14 @@
 namespace Tagwalk\ApiClientBundle\Security;
 
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -50,13 +52,13 @@ class UserProvider implements UserProviderInterface
     public function loadUserByUsername($username)
     {
         try {
-            $response = $this->provider->request('GET', '/api/users/' . $username, ['http_errors' => false]);
+            $response = $this->provider->request('GET', '/api/users/' . strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
             if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
                 throw new UsernameNotFoundException();
             }
             $json = $response->getBody()->getContents();
 
-            return $this->serializer->deserialize($json, User::class, 'json');
+            return $this->serializer->deserialize($json, User::class, JsonEncoder::FORMAT);
         } catch (RequestException $e) {
             throw new ServiceUnavailableHttpException('Unable to connect');
         }
