@@ -71,7 +71,7 @@ class GalleryManager
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -83,16 +83,18 @@ class GalleryManager
      */
     public function get(string $slug, array $query = [])
     {
-        $cacheKey = md5(serialize(compact('slug', 'query')));
+        $cacheKey = 'get.' . md5(serialize(compact('slug', 'query')));
         $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        if ($this->cache->hasItem($cacheKey)) {
+        if ($this->cache->hasItem($cacheKey) && $this->cache->hasItem($countCacheKey)) {
             /** @var Gallery $gallery */
             $gallery = $this->cache->getItem($cacheKey)->get();
             $slugs = [];
-            foreach ($gallery->getStreetstyles() as $streetstyle) {
-                $slugs[] = $streetstyle->getSlug();
+            $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+            if (null !== $gallery && count($gallery->getStreetstyles())) {
+                foreach ($gallery->getStreetstyles() as $streetstyle) {
+                    $slugs[] = $streetstyle->getSlug();
+                }
             }
             $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
             $this->analytics->page('gallery_show', $analytics);
