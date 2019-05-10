@@ -177,7 +177,6 @@ class ModelManager extends IndividualManager
      * @param null|string $type
      * @param null|string $season
      * @param null|string $city
-     * @param null|string $designer
      * @param null|string $tags
      * @param string|null $language
      * @return Individual[]
@@ -186,12 +185,11 @@ class ModelManager extends IndividualManager
         ?string $type,
         ?string $season,
         ?string $city,
-        ?string $designer,
         ?string $tags,
         ?string $language = null
     ): array {
         $models = [];
-        $query = array_filter(compact('type', 'season', 'city', 'designer', 'tags', 'language'));
+        $query = array_filter(compact('type', 'season', 'city', 'tags', 'language'));
         $cacheKey = 'listFilters' . md5(serialize($query));
         $cacheItem = $this->cache->getItem($cacheKey);
         if ($cacheItem->isHit()) {
