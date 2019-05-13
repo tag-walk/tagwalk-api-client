@@ -12,6 +12,7 @@
   ],
   "require": {
     "php": ">=7.2",
+    "ext-json": "*",
     "guzzlehttp/guzzle": "^6.3",
     "symfony/framework-bundle": "^4.2",
     "symfony/security-bundle": "^4.2",
