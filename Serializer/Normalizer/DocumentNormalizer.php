@@ -11,10 +11,11 @@
 
 namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
+use DateTime;
+use ReflectionObject;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Document;
 
@@ -23,7 +24,7 @@ use Tagwalk\ApiClientBundle\Model\Document;
  *
  * @extends ObjectNormalizer for nested properties but extract attributes only from object properties like PropertyNormalizer
  */
-class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
+class DocumentNormalizer extends ObjectNormalizer
 {
     /**
      * @inheritdoc
@@ -49,7 +50,7 @@ class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
      */
     protected function extractAttributes($object, $format = null, array $context = [])
     {
-        $reflectionObject = new \ReflectionObject($object);
+        $reflectionObject = new ReflectionObject($object);
         $attributes = [];
         do {
             foreach ($reflectionObject->getProperties() as $property) {
@@ -70,10 +71,10 @@ class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
     public function denormalize($data, $class, $format = null, array $context = [])
     {
         if (isset($data['created_at'])) {
-            $data['created_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['created_at']);
+            $data['created_at'] = DateTime::createFromFormat(DATE_ATOM, $data['created_at']);
         }
         if (isset($data['updated_at'])) {
-            $data['updated_at'] = \DateTime::createFromFormat(DATE_ISO8601, $data['updated_at']);
+            $data['updated_at'] = DateTime::createFromFormat(DATE_ATOM, $data['updated_at']);
         }
 
         return parent::denormalize($data, $class, $format, $context);
@@ -86,8 +87,7 @@ class DocumentNormalizer extends ObjectNormalizer implements NormalizerInterface
     {
         $data = parent::normalize($object, $format, $context);
         if (false === empty($context['write'])) {
-            unset($data['created_at']);
-            unset($data['updated_at']);
+            unset($data['created_at'], $data['updated_at']);
         }
 
         return $data;
