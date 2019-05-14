@@ -75,7 +75,7 @@ class NewsManager
     }
 
     /**
-     * @param null|string $search
+     * @param null|string $text
      * @param null|string|array $categories
      * @param null|string $language
      * @param int $from
@@ -85,7 +85,7 @@ class NewsManager
      * @return News[]
      */
     public function list(
-        ?string $search = null,
+        ?string $text = null,
         $categories = null,
         ?string $language = null,
         $from = 0,
@@ -95,7 +95,7 @@ class NewsManager
     ): array
     {
         $categories = isset($categories) && is_array($categories) ? implode($categories, ',') : $categories;
-        $query = array_filter(compact('search', 'categories', 'language', 'from', 'size', 'sort', 'status'));
+        $query = array_filter(compact('text', 'categories', 'language', 'from', 'size', 'sort', 'status'));
         $cacheKey = 'list.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
