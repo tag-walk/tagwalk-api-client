@@ -23,7 +23,10 @@ use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 class MediaManager
 {
     /** @var int default list size */
-    const DEFAULT_SIZE = 12;
+    public const DEFAULT_SIZE = 12;
+
+    /** @var string default list medias sort for a model */
+    public const DEFAULT_MEDIAS_MODEL_SORT = 'created_at:desc';
 
     /**
      * @var int last query result count
@@ -233,6 +236,7 @@ class MediaManager
      */
     public function listByModel(string $slug, array $query = []): array
     {
+        $query = array_merge($query, ['sort' => self::DEFAULT_MEDIAS_MODEL_SORT]);
         $cacheKey = 'listByModel.' . md5(serialize(array_filter(compact('slug', 'query'))));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
