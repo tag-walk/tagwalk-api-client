@@ -21,10 +21,10 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class AnalyticsManager
 {
-    const EVENT_PAGE = 'page';
-    const EVENT_PHOTO_LIST = 'photo_list';
-    const EVENT_PHOTO_VIEW = 'photo_view';
-    const EVENT_PHOTO_ZOOM = 'photo_zoom';
+    public const EVENT_PAGE = 'page';
+    public const EVENT_PHOTO_LIST = 'photo_list';
+    public const EVENT_PHOTO_VIEW = 'photo_view';
+    public const EVENT_PHOTO_ZOOM = 'photo_zoom';
 
     /**
      * @var ApiProvider
@@ -62,11 +62,16 @@ class AnalyticsManager
     {
         if ($this->enabled) {
             $response = $this->apiProvider->request('POST', "/api/analytics/media/$slug", [RequestOptions::QUERY => $query]);
-            if ($response->getStatusCode() !== Response::HTTP_CREATED) {
-                $this->logger->critical('AnalyticsManager::media error: ' . $response->getBody()->getContents());
+            $status = $response->getStatusCode();
+            $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
+            if (!$success) {
+                $this->logger->error('AnalyticsManager::media', [
+                    RequestOptions::QUERY => $query,
+                    'message' => $response->getBody()->getContents()
+                ]);
             }
 
-            return $response === Response::HTTP_CREATED;
+            return $success;
         }
 
         return false;
@@ -76,14 +81,15 @@ class AnalyticsManager
      * @param Media[] $medias
      * @param array $query
      */
-    public function medias(array $medias, array $query = [])
+    public function medias(array $medias, array $query = []): void
     {
         if ($this->enabled) {
             $promises = [];
             foreach ($medias as $media) {
-                $promises[$media->getSlug()] = $this->apiProvider->requestAsync(
+                $slug = $media->getSlug();
+                $promises[$slug] = $this->apiProvider->requestAsync(
                     'POST',
-                    "/api/analytics/media/{$media->getSlug()}",
+                    "/api/analytics/media/{$slug}",
                     [RequestOptions::QUERY => $query]
                 );
             }
@@ -101,11 +107,16 @@ class AnalyticsManager
     {
         if ($this->enabled) {
             $response = $this->apiProvider->request('POST', "/api/analytics/streetstyle/$slug", [RequestOptions::QUERY => $query]);
-            if ($response->getStatusCode() !== Response::HTTP_CREATED) {
-                $this->logger->critical('AnalyticsManager::streetstyle error: ' . $response->getBody()->getContents());
+            $status = $response->getStatusCode();
+            $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
+            if (!$success) {
+                $this->logger->error('AnalyticsManager::streetstyle', [
+                    RequestOptions::QUERY => $query,
+                    'message' => $response->getBody()->getContents()
+                ]);
             }
 
-            return $response === Response::HTTP_CREATED;
+            return $success;
         }
 
         return false;
@@ -115,14 +126,15 @@ class AnalyticsManager
      * @param Streetstyle[] $streetstyles
      * @param array $query
      */
-    public function streetstyles(array $streetstyles, array $query = [])
+    public function streetstyles(array $streetstyles, array $query = []): void
     {
         if ($this->enabled) {
             $promises = [];
             foreach ($streetstyles as $streetstyle) {
-                $promises[$streetstyle->getSlug()] = $this->apiProvider->requestAsync(
+                $slug = $streetstyle->getSlug();
+                $promises[$slug] = $this->apiProvider->requestAsync(
                     'POST',
-                    "/api/analytics/streetstyle/{$streetstyle->getSlug()}",
+                    "/api/analytics/streetstyle/{$slug}",
                     [RequestOptions::QUERY => $query]
                 );
             }
@@ -134,17 +146,22 @@ class AnalyticsManager
     /**
      * @param string $route
      * @param array $query
-     * @return bool
+     * @return bool success
      */
     public function page(string $route, array $query = []): bool
     {
         if ($this->enabled) {
             $response = $this->apiProvider->request('POST', "/api/analytics/page/$route", [RequestOptions::QUERY => $query]);
-            if ($response->getStatusCode() !== Response::HTTP_CREATED) {
-                $this->logger->critical('AnalyticsManager::page error: ' . $response->getBody()->getContents());
+            $status = $response->getStatusCode();
+            $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
+            if (!$success) {
+                $this->logger->error('AnalyticsManager::page', [
+                    RequestOptions::QUERY => $query,
+                    'message' => $response->getBody()->getContents()
+                ]);
             }
 
-            return $response === Response::HTTP_CREATED;
+            return $success;
         }
 
         return false;
