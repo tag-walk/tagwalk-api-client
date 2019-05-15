@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use OutOfRangeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +24,7 @@ use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 class MediaManager
 {
     /** @var int default list size */
-    public const DEFAULT_SIZE = 12;
+    public const DEFAULT_SIZE = 24;
 
     /** @var string default list medias sort for a model */
     public const DEFAULT_MEDIAS_MODEL_SORT = 'created_at:desc';
@@ -207,8 +208,8 @@ class MediaManager
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
-                foreach ($data as &$datum) {
-                    $datum = $this->mediaNormalizer->denormalize($datum, Media::class);
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
                 }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
@@ -216,7 +217,7 @@ class MediaManager
             } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
                 $this->logger->error($apiResponse->getBody()->getContents());
                 $this->lastCount = 0;
-                throw new \OutOfRangeException();
+                throw new OutOfRangeException();
             } else {
                 $this->lastCount = 0;
                 $this->logger->error($apiResponse->getBody()->getContents());
@@ -263,8 +264,8 @@ class MediaManager
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
                 if (!empty($data)) {
-                    foreach ($data as &$datum) {
-                        $datum = $this->mediaNormalizer->denormalize($datum, Media::class);
+                    foreach ($data as $i => $datum) {
+                        $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
                     }
                 }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
