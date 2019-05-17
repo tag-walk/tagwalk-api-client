@@ -19,7 +19,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Tagwalk\ApiClientBundle\Manager\AnalyticsManager;
 
 /**
- * @Route("/analytics")
+ * Tagwalk tracking system
+ *
+ * @Route("/tts")
  */
 class AnalyticsController extends AbstractController
 {
@@ -37,7 +39,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/media/{slug}", name="analytics_media", methods={"POST"}, options={"expose"=true})
+     * @Route("/media/{slug}", name="tts_media", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
      * @param string $slug
@@ -54,7 +56,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/streetstyle/{slug}", name="analytics_streetstyle", methods={"POST"}, options={"expose"=true})
+     * @Route("/streetstyle/{slug}", name="tts_streetstyle", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param string $slug
      * @return Response
@@ -70,7 +72,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/page/{slug}", name="analytics_page", methods={"POST"}, options={"expose"=true})
+     * @Route("/page/{route}", name="tts_page", methods={"POST"}, options={"expose"=true})
      * @param Request $request
      * @param string $route
      * @return Response
