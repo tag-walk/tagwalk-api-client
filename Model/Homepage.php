@@ -96,4 +96,19 @@ class Homepage extends AbstractDocument
             }
         }
     }
+
+    /**
+     * @param string $slug
+     * @return HomepageCell|null
+     */
+    public function getCell(string $slug): ?HomepageCell
+    {
+        foreach ($this->cells as $cell) {
+            if ($cell->getSlug() === $slug) {
+                return $cell;
+            }
+        }
+
+        return null;
+    }
 }
