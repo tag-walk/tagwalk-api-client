@@ -56,7 +56,7 @@ class ModelManager extends IndividualManager
      *
      * @return array
      */
-    public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10)
+    public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10): array
     {
         $query = array_filter(compact('type', 'season', 'city', 'length'));
         $cacheKey = 'whoWalkedTheMost.' . md5(serialize($query));
@@ -76,8 +76,8 @@ class ModelManager extends IndividualManager
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
                 if (!empty($data)) {
-                    foreach ($data as &$datum) {
-                        $datum = $this->serializer->denormalize($datum, Individual::class);
+                    foreach ($data as $i => $datum) {
+                        $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                     }
                 }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
@@ -120,8 +120,8 @@ class ModelManager extends IndividualManager
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
                 if (!empty($data)) {
-                    foreach ($data as &$datum) {
-                        $datum = $this->serializer->denormalize($datum, Individual::class);
+                    foreach ($data as $i => $datum) {
+                        $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                     }
                 }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
@@ -155,8 +155,8 @@ class ModelManager extends IndividualManager
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
                 if (!empty($data)) {
-                    foreach ($data as &$datum) {
-                        $datum = $this->serializer->denormalize($datum, Individual::class);
+                    foreach ($data as $i => $datum) {
+                        $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                     }
                 }
 
@@ -188,7 +188,7 @@ class ModelManager extends IndividualManager
     ): array {
         $models = [];
         $query = array_filter(compact('type', 'season', 'city', 'language'));
-        $cacheKey = 'listFilters' . md5(serialize($query));
+        $cacheKey = md5('listFilters.' . serialize($query));
         $cacheItem = $this->cache->getItem($cacheKey);
         if ($cacheItem->isHit()) {
             $models = $cacheItem->get();
