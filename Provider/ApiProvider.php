@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -64,12 +64,18 @@ class ApiProvider
     private $token;
 
     /**
-     * @param RequestStack $requestStack
+     * @var bool
+     */
+    private $lightData;
+
+    /**
+     * @param RequestStack     $requestStack
      * @param SessionInterface $session
-     * @param string $baseUri
-     * @param string $clientId
-     * @param string $clientSecret
-     * @param float $timeout
+     * @param string           $baseUri
+     * @param string           $clientId
+     * @param string           $clientSecret
+     * @param float            $timeout
+     * @param bool             $lightData do not resolve files path property
      */
     public function __construct(
         RequestStack $requestStack,
@@ -77,7 +83,8 @@ class ApiProvider
         string $baseUri,
         string $clientId,
         string $clientSecret,
-        $timeout = 10.0
+        $timeout = 10.0,
+        $lightData = true
     ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -85,20 +92,25 @@ class ApiProvider
         $this->clientSecret = $clientSecret;
         $this->client = new Client([
             'base_uri' => $baseUri,
-            'timeout' => $timeout
+            'timeout'  => $timeout,
         ]);
         $this->cache = new FilesystemAdapter('tagwalk_api_client');
+        $this->lightData = $lightData;
     }
 
     /**
      * @param string $method
      * @param string $uri
-     * @param array $options
+     * @param array  $options
+     *
      * @return ResponseInterface
      */
     public function request($method, $uri, $options = []): ResponseInterface
     {
         $options = array_merge($this->getDefaultOptions(), $options);
+        if ($this->lightData) {
+            $options[RequestOptions::QUERY]['light'] = true;
+        }
         $response = $this->client->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
             $this->cache->deleteItem(self::CACHE_KEY_TOKEN);
@@ -114,14 +126,14 @@ class ApiProvider
     {
         return [
             RequestOptions::HTTP_ERRORS => true,
-            RequestOptions::HEADERS => [
-                'Authorization' => $this->getBearer(),
-                'Accept' => 'application/json',
+            RequestOptions::HEADERS     => [
+                'Authorization'   => $this->getBearer(),
+                'Accept'          => 'application/json',
                 'Accept-Language' => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en', // Fallback if console mode
-                'Cookie' => $this->session->get('Cookie')
-            ]
+                'Cookie'          => $this->session->get('Cookie'),
+            ],
         ];
     }
 
@@ -141,12 +153,15 @@ class ApiProvider
     private function getToken(): string
     {
         if (null === $this->token) {
-            return $this->cache->get(self::CACHE_KEY_TOKEN, function (ItemInterface $item) {
-                $auth = $this->authenticate();
-                $item->expiresAfter((int)$auth['expires_in'] - 5);
+            return $this->cache->get(
+                self::CACHE_KEY_TOKEN,
+                function (ItemInterface $item) {
+                    $auth = $this->authenticate();
+                    $item->expiresAfter((int) $auth['expires_in'] - 5);
 
-                return $this->token = $auth['access_token'];
-            });
+                    return $this->token = $auth['access_token'];
+                }
+            );
         }
 
         return $this->token;
@@ -162,11 +177,11 @@ class ApiProvider
             '/oauth/v2/token',
             [
                 RequestOptions::FORM_PARAMS => [
-                    'client_id' => $this->clientId,
+                    'client_id'     => $this->clientId,
                     'client_secret' => $this->clientSecret,
-                    'grant_type' => 'client_credentials'
+                    'grant_type'    => 'client_credentials',
                 ],
-                RequestOptions::HTTP_ERRORS => true
+                RequestOptions::HTTP_ERRORS => true,
             ]
         );
 
@@ -176,7 +191,8 @@ class ApiProvider
     /**
      * @param string $method
      * @param string $uri
-     * @param array $options
+     * @param array  $options
+     *
      * @return PromiseInterface
      */
     public function requestAsync($method, $uri, $options = []): PromiseInterface
