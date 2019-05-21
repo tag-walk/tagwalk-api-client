@@ -64,12 +64,18 @@ class ApiProvider
     private $token;
 
     /**
+     * @var bool
+     */
+    private $lightData;
+
+    /**
      * @param RequestStack $requestStack
      * @param SessionInterface $session
      * @param string $baseUri
      * @param string $clientId
      * @param string $clientSecret
      * @param float $timeout
+     * @param bool $lightData do not resolve files path property
      */
     public function __construct(
         RequestStack $requestStack,
@@ -77,7 +83,8 @@ class ApiProvider
         string $baseUri,
         string $clientId,
         string $clientSecret,
-        $timeout = 10.0
+        $timeout = 10.0,
+        $lightData = true
     ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -88,6 +95,7 @@ class ApiProvider
             'timeout' => $timeout
         ]);
         $this->cache = new FilesystemAdapter('tagwalk_api_client');
+        $this->lightData = $lightData;
     }
 
     /**
@@ -99,6 +107,9 @@ class ApiProvider
     public function request($method, $uri, $options = []): ResponseInterface
     {
         $options = array_merge($this->getDefaultOptions(), $options);
+        if ($this->lightData) {
+            $options[RequestOptions::QUERY]['light'] = true;
+        }
         $response = $this->client->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
             $this->cache->deleteItem(self::CACHE_KEY_TOKEN);
