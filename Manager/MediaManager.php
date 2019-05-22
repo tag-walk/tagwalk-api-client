@@ -147,7 +147,7 @@ class MediaManager
      * @param string $season
      * @param string $designer
      * @param string|null $city
-     * @return array|mixed
+     * @return array|null
      */
     public function listRelated(string $type, string $season, string $designer, ?string $city = null): array
     {
@@ -157,6 +157,34 @@ class MediaManager
             'size' => 6
         ], compact('type', 'season', 'designer', 'city'));
         $cacheKey = 'listRelated.' . md5(serialize($query));
+
+        $data = $this->cache->get($cacheKey, function () use ($query) {
+            $results = [];
+            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $results = json_decode($apiResponse->getBody(), true);
+            } else {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
+
+            return $results;
+        });
+
+        return $data;
+    }
+
+    /**
+     * @param array $query
+     * @param int $from
+     * @param int $size
+     * @param string $status
+     * @param int $analytics
+     * @return array|null
+     */
+    public function listMore($query = [], $from = 0, $size = 0, $status = Status::ENABLED, $analytics = 0): array
+    {
+        $query = array_merge($query, compact( 'from','size', 'status', 'analytics'));
+        $cacheKey = 'listMore.' . md5(serialize($query));
 
         $data = $this->cache->get($cacheKey, function () use ($query) {
             $results = [];
