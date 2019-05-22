@@ -23,9 +23,9 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class PageManager
 {
-    const DEFAULT_STATUS = 'enabled';
-    const DEFAULT_SORT = 'created_at:desc';
-    const DEFAULT_SIZE = 10;
+    public const DEFAULT_STATUS = 'enabled';
+    public const DEFAULT_SORT = 'created_at:desc';
+    public const DEFAULT_SIZE = 10;
 
     /**
      * @var ApiProvider
@@ -43,50 +43,43 @@ class PageManager
     private $cache;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
-     * @param AnalyticsManager $analytics
-     * @param int $cacheTTL
-     * @param string|null $cacheDirectory
+     * @param int                 $cacheTTL
+     * @param string|null         $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
         SerializerInterface $serializer,
-        AnalyticsManager $analytics,
         int $cacheTTL = 600,
         string $cacheDirectory = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('pages', $cacheTTL, $cacheDirectory);
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
 
     /**
-     * @param int $from
-     * @param int $size
-     * @param string $sort
-     * @param string $status
+     * @param int         $from
+     * @param int         $size
+     * @param string      $sort
+     * @param string      $status
      * @param null|string $name
      * @param null|string $text
+     *
      * @return Page[]
      */
     public function list(
@@ -114,25 +107,27 @@ class PageManager
     }
 
     /**
-     * @param string $status
+     * @param string      $status
      * @param null|string $name
      * @param null|string $text
+     *
      * @return int
      */
     public function count(
         string $status = self::DEFAULT_STATUS,
         ?string $name = null,
         ?string $text = null
-    ) {
+    ): int {
         $query = array_filter(compact('status', 'name', 'text'));
         $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
 
-        return (int)$apiResponse->getHeaderLine('X-Total-Count');
+        return (int) $apiResponse->getHeaderLine('X-Total-Count');
     }
 
     /**
-     * @param string $slug
+     * @param string      $slug
      * @param null|string $language
+     *
      * @return Page|null
      */
     public function get(string $slug, ?string $language = null): ?Page
@@ -141,35 +136,39 @@ class PageManager
         $query = compact('language');
         $cacheKey = md5(serialize(compact('slug', 'language')));
 
-        return $this->cache->get($cacheKey, function () use ($slug, $query) {
-            $page = null;
-            $apiResponse = $this->apiProvider->request(
-                'GET',
-                '/api/page/' . $slug,
-                [
-                    RequestOptions::HTTP_ERRORS => false,
-                    RequestOptions::QUERY => $query
-                ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                $page = $this->serializer->denormalize($data, Page::class);
-            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
+        return $this->cache->get($cacheKey,
+            function () use ($slug, $query) {
+                $page = null;
+                $apiResponse = $this->apiProvider->request(
+                    'GET',
+                    '/api/page/' . $slug,
+                    [
+                        RequestOptions::HTTP_ERRORS => false,
+                        RequestOptions::QUERY       => $query,
+                    ]);
+                if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                    $data = json_decode($apiResponse->getBody(), true);
+                    $page = $this->serializer->denormalize($data, Page::class);
+                } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+                    $this->logger->error($apiResponse->getBody()->getContents());
+                }
 
-            return $page;
-        });
+                return $page;
+            });
     }
 
     /**
      * @param string $slug
+     *
      * @return bool
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE', '/api/page/' . $slug, [
-            RequestOptions::HTTP_ERRORS => false
-        ]);
+        $apiResponse = $this->apiProvider->request('DELETE',
+            '/api/page/' . $slug,
+            [
+                RequestOptions::HTTP_ERRORS => false,
+            ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
             throw new AccessDeniedHttpException();
         }
@@ -179,6 +178,7 @@ class PageManager
 
     /**
      * @param Page $record
+     *
      * @return Page
      */
     public function create(Page $record): Page
@@ -186,14 +186,14 @@ class PageManager
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('POST', '/api/page', $params);
         $data = json_decode($apiResponse->getBody(), true);
-        $page = $this->serializer->denormalize($data, Page::class);
 
-        return $page;
+        return $this->serializer->denormalize($data, Page::class);
     }
 
     /**
      * @param string $slug
-     * @param Page $record
+     * @param Page   $record
+     *
      * @return Page
      */
     public function update(string $slug, Page $record): Page
@@ -201,8 +201,7 @@ class PageManager
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('PUT', '/api/page/' . $slug, $params);
         $data = json_decode($apiResponse->getBody(), true);
-        $page = $this->serializer->denormalize($data, Page::class);
 
-        return $page;
+        return $this->serializer->denormalize($data, Page::class);
     }
 }

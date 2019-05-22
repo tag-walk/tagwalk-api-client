@@ -29,11 +29,6 @@ class CollectionManager
     private $cache;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -41,20 +36,17 @@ class CollectionManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
         SerializerInterface $serializer,
-        AnalyticsManager $analytics,
         int $cacheTTL = 600,
         string $cacheDirectory = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('collections', $cacheTTL, $cacheDirectory);
     }
 
@@ -76,10 +68,9 @@ class CollectionManager
     {
         $params = compact('type', 'designer', 'season');
         $cacheKey = md5('find.' . serialize($params));
-        if ($this->cache->hasItem($cacheKey)) {
-            $this->analytics->page('collection_find_by_type_designer_season', $params);
-        }
-        $collection = $this->cache->get($cacheKey, function () use ($type, $designer, $season) {
+
+        return $this->cache->get($cacheKey,
+            function () use ($type, $designer, $season) {
             $data = null;
             $apiResponse = $this->apiProvider->request(
                 'GET',
@@ -95,7 +86,5 @@ class CollectionManager
 
             return $data;
         });
-
-        return $collection;
     }
 }

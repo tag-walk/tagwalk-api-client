@@ -33,18 +33,16 @@ class ModelManager extends IndividualManager
     /**
      * @param ApiProvider $apiProvider
      * @param Serializer $serializer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
         Serializer $serializer,
-        AnalyticsManager $analytics,
         int $cacheTTL = 600,
         string $cacheDirectory = null
     ) {
-        parent::__construct($apiProvider, $serializer, $analytics, $cacheTTL, $cacheDirectory);
+        parent::__construct($apiProvider, $serializer, $cacheTTL, $cacheDirectory);
         $this->cache = new FilesystemAdapter('models', $cacheTTL, $cacheDirectory);
     }
 
@@ -62,10 +60,6 @@ class ModelManager extends IndividualManager
         $cacheKey = 'whoWalkedTheMost.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        if ($this->cache->hasItem($cacheKey)) {
-            $this->analytics->page('models_who_walked_the_most', array_merge($query, ['count' => $this->lastCount]));
-        }
 
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
@@ -107,9 +101,6 @@ class ModelManager extends IndividualManager
         $cacheKey = 'listMediasModels.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-        if ($this->cache->hasItem($cacheKey)) {
-            $this->analytics->page('model_list', array_merge($query, ['count' => $this->lastCount]));
-        }
 
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
@@ -144,10 +135,6 @@ class ModelManager extends IndividualManager
         $cacheKey = 'new-faces';
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        if ($this->cache->hasItem($cacheKey)) {
-            $this->analytics->page('models_new_faces', ['count' => $this->lastCount]);
-        }
 
         return $this->cache->get($cacheKey, function () use ($countCacheKey) {
             $data = [];

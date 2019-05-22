@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use OutOfRangeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,11 +39,6 @@ class PressManager
     private $pressNormalizer;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @var FilesystemAdapter
      */
     private $cache;
@@ -53,24 +49,22 @@ class PressManager
     private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider     $apiProvider
      * @param PressNormalizer $pressNormalizer
-     * @param AnalyticsManager $analytics
-     * @param int $cacheTTL
-     * @param string|null $cacheDirectory
+     * @param int             $cacheTTL
+     * @param string|null     $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer, AnalyticsManager $analytics, int $cacheTTL = 3600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer, int $cacheTTL = 3600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->pressNormalizer = $pressNormalizer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('press', $cacheTTL, $cacheDirectory);
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -84,10 +78,6 @@ class PressManager
         $cacheKey = 'list.' . md5(serialize($query));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        if ($this->cache->hasItem($cacheKey)) {
-            $this->analytics->page('press_list', array_merge($query, ['count' => $this->lastCount]));
-        }
 
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $results = [];
@@ -103,7 +93,7 @@ class PressManager
             } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
                 $this->logger->error($apiResponse->getBody()->getContents());
                 $this->lastCount = 0;
-                throw new \OutOfRangeException();
+                throw new OutOfRangeException();
             } else {
                 $this->lastCount = 0;
                 $this->logger->error($apiResponse->getBody()->getContents());

@@ -22,9 +22,9 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class LiveManager
 {
-    const DEFAULT_STATUS = 'enabled';
-    const DEFAULT_SORT = 'position:asc';
-    const DEFAULT_SIZE = 10;
+    public const DEFAULT_STATUS = 'enabled';
+    public const DEFAULT_SORT = 'position:asc';
+    public const DEFAULT_SIZE = 10;
 
     /**
      * @var ApiProvider
@@ -42,11 +42,6 @@ class LiveManager
     private $cache;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -54,27 +49,24 @@ class LiveManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
         SerializerInterface $serializer,
-        AnalyticsManager $analytics,
         int $cacheTTL = 600,
         string $cacheDirectory = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('live', $cacheTTL, $cacheDirectory);
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -89,7 +81,6 @@ class LiveManager
         $cacheItem = $this->cache->getItem($slug);
         if ($cacheItem->isHit()) {
             $live = $cacheItem->get();
-            $this->analytics->page('live_show', compact('slug'));
         } else {
             $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", [RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -129,9 +120,7 @@ class LiveManager
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
             $lives = $cacheItem->get();
-            $this->analytics->page('live_list', $query);
         } else {
-            $query['light'] = true;
             $apiResponse = $this->apiProvider->request('GET', '/api/live', [
                 RequestOptions::QUERY => $query,
                 RequestOptions::HTTP_ERRORS => false
