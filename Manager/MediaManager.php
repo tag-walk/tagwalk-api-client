@@ -188,7 +188,10 @@ class MediaManager
 
         $data = $this->cache->get($cacheKey, function () use ($query) {
             $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
+            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
+                RequestOptions::QUERY => $query,
+                RequestOptions::HTTP_ERRORS => false
+            ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $results = json_decode($apiResponse->getBody(), true);
             } else {
