@@ -50,7 +50,7 @@ class AnalyticsController extends AbstractController
         if ($request->isXmlHttpRequest() === false) {
             throw new BadRequestHttpException();
         }
-        $this->manager->media($slug, $request->request->all());
+        $this->manager->media($slug, $request->request->all(), $request->getClientIp());
 
         return new Response();
     }
@@ -66,7 +66,7 @@ class AnalyticsController extends AbstractController
         if ($request->isXmlHttpRequest() === false) {
             throw new BadRequestHttpException();
         }
-        $this->manager->streetstyle($slug, $request->request->all());
+        $this->manager->streetstyle($slug, $request->request->all(), $request->getClientIp());
 
         return new Response();
     }
@@ -82,7 +82,7 @@ class AnalyticsController extends AbstractController
         if ($request->isXmlHttpRequest() === false) {
             throw new BadRequestHttpException();
         }
-        $this->manager->page($route, $request->request->all());
+        $this->manager->page($route, $request->request->all(), $request->getClientIp());
 
         return new Response();
     }
