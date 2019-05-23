@@ -42,9 +42,9 @@ class AnalyticsManager
     private $enabled;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider     $apiProvider
      * @param LoggerInterface $logger
-     * @param bool $enabled
+     * @param bool            $enabled
      */
     public function __construct(ApiProvider $apiProvider, LoggerInterface $logger, bool $enabled = true)
     {
@@ -54,21 +54,30 @@ class AnalyticsManager
     }
 
     /**
-     * @param string $slug
-     * @param array $query
+     * @param string      $slug
+     * @param array       $query
+     * @param string|null $clientIp
+     *
      * @return bool
      */
-    public function media(string $slug, array $query = []): bool
+    public function media(string $slug, array $query = [], ?string $clientIp = null): bool
     {
         if ($this->enabled) {
-            $response = $this->apiProvider->request('POST', "/api/analytics/media/$slug", [RequestOptions::QUERY => $query]);
+            $response = $this->apiProvider->request('POST',
+                "/api/analytics/media/$slug",
+                [
+                    RequestOptions::QUERY   => $query,
+                    RequestOptions::HEADERS => ['X-Client-IP' => $clientIp],
+                ]
+            );
             $status = $response->getStatusCode();
             $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
             if (!$success) {
-                $this->logger->error('AnalyticsManager::media', [
-                    RequestOptions::QUERY => $query,
-                    'message' => $response->getBody()->getContents()
-                ]);
+                $this->logger->error('AnalyticsManager::media',
+                    [
+                        RequestOptions::QUERY => $query,
+                        'message'             => $response->getBody()->getContents(),
+                    ]);
             }
 
             return $success;
@@ -99,21 +108,30 @@ class AnalyticsManager
     }
 
     /**
-     * @param string $slug
-     * @param array $query
+     * @param string      $slug
+     * @param array       $query
+     * @param string|null $clientIp
+     *
      * @return bool
      */
-    public function streetstyle(string $slug, array $query = []): bool
+    public function streetstyle(string $slug, array $query = [], ?string $clientIp = null): bool
     {
         if ($this->enabled) {
-            $response = $this->apiProvider->request('POST', "/api/analytics/streetstyle/$slug", [RequestOptions::QUERY => $query]);
+            $response = $this->apiProvider->request('POST',
+                "/api/analytics/streetstyle/$slug",
+                [
+                    RequestOptions::QUERY   => $query,
+                    RequestOptions::HEADERS => ['X-Client-IP' => $clientIp],
+                ]
+            );
             $status = $response->getStatusCode();
             $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
             if (!$success) {
-                $this->logger->error('AnalyticsManager::streetstyle', [
-                    RequestOptions::QUERY => $query,
-                    'message' => $response->getBody()->getContents()
-                ]);
+                $this->logger->error('AnalyticsManager::streetstyle',
+                    [
+                        RequestOptions::QUERY => $query,
+                        'message'             => $response->getBody()->getContents(),
+                    ]);
             }
 
             return $success;
@@ -144,21 +162,31 @@ class AnalyticsManager
     }
 
     /**
-     * @param string $route
-     * @param array $query
+     * @param string      $route
+     * @param array       $query
+     * @param string|null $clientIp
+     *
      * @return bool success
      */
-    public function page(string $route, array $query = []): bool
+    public function page(string $route, array $query = [], ?string $clientIp = null): bool
     {
         if ($this->enabled) {
-            $response = $this->apiProvider->request('POST', "/api/analytics/page/$route", [RequestOptions::QUERY => $query]);
+            $response = $this->apiProvider->request('POST',
+                "/api/analytics/page/$route",
+                [
+                    RequestOptions::QUERY   => $query,
+                    RequestOptions::HEADERS => ['X-Client-IP' => $clientIp],
+                ]
+            );
             $status = $response->getStatusCode();
             $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
             if (!$success) {
-                $this->logger->error('AnalyticsManager::page', [
-                    RequestOptions::QUERY => $query,
-                    'message' => $response->getBody()->getContents()
-                ]);
+                $this->logger->error('AnalyticsManager::page',
+                    [
+                        RequestOptions::QUERY => $query,
+                        'message'             => $response->getBody()->getContents(),
+                    ]
+                );
             }
 
             return $success;
