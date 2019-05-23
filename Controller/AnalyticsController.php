@@ -14,7 +14,6 @@ namespace Tagwalk\ApiClientBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Tagwalk\ApiClientBundle\Manager\AnalyticsManager;
 
@@ -47,10 +46,7 @@ class AnalyticsController extends AbstractController
      */
     public function media(Request $request, string $slug): Response
     {
-        if ($request->isXmlHttpRequest() === false) {
-            throw new BadRequestHttpException();
-        }
-        $this->manager->media($slug, $request->request->all());
+        $this->manager->media($slug, $request->request->all(), $request->getClientIp());
 
         return new Response();
     }
@@ -63,10 +59,7 @@ class AnalyticsController extends AbstractController
      */
     public function streetstyle(Request $request, string $slug): Response
     {
-        if ($request->isXmlHttpRequest() === false) {
-            throw new BadRequestHttpException();
-        }
-        $this->manager->streetstyle($slug, $request->request->all());
+        $this->manager->streetstyle($slug, $request->request->all(), $request->getClientIp());
 
         return new Response();
     }
@@ -79,10 +72,7 @@ class AnalyticsController extends AbstractController
      */
     public function page(Request $request, string $route): Response
     {
-        if ($request->isXmlHttpRequest() === false) {
-            throw new BadRequestHttpException();
-        }
-        $this->manager->page($route, $request->request->all());
+        $this->manager->page($route, $request->request->all(), $request->getClientIp());
 
         return new Response();
     }
