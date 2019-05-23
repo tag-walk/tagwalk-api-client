@@ -131,7 +131,7 @@ class LiveManager
             $lives = $cacheItem->get();
             $this->analytics->page('live_list', $query);
         } else {
-            $query['light'] = true;
+            $query['no-designers'] = true;
             $apiResponse = $this->apiProvider->request('GET', '/api/live', [
                 RequestOptions::QUERY => $query,
                 RequestOptions::HTTP_ERRORS => false
