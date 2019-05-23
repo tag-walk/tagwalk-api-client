@@ -5,18 +5,15 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @copyright   2016-2019 TAGWALK
  * @license     proprietary
  */
 
 namespace Tagwalk\ApiClientBundle\Manager;
 
-use GuzzleHttp\Promise;
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Tagwalk\ApiClientBundle\Model\Media;
-use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class AnalyticsManager
@@ -78,27 +75,6 @@ class AnalyticsManager
     }
 
     /**
-     * @param Media[] $medias
-     * @param array $query
-     */
-    public function medias(array $medias, array $query = []): void
-    {
-        if ($this->enabled) {
-            $promises = [];
-            foreach ($medias as $media) {
-                $slug = $media->getSlug();
-                $promises[$slug] = $this->apiProvider->requestAsync(
-                    'POST',
-                    "/api/analytics/media/{$slug}",
-                    [RequestOptions::QUERY => $query]
-                );
-            }
-            // Wait for the requests to complete, even if some of them fail
-            Promise\settle($promises)->wait();
-        }
-    }
-
-    /**
      * @param string $slug
      * @param array $query
      * @return bool
@@ -120,27 +96,6 @@ class AnalyticsManager
         }
 
         return false;
-    }
-
-    /**
-     * @param Streetstyle[] $streetstyles
-     * @param array $query
-     */
-    public function streetstyles(array $streetstyles, array $query = []): void
-    {
-        if ($this->enabled) {
-            $promises = [];
-            foreach ($streetstyles as $streetstyle) {
-                $slug = $streetstyle->getSlug();
-                $promises[$slug] = $this->apiProvider->requestAsync(
-                    'POST',
-                    "/api/analytics/streetstyle/{$slug}",
-                    [RequestOptions::QUERY => $query]
-                );
-            }
-            // Wait for the requests to complete, even if some of them fail
-            Promise\settle($promises)->wait();
-        }
     }
 
     /**

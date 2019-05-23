@@ -22,8 +22,8 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class IndividualManager
 {
-    const DEFAULT_STATUS = 'enabled';
-    const DEFAULT_SORT = 'name:asc';
+    public const DEFAULT_STATUS = 'enabled';
+    public const DEFAULT_SORT = 'name:asc';
 
     /**
      * @var ApiProvider
@@ -46,34 +46,26 @@ class IndividualManager
     protected $logger;
 
     /**
-     * @var AnalyticsManager
-     */
-    protected $analytics;
-
-    /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string|null $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
         SerializerInterface $serializer,
-        AnalyticsManager $analytics,
         int $cacheTTL = 600,
         string $cacheDirectory = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('individuals', $cacheTTL, $cacheDirectory);
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -90,7 +82,6 @@ class IndividualManager
         $cacheItem = $this->cache->getItem($cacheKey);
         if ($cacheItem->isHit()) {
             $individual = $cacheItem->get();
-            $this->analytics->page('individual_show', array_filter(compact('slug', 'language')));
         } else {
             $query = array_filter(compact('language'));
             $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug, [
@@ -130,7 +121,6 @@ class IndividualManager
         $cacheItem = $this->cache->getItem($key);
         if ($cacheItem->isHit()) {
             $individuals = $cacheItem->get();
-            $this->analytics->page('individual_list', $query);
         } else {
             $apiResponse = $this->apiProvider->request('GET', '/api/individuals', [
                 RequestOptions::QUERY => $query,

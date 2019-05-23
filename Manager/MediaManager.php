@@ -45,11 +45,6 @@ class MediaManager
     private $mediaNormalizer;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @var FilesystemAdapter
      */
     private $cache;
@@ -62,22 +57,20 @@ class MediaManager
     /**
      * @param ApiProvider $apiProvider
      * @param MediaNormalizer $mediaNormalizer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->mediaNormalizer = $mediaNormalizer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('medias', $cacheTTL, $cacheDirectory);
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -88,9 +81,6 @@ class MediaManager
      */
     public function get(string $slug): ?Media
     {
-        if ($this->cache->hasItem($slug)) {
-            $this->analytics->media($slug);
-        }
         $media = $this->cache->get($slug, function () use ($slug) {
             $data = null;
             $apiResponse = $this->apiProvider->request('GET', '/api/medias/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
@@ -187,19 +177,6 @@ class MediaManager
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        if ($this->cache->hasItem($cacheKey)) {
-            /** @var Media[] $medias */
-            $medias = $this->cache->getItem($cacheKey)->get();
-            $slugs = [];
-            foreach ($medias as $media) {
-                $slugs[] = $media->getSlug();
-            }
-            $analytics = array_merge($query, ['count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
-            $this->analytics->page('media_list', $analytics);
-
-            return $medias;
-        }
-
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
@@ -241,19 +218,6 @@ class MediaManager
         $cacheKey = 'listByModel.' . md5(serialize(array_filter(compact('slug', 'query'))));
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        if ($this->cache->hasItem($cacheKey)) {
-            /** @var Media[] $medias */
-            $medias = $this->cache->getItem($cacheKey)->get();
-            $slugs = [];
-            foreach ($medias as $media) {
-                $slugs[] = $media->getSlug();
-            }
-            $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
-            $this->analytics->page('individual_medias_list', $analytics);
-
-            return $medias;
-        }
 
         return $this->cache->get($cacheKey, function () use ($slug, $query, $countCacheKey) {
             $data = [];

@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use OutOfRangeException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +24,7 @@ use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 class StreetstyleManager
 {
     /** @var int default listing size */
-    const DEFAULT_SIZE = 12;
+    public const DEFAULT_SIZE = 12;
 
     /**
      * @var int last list count
@@ -51,29 +52,22 @@ class StreetstyleManager
     private $cache;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @param ApiProvider $apiProvider
      * @param StreetstyleNormalizer $streetstyleNormalizer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->streetstyleNormalizer = $streetstyleNormalizer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('streetstyles', $cacheTTL, $cacheDirectory);
     }
 
     /**
      * @param LoggerInterface $logger
      */
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
@@ -84,9 +78,6 @@ class StreetstyleManager
      */
     public function get(string $slug): ?Streetstyle
     {
-        if ($this->cache->hasItem($slug)) {
-            $this->analytics->streetstyle($slug);
-        }
         $streetstyle = $this->cache->get($slug, function () use ($slug) {
             $data = null;
             $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
@@ -117,26 +108,13 @@ class StreetstyleManager
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        if ($this->cache->hasItem($cacheKey)) {
-            /** @var Streetstyle[] $streetstyles */
-            $streetstyles = $this->cache->getItem($cacheKey)->get();
-            $slugs = [];
-            foreach ($streetstyles as $streetstyle) {
-                $slugs[] = $streetstyle->getSlug();
-            }
-            $analytics = array_merge($query, ['count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
-            $this->analytics->page('streetstyle_list', $analytics);
-
-            return $streetstyles;
-        }
-
         return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
             $data = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
-                foreach ($data as &$datum) {
-                    $datum = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
                 }
                 $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
                 $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
@@ -144,7 +122,7 @@ class StreetstyleManager
             } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
                 $this->logger->error($apiResponse->getBody()->getContents());
                 $this->lastCount = 0;
-                throw new \OutOfRangeException();
+                throw new OutOfRangeException('Api error: out of range');
             } else {
                 $this->lastCount = 0;
                 $this->logger->error($apiResponse->getBody()->getContents());
