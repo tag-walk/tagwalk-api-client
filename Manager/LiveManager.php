@@ -121,6 +121,7 @@ class LiveManager
         if ($cacheItem->isHit()) {
             $lives = $cacheItem->get();
         } else {
+            $query['no-designers'] = true;
             $apiResponse = $this->apiProvider->request('GET', '/api/live', [
                 RequestOptions::QUERY => $query,
                 RequestOptions::HTTP_ERRORS => false
