@@ -107,10 +107,7 @@ class ApiProvider
      */
     public function request($method, $uri, $options = []): ResponseInterface
     {
-        $options = array_merge($this->getDefaultOptions(), $options);
-        if ($this->lightData) {
-            $options[RequestOptions::QUERY]['light'] = true;
-        }
+        $options = array_replace_recursive($this->getDefaultOptions(), $options);
         $response = $this->client->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
             $this->cache->deleteItem(self::CACHE_KEY_TOKEN);
@@ -133,6 +130,10 @@ class ApiProvider
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en', // Fallback if console mode
                 'Cookie'          => $this->session->get('Cookie'),
+            ],
+            RequestOptions::QUERY       => [
+                'light'     => $this->lightData,
+                'analytics' => false,
             ],
         ];
     }

@@ -34,11 +34,6 @@ class GalleryManager
     private $serializer;
 
     /**
-     * @var AnalyticsManager
-     */
-    private $analytics;
-
-    /**
      * @var FilesystemAdapter
      */
     private $cache;
@@ -56,15 +51,13 @@ class GalleryManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
-     * @param AnalyticsManager $analytics
      * @param int $cacheTTL
      * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, AnalyticsManager $analytics, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 600, string $cacheDirectory = null)
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('galleries', $cacheTTL, $cacheDirectory);
     }
 
@@ -85,22 +78,7 @@ class GalleryManager
     {
         $cacheKey = 'get.' . md5(serialize(compact('slug', 'query')));
         $countCacheKey = "count.$cacheKey";
-
-        if ($this->cache->hasItem($cacheKey) && $this->cache->hasItem($countCacheKey)) {
-            /** @var Gallery $gallery */
-            $gallery = $this->cache->getItem($cacheKey)->get();
-            $slugs = [];
-            $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-            if (null !== $gallery && count($gallery->getStreetstyles())) {
-                foreach ($gallery->getStreetstyles() as $streetstyle) {
-                    $slugs[] = $streetstyle->getSlug();
-                }
-            }
-            $analytics = array_merge($query, ['slug' => $slug, 'count' => $this->lastCount, 'photos' => implode(',', $slugs)]);
-            $this->analytics->page('gallery_show', $analytics);
-
-            return $gallery;
-        }
+        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
         return $this->cache->get($cacheKey, function () use ($slug, $query, $countCacheKey) {
             $data = null;
