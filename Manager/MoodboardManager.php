@@ -90,14 +90,13 @@ class MoodboardManager
 
     /**
      * @param string $slug
-     * @param bool $light
      *
      * @return null|Moodboard
      */
-    public function get(string $slug, bool $light = true): ?Moodboard
+    public function get(string $slug): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/' . $slug, [RequestOptions::QUERY => ['light' => $light], RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
