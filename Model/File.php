@@ -23,9 +23,8 @@ class File extends AbstractDocument
     use Positionable;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $path;
 
@@ -39,28 +38,24 @@ class File extends AbstractDocument
     /**
      * @var string
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $pathCover;
 
     /**
      * @var string
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $pathList;
 
     /**
      * @var string
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $pathThumbnail;
 
     /**
      * @var string
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $pathZoom;
 
@@ -99,7 +94,7 @@ class File extends AbstractDocument
     private $courtesy;
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getPath(): ?string
     {
@@ -107,7 +102,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @param string $path
+     * @param string|null $path
      *
      * @return File
      */
@@ -138,7 +133,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getPathCover(): ?string
     {
@@ -146,7 +141,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @param string $pathCover
+     * @param string|null $pathCover
      * @return File
      */
     public function setPathCover(?string $pathCover): self
@@ -157,7 +152,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getPathList(): ?string
     {
@@ -165,7 +160,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @param string $pathList
+     * @param string|null $pathList
      * @return File
      */
     public function setPathList(?string $pathList): self
@@ -176,7 +171,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getPathThumbnail(): ?string
     {
@@ -184,7 +179,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @param string $pathThumbnail
+     * @param string|null $pathThumbnail
      * @return File
      */
     public function setPathThumbnail(?string $pathThumbnail): self
@@ -195,7 +190,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getPathZoom(): ?string
     {
@@ -203,7 +198,7 @@ class File extends AbstractDocument
     }
 
     /**
-     * @param string $pathZoom
+     * @param string|null $pathZoom
      * @return File
      */
     public function setPathZoom(?string $pathZoom): self
