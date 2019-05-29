@@ -94,7 +94,7 @@ class MoodboardManager
      *
      * @return null|Moodboard
      */
-    public function get(string $slug, bool $light): ?Moodboard
+    public function get(string $slug, bool $light = true): ?Moodboard
     {
         $moodboard = null;
         $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/' . $slug, [RequestOptions::QUERY => ['light' => $light], RequestOptions::HTTP_ERRORS => false]);
