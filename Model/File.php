@@ -36,25 +36,25 @@ class File extends AbstractDocument
     protected $filename;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      */
     protected $pathCover;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      */
     protected $pathList;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      */
     protected $pathThumbnail;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      */
     protected $pathZoom;
