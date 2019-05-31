@@ -72,7 +72,7 @@ class AnalyticsController extends AbstractController
      */
     public function page(Request $request, string $route): Response
     {
-        $this->manager->page($route, $request->request->all(), $request->getClientIp());
+        $this->manager->page($request, $route, $request->request->all());
 
         return new Response();
     }

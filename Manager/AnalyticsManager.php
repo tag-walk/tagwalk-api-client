@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -117,20 +118,24 @@ class AnalyticsManager
     }
 
     /**
-     * @param string      $route
-     * @param array       $query
-     * @param string|null $clientIp
+     * @param Request $request
+     * @param string  $route
+     * @param array   $query
      *
      * @return bool success
      */
-    public function page(string $route, array $query = [], ?string $clientIp = null): bool
+    public function page(Request $request, string $route, array $query = []): bool
     {
         if ($this->enabled) {
             $response = $this->apiProvider->request('POST',
                 "/api/analytics/page/$route",
                 [
                     RequestOptions::QUERY   => $query,
-                    RequestOptions::HEADERS => ['X-Client-IP' => $clientIp],
+                    RequestOptions::HEADERS => [
+                        'X-Client-IP'     => $request->getClientIp(),
+                        'User-Agent'      => $request->headers->get('User-Agent'),
+                        'accept-language' => $request->headers->get('accept-language'),
+                    ],
                 ]
             );
             $status = $response->getStatusCode();
