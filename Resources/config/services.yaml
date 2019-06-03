@@ -183,7 +183,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\MoodboardManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $moodboardNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer'
+      $serializer: '@serializer'
     calls:
       - method: setLogger
         arguments:

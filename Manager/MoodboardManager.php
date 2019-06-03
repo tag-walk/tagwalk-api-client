@@ -17,9 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Serializer\Normalizer\MoodboardNormalizer;
 
 class MoodboardManager
 {
@@ -29,9 +30,9 @@ class MoodboardManager
     private $apiProvider;
 
     /**
-     * @var MoodboardNormalizer
+     * @var Serializer
      */
-    private $moodboardNormalizer;
+    private $serializer;
 
     /**
      * @var LoggerInterface
@@ -40,12 +41,12 @@ class MoodboardManager
 
     /**
      * @param ApiProvider $apiProvider
-     * @param MoodboardNormalizer $moodboardNormalizer
+     * @param SerializerInterface $serializer
      */
-    public function __construct(ApiProvider $apiProvider, MoodboardNormalizer $moodboardNormalizer)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
     {
         $this->apiProvider = $apiProvider;
-        $this->moodboardNormalizer = $moodboardNormalizer;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -68,7 +69,7 @@ class MoodboardManager
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
                 foreach ($data as $datum) {
-                    $list[] = $this->moodboardNormalizer->denormalize($datum, Moodboard::class);
+                    $list[] = $this->serializer->denormalize($datum, Moodboard::class);
                 }
             }
         }
@@ -89,6 +90,7 @@ class MoodboardManager
 
     /**
      * @param string $slug
+     *
      * @return null|Moodboard
      */
     public function get(string $slug): ?Moodboard
@@ -97,7 +99,7 @@ class MoodboardManager
         $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-            $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException();
         } else {
@@ -119,7 +121,7 @@ class MoodboardManager
             throw new NotFoundHttpException();
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-            $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
         } else {
             $this->logger->error($apiResponse->getBody()->getContents());
         }
@@ -134,7 +136,7 @@ class MoodboardManager
      */
     public function create(Moodboard $moodboard): Moodboard
     {
-        $params = [RequestOptions::JSON => $this->moodboardNormalizer->normalize($moodboard, null, ['write' => true])];
+        $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('POST', '/api/moodboards', $params);
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             $data = json_decode($apiResponse->getBody(), true);
@@ -142,7 +144,7 @@ class MoodboardManager
             $this->logger->error($apiResponse->getBody()->getContents());
             throw new BadRequestHttpException();
         }
-        $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+        $moodboard = $this->serializer->denormalize($data, Moodboard::class);
 
         return $moodboard;
     }
@@ -188,11 +190,11 @@ class MoodboardManager
      */
     public function update(string $slug, Moodboard $moodboard): Moodboard
     {
-        $params = [RequestOptions::JSON => $this->moodboardNormalizer->normalize($moodboard, null, ['write' => true])];
+        $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('PUT', '/api/moodboards/' . $slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-            $moodboard = $this->moodboardNormalizer->denormalize($data, Moodboard::class);
+            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException();
         } else {
