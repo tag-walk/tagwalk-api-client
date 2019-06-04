@@ -62,20 +62,23 @@ class CollectionManager
      * @param string $type
      * @param string $designer
      * @param string $season
+     * @param array $query
      * @return null|Collection
      */
-    public function find(string $type, string $designer, string $season): ?Collection
+    public function find(string $type, string $designer, string $season, array $query = []): ?Collection
     {
-        $params = compact('type', 'designer', 'season');
+        $params = array_merge($query, compact('type', 'designer', 'season'));
         $cacheKey = md5('find.' . serialize($params));
 
         return $this->cache->get($cacheKey,
-            function () use ($type, $designer, $season) {
+            function () use ($type, $designer, $season, $query) {
             $data = null;
             $apiResponse = $this->apiProvider->request(
                 'GET',
-                sprintf('/api/collections/%s/%s/%s', $type, $designer, $season),
-                [RequestOptions::HTTP_ERRORS => false]
+                sprintf('/api/collections/%s/%s/%s', $type, $designer, $season), [
+                    RequestOptions::QUERY => $query,
+                    RequestOptions::HTTP_ERRORS => false
+                ]
             );
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
