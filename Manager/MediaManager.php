@@ -14,7 +14,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use OutOfRangeException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -45,11 +44,6 @@ class MediaManager
     private $mediaNormalizer;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -57,14 +51,11 @@ class MediaManager
     /**
      * @param ApiProvider $apiProvider
      * @param MediaNormalizer $mediaNormalizer
-     * @param int $cacheTTL
-     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer)
     {
         $this->apiProvider = $apiProvider;
         $this->mediaNormalizer = $mediaNormalizer;
-        $this->cache = new FilesystemAdapter('medias', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -81,21 +72,16 @@ class MediaManager
      */
     public function get(string $slug): ?Media
     {
-        $media = $this->cache->get($slug, function () use ($slug) {
-            $data = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/medias/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                $data = $this->mediaNormalizer->denormalize($data, Media::class);
-            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
+        $data = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/medias/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $data = $this->mediaNormalizer->denormalize($data, Media::class);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error($apiResponse->getBody()->getContents());
+        }
 
-            return $data;
-        });
-
-
-        return $media;
+        return $data;
     }
 
     /**
@@ -109,24 +95,17 @@ class MediaManager
     {
         $media = null;
         if ($type && $season && $designer && $look) {
-            $query = compact('type', 'season', 'designer', 'look');
-            $cacheKey = 'findByTypeSeasonDesignerLook' . md5(serialize($query));
-            $media = $this->cache->get($cacheKey, function () use ($type, $season, $designer, $look) {
-                $result = null;
-                $apiResponse = $this->apiProvider->request(
-                    'GET',
-                    sprintf('/api/medias/%s/%s/%s/%s', $type, $season, $designer, $look),
-                    [RequestOptions::HTTP_ERRORS => false]
-                );
-                if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                    $data = json_decode($apiResponse->getBody(), true);
-                    $result = $this->mediaNormalizer->denormalize($data, Media::class);
-                } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                    $this->logger->error($apiResponse->getBody()->getContents());
-                }
-
-                return $result;
-            });
+            $apiResponse = $this->apiProvider->request(
+                'GET',
+                sprintf('/api/medias/%s/%s/%s/%s', $type, $season, $designer, $look),
+                [RequestOptions::HTTP_ERRORS => false]
+            );
+            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+                $data = json_decode($apiResponse->getBody(), true);
+                $media = $this->mediaNormalizer->denormalize($data, Media::class);
+            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+                $this->logger->error($apiResponse->getBody()->getContents());
+            }
         }
 
         return $media;
@@ -141,26 +120,21 @@ class MediaManager
      */
     public function listRelated(string $type, string $season, string $designer, ?string $city = null): array
     {
+        $results = [];
         $query = array_merge([
             'analytics' => 0,
             'from' => 0,
             'size' => 6
         ], compact('type', 'season', 'designer', 'city'));
-        $cacheKey = 'listRelated.' . md5(serialize($query));
+        $apiResponse = $this->apiProvider->request('GET', '/api/medias', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $results = json_decode($apiResponse->getBody(), true);
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
+        }
 
-        $data = $this->cache->get($cacheKey, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $results = json_decode($apiResponse->getBody(), true);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
+        return $results;
 
-            return $results;
-        });
-
-        return $data;
     }
 
     /**
@@ -173,35 +147,27 @@ class MediaManager
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
         $query = array_merge($query, compact('from', 'size', 'status'));
-        $cacheKey = 'list.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
-                RequestOptions::QUERY => $query,
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
-                }
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
-                throw new OutOfRangeException();
-            } else {
-                $this->lastCount = 0;
-                $this->logger->error($apiResponse->getBody()->getContents());
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
+            RequestOptions::QUERY => $query,
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            foreach ($data as $i => $datum) {
+                $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
             }
+            $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
+            $this->logger->error($apiResponse->getBody()->getContents());
+            $this->lastCount = 0;
+            throw new OutOfRangeException();
+        } else {
+            $this->lastCount = 0;
+            $this->logger->error($apiResponse->getBody()->getContents());
+        }
 
-            return $data;
-        });
+        return $data;
     }
 
     /**
@@ -215,32 +181,24 @@ class MediaManager
     public function listByModel(string $slug, array $query = []): array
     {
         $query = array_merge($query, ['sort' => self::DEFAULT_MEDIAS_MODEL_SORT]);
-        $cacheKey = 'listByModel.' . md5(serialize(array_filter(compact('slug', 'query'))));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($slug, $query, $countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', [
-                RequestOptions::QUERY => $query,
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                if (!empty($data)) {
-                    foreach ($data as $i => $datum) {
-                        $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
-                    }
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', [
+            RequestOptions::QUERY => $query,
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
                 }
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
             }
+            $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->logger->error($apiResponse->getBody()->getContents());
+            $this->lastCount = 0;
+        }
 
-            return $data;
-        });
+        return $data;
     }
 }

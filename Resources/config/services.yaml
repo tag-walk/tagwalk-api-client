@@ -193,8 +193,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $mediaNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
