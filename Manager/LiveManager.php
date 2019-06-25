@@ -37,11 +37,6 @@ class LiveManager
     private $serializer;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -49,18 +44,13 @@ class LiveManager
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
-     * @param int $cacheTTL
-     * @param string|null $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        int $cacheTTL = 600,
-        string $cacheDirectory = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('live', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -78,16 +68,9 @@ class LiveManager
     public function get(string $slug): ?Live
     {
         $live = null;
-        $cacheItem = $this->cache->getItem($slug);
-        if ($cacheItem->isHit()) {
-            $live = $cacheItem->get();
-        } else {
-            $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
-                $cacheItem->set($live);
-                $this->cache->save($cacheItem);
-            }
+        $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
         }
 
         return $live;
@@ -116,27 +99,19 @@ class LiveManager
     ): array {
         $lives = [];
         $query = array_filter(compact('type', 'season', 'city', 'from', 'size', 'sort', 'status'));
-        $key = 'list.' . md5(serialize(array_merge($query, ['denormalize' => $denormalize])));
-        $cacheItem = $this->cache->getItem($key);
-        if ($cacheItem->isHit()) {
-            $lives = $cacheItem->get();
-        } else {
-            $query['no-designers'] = true;
-            $apiResponse = $this->apiProvider->request('GET', '/api/live', [
-                RequestOptions::QUERY => $query,
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                if ($denormalize) {
-                    foreach ($data as $datum) {
-                        $lives[] = $this->serializer->denormalize($datum, Live::class);
-                    }
-                } else {
-                    $lives = $data;
+        $query['no-designers'] = true;
+        $apiResponse = $this->apiProvider->request('GET', '/api/live', [
+            RequestOptions::QUERY => $query,
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            if ($denormalize) {
+                foreach ($data as $datum) {
+                    $lives[] = $this->serializer->denormalize($datum, Live::class);
                 }
-                $cacheItem->set($lives);
-                $this->cache->save($cacheItem);
+            } else {
+                $lives = $data;
             }
         }
 
