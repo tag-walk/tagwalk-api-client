@@ -51,15 +51,20 @@ class CollectionManager
      * @param string $type
      * @param string $designer
      * @param string $season
+     * @param array  $query
+     *
      * @return null|Collection
      */
-    public function find(string $type, string $designer, string $season): ?Collection
+    public function find(string $type, string $designer, string $season, array $query = []): ?Collection
     {
         $data = null;
         $apiResponse = $this->apiProvider->request(
             'GET',
             sprintf('/api/collections/%s/%s/%s', $type, $designer, $season),
-            [RequestOptions::HTTP_ERRORS => false]
+            [
+                RequestOptions::QUERY       => $query,
+                RequestOptions::HTTP_ERRORS => false,
+            ]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);

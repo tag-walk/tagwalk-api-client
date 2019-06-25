@@ -12,10 +12,11 @@
 
 namespace Tagwalk\ApiClientBundle\Utils\Constants;
 
+use ReflectionClass;
+use ReflectionException;
+
 /**
  * Class Constants
- *
- * @package Tagwalk\ApiClientBundle\Utils\Constants
  */
 abstract class Constants
 {
@@ -24,10 +25,10 @@ abstract class Constants
      *
      * @return array
      */
-    public static function getAllowedValues()
+    public static function getAllowedValues(): array
     {
         try {
-            $oClass = new \ReflectionClass(get_called_class());
+            $oClass = new ReflectionClass(static::class);
             $constants = $oClass->getConstants();
             foreach ($constants as $key => $constant) {
                 if (false === is_string($constant)) {
@@ -36,7 +37,7 @@ abstract class Constants
             }
 
             return $constants;
-        } catch (\ReflectionException $reflectionException) {
+        } catch (ReflectionException $reflectionException) {
             return [];
         }
     }
@@ -46,10 +47,10 @@ abstract class Constants
      *
      * @return array
      */
-    public static function getOptions()
+    public static function getOptions(): array
     {
         try {
-            $oClass = new \ReflectionClass(get_called_class());
+            $oClass = new ReflectionClass(static::class);
             $constants = $oClass->getConstants();
             foreach ($constants as $key => $constant) {
                 if (false === is_string($constant)) {
@@ -59,7 +60,32 @@ abstract class Constants
             $constants = array_combine(array_values($constants), array_values($constants));
 
             return $constants;
-        } catch (\ReflectionException $reflectionException) {
+        } catch (ReflectionException $reflectionException) {
+            return [];
+        }
+    }
+
+    /**
+     * Return an associated array of all constants (keys and values are identicals)
+     *
+     * @param string $prefix
+     *
+     * @return array
+     */
+    public static function getPrefixedOptions(string $prefix): array
+    {
+        try {
+            $oClass = new ReflectionClass(static::class);
+            $constants = $oClass->getConstants();
+            foreach ($constants as $key => $constant) {
+                if (false === is_string($constant)) {
+                    unset($constants[$key]);
+                }
+            }
+            $constants = array_combine(substr_replace(array_values($constants), $prefix, 0, 0), array_values($constants));
+
+            return $constants;
+        } catch (ReflectionException $reflectionException) {
             return [];
         }
     }

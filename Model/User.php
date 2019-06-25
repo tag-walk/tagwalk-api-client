@@ -139,7 +139,7 @@ class User implements UserInterface, EquatableInterface
         $this->name = $name;
         $this->password = $password;
         $this->salt = $salt;
-        $this->roles = $roles;
+        $this->roles = empty($roles) ? ['ROLE_USER'] : $roles;
     }
 
     /**
