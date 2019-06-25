@@ -15,6 +15,7 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Contracts\Cache\ItemInterface;
 use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -61,7 +62,8 @@ class ModelManager extends IndividualManager
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($query, $countCacheKey) {
+            $item->expiresAfter(86400);
             $data = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/models/who-walked-the-most', [
                 RequestOptions::QUERY => $query,
@@ -102,7 +104,8 @@ class ModelManager extends IndividualManager
         $countCacheKey = "count.$cacheKey";
         $this->lastCount = $this->cache->getItem($countCacheKey)->get();
 
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($query, $countCacheKey) {
+            $item->expiresAfter(3600);
             $data = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/models', [
                 RequestOptions::QUERY => $query,
