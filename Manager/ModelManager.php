@@ -200,4 +200,26 @@ class ModelManager extends IndividualManager
 
         return $models;
     }
+
+    /**
+     * @param int         $size
+     * @param string|null $type
+     *
+     * @return array
+     */
+    public function listTop(?int $size = 10, ?string $type = null): array
+    {
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/top', [
+            RequestOptions::QUERY       => array_filter(compact('size', 'type')),
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+        } else {
+            $this->logger->error('ModelManager::listTop error', ['message' => $apiResponse->getBody()->getContents()]);
+        }
+
+        return $data;
+    }
 }
