@@ -44,6 +44,9 @@ class NewsNormalizer extends DocumentNormalizer implements NormalizerInterface
         foreach ($data['files'] as &$file) {
             $file = $this->serializer->denormalize($file, File::class);
         }
+        if (false === empty($data['cover'])) {
+            $data['cover'] = $this->serializer->denormalize($data['cover'], File::class);
+        }
 
         return parent::denormalize($data, $class, $format, $context);
     }
