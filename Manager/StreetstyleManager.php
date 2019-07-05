@@ -12,9 +12,8 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use OutOfRangeException;
+use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -47,21 +46,13 @@ class StreetstyleManager
     private $logger;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider           $apiProvider
      * @param StreetstyleNormalizer $streetstyleNormalizer
-     * @param int $cacheTTL
-     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer)
     {
         $this->apiProvider = $apiProvider;
         $this->streetstyleNormalizer = $streetstyleNormalizer;
-        $this->cache = new FilesystemAdapter('streetstyles', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -74,61 +65,59 @@ class StreetstyleManager
 
     /**
      * @param string $slug
+     *
      * @return null|Streetstyle
      */
     public function get(string $slug): ?Streetstyle
     {
-        $streetstyle = $this->cache->get($slug, function () use ($slug) {
-            $data = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                $data = $this->streetstyleNormalizer->denormalize($data, Streetstyle::class);
-            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
+        $data = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $data = $this->streetstyleNormalizer->denormalize($data, Streetstyle::class);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('StreetstyleManager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $data;
-        });
-
-        return $streetstyle;
+        return $data;
     }
 
     /**
-     * @param array $query
-     * @param int $from
-     * @param int $size
+     * @param array  $query
+     * @param int    $from
+     * @param int    $size
      * @param string $status
+     *
      * @return array
      */
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
+        $data = [];
         $query = array_merge($query, compact('from', 'size', 'status'));
-        $cacheKey = 'list.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
-                }
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
-                throw new OutOfRangeException('Api error: out of range');
-            } else {
-                $this->lastCount = 0;
-                $this->logger->error($apiResponse->getBody()->getContents());
+        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            foreach ($data as $i => $datum) {
+                $data[$i] = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
+            $this->lastCount = 0;
+            throw new OutOfBoundsException('API response: Range not satisfiable');
+        } else {
+            $this->lastCount = 0;
+            $this->logger->error('StreetstyleManager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $data;
-        });
+        return $data;
     }
 }

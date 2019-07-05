@@ -12,7 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Tagwalk\ApiClientBundle\Model\Individual;
@@ -26,105 +25,86 @@ class ModelManager extends IndividualManager
     public $lastCount;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
      * @param ApiProvider $apiProvider
-     * @param Serializer $serializer
-     * @param int $cacheTTL
-     * @param string|null $cacheDirectory
+     * @param Serializer  $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
-        Serializer $serializer,
-        int $cacheTTL = 600,
-        string $cacheDirectory = null
+        Serializer $serializer
     ) {
-        parent::__construct($apiProvider, $serializer, $cacheTTL, $cacheDirectory);
-        $this->cache = new FilesystemAdapter('models', $cacheTTL, $cacheDirectory);
+        parent::__construct($apiProvider, $serializer);
     }
 
     /**
      * @param string $type
      * @param string $season
      * @param string $city
-     * @param int $length
+     * @param int    $length
      *
      * @return array
      */
     public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10): array
     {
+        $data = [];
         $query = array_filter(compact('type', 'season', 'city', 'length'));
-        $cacheKey = 'whoWalkedTheMost.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/models/who-walked-the-most', [
-                RequestOptions::QUERY => $query,
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                if (!empty($data)) {
-                    foreach ($data as $i => $datum) {
-                        $data[$i] = $this->serializer->denormalize($datum, Individual::class);
-                    }
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/who-walked-the-most', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->lastCount = 0;
+            $this->logger->error('ModelManager::whoWalkedTheMost invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $data;
-        });
+        return $data;
     }
 
     /**
-     * @param int $size
-     * @param int $page
+     * @param int   $size
+     * @param int   $page
      * @param array $query
+     *
      * @return array
      */
     public function listMediasModels(int $size, int $page, array $query = []): array
     {
+        $data = [];
         $query = array_merge($query, [
             'size' => $size,
-            'page' => $page
+            'page' => $page,
         ]);
-        $cacheKey = 'listMediasModels.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/models', [
-                RequestOptions::QUERY => $query,
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                if (!empty($data)) {
-                    foreach ($data as $i => $datum) {
-                        $data[$i] = $this->serializer->denormalize($datum, Individual::class);
-                    }
+        $apiResponse = $this->apiProvider->request('GET', '/api/models', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->lastCount = 0;
+            $this->logger->error('ModelManager::listMediasModels invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $data;
-        });
+        return $data;
     }
 
     /**
@@ -132,32 +112,26 @@ class ModelManager extends IndividualManager
      */
     public function getNewFaces(): array
     {
-        $cacheKey = 'new-faces';
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                if (!empty($data)) {
-                    foreach ($data as $i => $datum) {
-                        $data[$i] = $this->serializer->denormalize($datum, Individual::class);
-                    }
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
-
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->lastCount = 0;
+            $this->logger->error('ModelManager::getNewFaces invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $data;
+        return $data;
 
-        });
     }
 
     /**
@@ -165,7 +139,8 @@ class ModelManager extends IndividualManager
      * @param null|string $season
      * @param null|string $city
      * @param string|null $language
-     * @return Individual[]
+     *
+     * @return array representation of individuals
      */
     public function listFilters(
         ?string $type,
@@ -175,27 +150,18 @@ class ModelManager extends IndividualManager
     ): array {
         $models = [];
         $query = array_filter(compact('type', 'season', 'city', 'language'));
-        $cacheKey = md5('listFilters.' . serialize($query));
-        $cacheItem = $this->cache->getItem($cacheKey);
-        if ($cacheItem->isHit()) {
-            $models = $cacheItem->get();
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/filter', [
+            RequestOptions::QUERY       => array_merge($query, ['analytics' => 0]),
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $models = json_decode($apiResponse->getBody()->getContents(), true);
         } else {
-            $apiResponse = $this->apiProvider->request('GET', '/api/models/filter', [
-                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+            $this->lastCount = 0;
+            $this->logger->error('ModelManager::listFilters invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
             ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $models[] = $this->serializer->denormalize($datum, Individual::class);
-                }
-                $cacheItem->set($models);
-                $cacheItem->expiresAfter(3600);
-                $this->cache->save($cacheItem);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
-            }
         }
 
         return $models;
@@ -217,7 +183,10 @@ class ModelManager extends IndividualManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
         } else {
-            $this->logger->error('ModelManager::listTop error', ['message' => $apiResponse->getBody()->getContents()]);
+            $this->logger->error('ModelManager::listTop error', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
         }
 
         return $data;

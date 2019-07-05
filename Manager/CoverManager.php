@@ -12,8 +12,9 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Cover;
@@ -32,21 +33,28 @@ class CoverManager
     private $serializer;
 
     /**
-     * @var FilesystemAdapter
+     * @var LoggerInterface
      */
-    private $cache;
+    private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
-     * @param int $cacheTTL
-     * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 3600, string $cacheDirectory = null)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('covers', $cacheTTL, $cacheDirectory);
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 
     /**
@@ -54,18 +62,21 @@ class CoverManager
      *
      * @return Cover
      */
-    public function get(string $slug)
+    public function get(string $slug): ?Cover
     {
-        return $this->cache->get($slug, function () use ($slug) {
-            $cover = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/covers/' . $slug, [
-                RequestOptions::HTTP_ERRORS => false
+        $cover = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/covers/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
+            $cover = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('CoverManager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
             ]);
-            if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
-                $cover = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, 'json');
-            }
+        }
 
-            return $cover;
-        });
+        return $cover;
     }
 }

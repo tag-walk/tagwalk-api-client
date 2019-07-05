@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -28,11 +27,6 @@ class TrendManager
     private $apiProvider;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -44,13 +38,10 @@ class TrendManager
 
     /**
      * @param ApiProvider $apiProvider
-     * @param int $cacheTTL
-     * @param string|null $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, int $cacheTTL = 600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider)
     {
         $this->apiProvider = $apiProvider;
-        $this->cache = new FilesystemAdapter('trends', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -65,10 +56,11 @@ class TrendManager
      * @param null|string $type
      * @param null|string $season
      * @param null|string $city
-     * @param int $from
-     * @param int $size
-     * @param string $sort
-     * @param string $status
+     * @param int         $from
+     * @param int         $size
+     * @param string      $sort
+     * @param string      $status
+     *
      * @return array
      */
     public function list(
@@ -80,72 +72,71 @@ class TrendManager
         $sort = self::DEFAULT_SORT,
         $status = self::DEFAULT_STATUS
     ): array {
+        $data = [];
         $query = array_filter(compact('type', 'season', 'city', 'from', 'size', 'sort', 'status'));
-        $cacheKey = 'list.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+        $apiResponse = $this->apiProvider->request('GET', '/api/trends', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->lastCount = 0;
+            $this->logger->error('TrendManager::findBy invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
-            $data = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/trends', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
-            }
-
-            return $data;
-        });
+        return $data;
     }
 
     /**
      * @param string $slug
-     * @return array
+     *
+     * @return array|null array representation of a trend
      */
-    public function get(string $slug): array
+    public function get(string $slug): ?array
     {
-        return $this->cache->get($slug, function () use ($slug) {
-            $data = null;
-            $apiResponse = $this->apiProvider->request('GET', '/api/trends/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
+        $data = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/trends/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('TrendManager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $data;
-        });
+        return $data;
     }
 
     /**
-     * @param string $type
-     * @param string $season
+     * @param string      $type
+     * @param string      $season
      * @param null|string $city
-     * @return array
+     *
+     * @return array list the trends of the season
      */
     public function findBy(string $type, string $season, ?string $city = null): array
     {
-        $query = array_filter(compact('type', 'season', 'city'));
-        $cacheKey = 'findBy.' . md5(serialize($query));
-
-        return $this->cache->get($cacheKey, function () use ($type, $season, $city) {
-            $data = [];
-            $query = array_filter(compact('city'));
-            $apiResponse = $this->apiProvider->request('GET', "/api/trends/$type/$season", [
-                'query' => $query,
-                RequestOptions::HTTP_ERRORS => false
+        $data = [];
+        $query = array_filter(compact('city'));
+        $apiResponse = $this->apiProvider->request('GET', "/api/trends/$type/$season", [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('TrendManager::findBy invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
             ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-            } else {
-                $this->logger->error($apiResponse->getBody()->getContents());
-            }
+        }
 
-            return $data;
-        });
+        return $data;
     }
 }
