@@ -78,8 +78,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -89,14 +87,14 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\TrendManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -106,8 +104,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -117,8 +113,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -153,8 +147,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -164,8 +156,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: 300
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -193,8 +183,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $mediaNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -204,8 +192,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -215,8 +201,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -226,8 +210,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $streetstyleNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -237,8 +219,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -248,8 +228,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $pressNormalizer: '@Tagwalk\ApiClientBundle\Serializer\Normalizer\PressNormalizer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -259,8 +237,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
@@ -270,8 +246,6 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
-      $cacheTTL: '%cache_ttl%'
-      $cacheDirectory: '%cache_directory%'
     calls:
       - method: setLogger
         arguments:
