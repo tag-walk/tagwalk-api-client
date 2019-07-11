@@ -13,6 +13,7 @@
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Linkable;
@@ -26,6 +27,7 @@ class News extends AbstractDocument
     use Textable;
     use Linkable;
     use Fileable;
+    use Coverable;
 
     /**
      * @var string
