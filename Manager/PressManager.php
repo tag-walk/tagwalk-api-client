@@ -12,9 +12,8 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use OutOfRangeException;
+use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Model\Press;
@@ -39,11 +38,6 @@ class PressManager
     private $pressNormalizer;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -51,14 +45,11 @@ class PressManager
     /**
      * @param ApiProvider     $apiProvider
      * @param PressNormalizer $pressNormalizer
-     * @param int             $cacheTTL
-     * @param string|null     $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer, int $cacheTTL = 3600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer)
     {
         $this->apiProvider = $apiProvider;
         $this->pressNormalizer = $pressNormalizer;
-        $this->cache = new FilesystemAdapter('press', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -75,31 +66,27 @@ class PressManager
      */
     public function list(array $query): array
     {
-        $cacheKey = 'list.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
-
-        return $this->cache->get($cacheKey, function () use ($query, $countCacheKey) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/press', ['query' => $query, RequestOptions::HTTP_ERRORS => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->pressNormalizer->denormalize($datum, Press::class);
-                }
-                $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
-                $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                $this->cache->save($countCacheItem);
-            } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-                $this->logger->error($apiResponse->getBody()->getContents());
-                $this->lastCount = 0;
-                throw new OutOfRangeException();
-            } else {
-                $this->lastCount = 0;
-                $this->logger->error($apiResponse->getBody()->getContents());
+        $results = [];
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/press', ['query'                     => $query,
+                                                                                       RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->pressNormalizer->denormalize($datum, Press::class);
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
+            $this->lastCount = 0;
+            throw new OutOfBoundsException('API response: Range not satisfiable');
+        } else {
+            $this->lastCount = 0;
+            $this->logger->error('PressManager::list invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
+        return $results;
     }
 }

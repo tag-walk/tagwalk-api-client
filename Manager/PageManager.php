@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Serializer\Serializer;
@@ -38,11 +37,6 @@ class PageManager
     private $serializer;
 
     /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -50,18 +44,13 @@ class PageManager
     /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
-     * @param int                 $cacheTTL
-     * @param string|null         $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        int $cacheTTL = 600,
-        string $cacheDirectory = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('pages', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -99,8 +88,11 @@ class PageManager
             foreach ($data as $datum) {
                 $pages[] = $this->serializer->denormalize($datum, Page::class);
             }
-        } else {
-            $this->logger->error($apiResponse->getBody()->getContents());
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('PageManager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
         }
 
         return $pages;
@@ -134,27 +126,24 @@ class PageManager
     {
         $page = null;
         $query = compact('language');
-        $cacheKey = md5(serialize(compact('slug', 'language')));
+        $apiResponse = $this->apiProvider->request(
+            'GET',
+            '/api/page/' . $slug,
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => $query,
+            ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $page = $this->serializer->denormalize($data, Page::class);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('PageMAnager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-        return $this->cache->get($cacheKey,
-            function () use ($slug, $query) {
-                $page = null;
-                $apiResponse = $this->apiProvider->request(
-                    'GET',
-                    '/api/page/' . $slug,
-                    [
-                        RequestOptions::HTTP_ERRORS => false,
-                        RequestOptions::QUERY       => $query,
-                    ]);
-                if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                    $data = json_decode($apiResponse->getBody(), true);
-                    $page = $this->serializer->denormalize($data, Page::class);
-                } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                    $this->logger->error($apiResponse->getBody()->getContents());
-                }
-
-                return $page;
-            });
+        return $page;
     }
 
     /**
@@ -168,7 +157,8 @@ class PageManager
             '/api/page/' . $slug,
             [
                 RequestOptions::HTTP_ERRORS => false,
-            ]);
+            ]
+        );
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
             throw new AccessDeniedHttpException();
         }

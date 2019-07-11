@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -30,18 +29,18 @@ class NewsManager
      * @var int
      */
     public $lastCount;
+
     /**
      * @var ApiProvider
      */
     private $apiProvider;
+
     /**
      * @var Serializer
      */
     private $serializer;
-    /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
+
+
     /**
      * @var LoggerInterface
      */
@@ -50,18 +49,13 @@ class NewsManager
     /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
-     * @param int                 $cacheTTL
-     * @param string|null         $cacheDirectory
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        int $cacheTTL = 600,
-        string $cacheDirectory = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('news', $cacheTTL, $cacheDirectory);
     }
 
     /**
@@ -94,29 +88,26 @@ class NewsManager
     ): array {
         $categories = is_array($categories) ? implode(',', $categories) : $categories;
         $query = array_filter(compact('text', 'categories', 'language', 'from', 'size', 'sort', 'status'));
-        $cacheKey = 'list.' . md5(serialize($query));
-        $countCacheKey = "count.$cacheKey";
-        $this->lastCount = $this->cache->getItem($countCacheKey)->get();
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/news', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            foreach ($data as $i => $datum) {
+                $data[$i] = $this->serializer->denormalize($datum, News::class);
+            }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->logger->error('NewsManager::list invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+            $this->lastCount = 0;
+        }
 
-        return $this->cache->get($cacheKey,
-            function () use ($query, $countCacheKey) {
-                $data = [];
-                $apiResponse = $this->apiProvider->request('GET', '/api/news', [RequestOptions::QUERY => $query, RequestOptions::HTTP_ERRORS => false]);
-                if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                    $data = json_decode($apiResponse->getBody(), true);
-                    foreach ($data as $i => $datum) {
-                        $data[$i] = $this->serializer->denormalize($datum, News::class);
-                    }
-                    $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-                    $countCacheItem = $this->cache->getItem($countCacheKey)->set($this->lastCount);
-                    $this->cache->save($countCacheItem);
-                } else {
-                    $this->logger->error($apiResponse->getBody()->getContents());
-                    $this->lastCount = 0;
-                }
-
-                return $data;
-            });
+        return $data;
     }
 
     /**
@@ -127,22 +118,23 @@ class NewsManager
      */
     public function get(string $slug, ?string $language = null): ?News
     {
-        return $this->cache->get($slug,
-            function () use ($slug, $language) {
-                $data = null;
-                $apiResponse = $this->apiProvider->request('GET',
-                    '/api/news/' . $slug,
-                    [
-                        RequestOptions::HTTP_ERRORS => false,
-                        RequestOptions::QUERY       => array_filter(['language' => $language]),
-                    ]);
-                if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                    $data = $this->serializer->deserialize($apiResponse->getBody(), News::class, JsonEncoder::FORMAT);
-                } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                    $this->logger->error($apiResponse->getBody()->getContents());
-                }
+        $data = null;
+        $apiResponse = $this->apiProvider->request('GET',
+            '/api/news/' . $slug,
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => array_filter(['language' => $language]),
+            ]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = $this->serializer->deserialize($apiResponse->getBody(), News::class, JsonEncoder::FORMAT);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('NewsManager::get invalid status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-                return $data;
-            });
+        return $data;
     }
 }
