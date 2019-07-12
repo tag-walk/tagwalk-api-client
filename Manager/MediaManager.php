@@ -179,7 +179,7 @@ class MediaManager
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
             throw new OutOfBoundsException('Api response: Range not satisfiable');
         } else {
-            $this->logger->error('MediaManager::list invalid response status code', [
+            $this->logger->error('MediaManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
