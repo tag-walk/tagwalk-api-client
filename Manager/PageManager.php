@@ -117,7 +117,7 @@ class PageManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
-            $this->logger->error('PageMAnager::count unexpected status code', [
+            $this->logger->error('PageManager::count unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -147,7 +147,7 @@ class PageManager
             $data = json_decode($apiResponse->getBody(), true);
             $page = $this->serializer->denormalize($data, Page::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageMAnager::get unexpected status code', [
+            $this->logger->error('PageManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -170,7 +170,7 @@ class PageManager
             ]
         );
         if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
-            $this->logger->error('PageMAnager::delete unexpected status code', [
+            $this->logger->error('PageManager::delete unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
