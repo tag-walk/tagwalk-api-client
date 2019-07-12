@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -47,6 +48,7 @@ class CoverManager
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -71,7 +73,7 @@ class CoverManager
         if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
             $cover = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('CoverManager::get invalid status code', [
+            $this->logger->error('CoverManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

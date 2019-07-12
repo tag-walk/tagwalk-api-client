@@ -56,6 +56,9 @@ services:
       $clientId: ''
       $clientSecret: ''
       $timeout: 10.0
+      $lightData: true
+      $analytics: true
+      $cacheDirectory: /tmp
 
   Tagwalk\ApiClientBundle\Controller\AutocompleteController:
     arguments:
@@ -71,8 +74,10 @@ services:
   Tagwalk\ApiClientBundle\Manager\AnalyticsManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $logger: '@logger'
-      $enabled: '%analytics%'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\ModelManager:
     arguments:
@@ -122,26 +127,46 @@ services:
       arguments:
         $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
         $serializer: '@serializer'
-
+      calls:
+        - method: setLogger
+          arguments:
+            - '@logger'
+            -
   Tagwalk\ApiClientBundle\Manager\CityManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\TagManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\DesignerManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\SeasonManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\IndividualManager:
     arguments:

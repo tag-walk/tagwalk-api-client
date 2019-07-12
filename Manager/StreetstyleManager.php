@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -53,6 +54,7 @@ class StreetstyleManager
     {
         $this->apiProvider = $apiProvider;
         $this->streetstyleNormalizer = $streetstyleNormalizer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -76,7 +78,7 @@ class StreetstyleManager
             $data = json_decode($apiResponse->getBody(), true);
             $data = $this->streetstyleNormalizer->denormalize($data, Streetstyle::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('StreetstyleManager::get invalid status code', [
+            $this->logger->error('StreetstyleManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -96,6 +98,7 @@ class StreetstyleManager
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
         $data = [];
+        $this->lastCount = 0;
         $query = array_merge($query, compact('from', 'size', 'status'));
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles', [
             RequestOptions::QUERY       => $query,
@@ -108,11 +111,9 @@ class StreetstyleManager
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-            $this->lastCount = 0;
             throw new OutOfBoundsException('API response: Range not satisfiable');
         } else {
-            $this->lastCount = 0;
-            $this->logger->error('StreetstyleManager::get invalid status code', [
+            $this->logger->error('StreetstyleManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

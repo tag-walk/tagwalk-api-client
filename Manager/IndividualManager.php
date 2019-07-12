@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -41,6 +42,11 @@ class IndividualManager
     protected $logger;
 
     /**
+     * @var int
+     */
+    public $lastCount;
+
+    /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
      */
@@ -50,6 +56,7 @@ class IndividualManager
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -77,7 +84,7 @@ class IndividualManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $individual = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Individual::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('IndividualManager::get invalid status code', [
+            $this->logger->error('IndividualManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -105,6 +112,7 @@ class IndividualManager
         bool $denormalize = true
     ): array {
         $individuals = [];
+        $this->lastCount = 0;
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals', [
             RequestOptions::QUERY       => $query,
@@ -119,8 +127,9 @@ class IndividualManager
             } else {
                 $individuals = $data;
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('IndividualManager::list invalid status code', [
+            $this->logger->error('IndividualManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -130,8 +139,6 @@ class IndividualManager
     }
 
     /**
-     * TODO implement count API endpoint
-     *
      * @param string $status
      *
      * @return int
@@ -148,6 +155,11 @@ class IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->logger->error('IndividualManager::count unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
         }
 
         return $count;
@@ -159,10 +171,8 @@ class IndividualManager
      *
      * @return array
      */
-    public function suggest(
-        string $prefix,
-        string $language = null
-    ): array {
+    public function suggest(string $prefix, string $language = null): array
+    {
         $individuals = [];
         $query = array_filter(compact('prefix', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals/suggestions', [
@@ -172,7 +182,7 @@ class IndividualManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $individuals = json_decode($apiResponse->getBody()->getContents(), true);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('IndividualManager::suggest invalid status code', [
+            $this->logger->error('IndividualManager::suggest unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

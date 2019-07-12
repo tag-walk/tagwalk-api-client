@@ -5,28 +5,31 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2019 TAGWALK
  * @license     proprietary
  */
 
 namespace Tagwalk\ApiClientBundle\DependencyInjection;
 
+use Exception;
+use InvalidArgumentException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class TagwalkApiClientExtension extends Extension
 {
     /**
      * Loads a specific configuration.
      *
-     * @param array $configs
+     * @param array            $configs
      * @param ContainerBuilder $container
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
@@ -34,29 +37,35 @@ class TagwalkApiClientExtension extends Extension
         $loader->load('services.yaml');
         $api = $config['api'];
         if (!isset($api['host_url'])) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'The "tagwalk_api_client.api.host_url" config option must be set'
             );
         }
         if (!isset($api['client_id'])) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'The "tagwalk_api_client.api.client_id" config option must be set'
             );
         }
         if (!isset($api['client_secret'])) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'The "tagwalk_api_client.api.client_secret" config option must be set'
             );
         }
-        $definition = $container->getDefinition('Tagwalk\ApiClientBundle\Provider\ApiProvider');
+        $definition = $container->getDefinition(ApiProvider::class);
         $definition->replaceArgument('$baseUri', $api['host_url']);
         $definition->replaceArgument('$clientId', $api['client_id']);
         $definition->replaceArgument('$clientSecret', $api['client_secret']);
         if (isset($api['timeout'])) {
             $definition->replaceArgument('$timeout', $api['timeout']);
         }
-        $container->setParameter('cache_ttl', isset($api['cache_ttl']) ? $api['cache_ttl'] : 600);
-        $container->setParameter('cache_directory', isset($api['cache_directory']) ? $api['cache_directory'] : null);
-        $container->setParameter('analytics', isset($api['analytics']) ? $api['analytics'] : true);
+        if (isset($api['light'])) {
+            $definition->replaceArgument('$lightData', $api['light']);
+        }
+        if (isset($api['analytics'])) {
+            $definition->replaceArgument('$analytics', $api['analytics']);
+        }
+        if (isset($api['cache_directory'])) {
+            $definition->replaceArgument('$cacheDirectory', $api['cache_directory']);
+        }
     }
 }

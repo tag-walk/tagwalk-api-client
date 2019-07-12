@@ -63,7 +63,7 @@ class AutocompleteController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function designer(Request $request)
+    public function designer(Request $request): JsonResponse
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
@@ -80,7 +80,7 @@ class AutocompleteController extends AbstractController
                 false,
                 false
             );
-            $count = $this->designerManager->count();
+            $count = $this->designerManager->lastQueryCount;
         }
         $data = [
             'results' => $results,
@@ -88,9 +88,9 @@ class AutocompleteController extends AbstractController
         ];
         $response = new JsonResponse($data);
         $response->setCache([
-            'max_age' => 3600,
-            's_maxage' => 3600,
-            'public' => true
+            'max_age'  => 86400,
+            's_maxage' => 86400,
+            'public'   => true,
         ]);
 
         return $response;
@@ -103,7 +103,7 @@ class AutocompleteController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function tag(Request $request)
+    public function tag(Request $request): JsonResponse
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
@@ -118,7 +118,7 @@ class AutocompleteController extends AbstractController
                 $this->tagManager::DEFAULT_STATUS,
                 false
             );
-            $count = $this->tagManager->count();
+            $count = $this->tagManager->lastCount;
         }
         $data = [
             'results' => $results,
@@ -126,9 +126,9 @@ class AutocompleteController extends AbstractController
         ];
         $response = new JsonResponse($data);
         $response->setCache([
-            'max_age' => 3600,
-            's_maxage' => 3600,
-            'public' => true
+            'max_age'  => 86400,
+            's_maxage' => 86400,
+            'public'   => true,
         ]);
 
         return $response;
@@ -141,7 +141,7 @@ class AutocompleteController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function individual(Request $request)
+    public function individual(Request $request): JsonResponse
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
@@ -156,7 +156,7 @@ class AutocompleteController extends AbstractController
                 $this->individualManager::DEFAULT_STATUS,
                 false
             );
-            $count = $this->individualManager->count();
+            $count = $this->individualManager->lastCount;
         }
         $data = [
             'results' => $results,
@@ -164,9 +164,9 @@ class AutocompleteController extends AbstractController
         ];
         $response = new JsonResponse($data);
         $response->setCache([
-            'max_age' => 3600,
-            's_maxage' => 3600,
-            'public' => true
+            'max_age'  => 86400,
+            's_maxage' => 86400,
+            'public'   => true,
         ]);
 
         return $response;

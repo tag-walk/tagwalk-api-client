@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Model\Press;
@@ -50,6 +51,7 @@ class PressManager
     {
         $this->apiProvider = $apiProvider;
         $this->pressNormalizer = $pressNormalizer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -62,13 +64,16 @@ class PressManager
 
     /**
      * @param array $query
+     *
      * @return Press[]
      */
     public function list(array $query): array
     {
         $results = [];
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/press', ['query'                     => $query,
-                                                                                       RequestOptions::HTTP_ERRORS => false,
+        $this->lastCount = 0;
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/press', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
@@ -77,11 +82,9 @@ class PressManager
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-            $this->lastCount = 0;
             throw new OutOfBoundsException('API response: Range not satisfiable');
         } else {
-            $this->lastCount = 0;
-            $this->logger->error('PressManager::list invalid status code', [
+            $this->logger->error('PressManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

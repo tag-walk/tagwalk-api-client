@@ -12,7 +12,8 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -21,8 +22,8 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class SeasonManager
 {
-    const DEFAULT_STATUS = 'enabled';
-    const DEFAULT_SORT = 'position:asc';
+    public const DEFAULT_STATUS = 'enabled';
+    public const DEFAULT_SORT = 'position:asc';
 
     /**
      * @var ApiProvider
@@ -35,30 +36,39 @@ class SeasonManager
     private $serializer;
 
     /**
-     * @var FilesystemAdapter
+     * @var LoggerInterface
      */
-    private $cache;
+    private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
-     * @param int $cacheTTL
-     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 3600, string $cacheDirectory = null)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('seasons', $cacheTTL, $cacheDirectory);
+        $this->logger = new NullLogger();
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 
     /**
      * @param string|null $language
-     * @param int|null $from
-     * @param int|null $size
+     * @param int|null    $from
+     * @param int|null    $size
      * @param string|null $sort
      * @param string|null $status
-     * @param bool|null $shopable
+     * @param bool|null   $shopable
+     *
      * @return Season[]
      */
     public function list(
@@ -69,21 +79,25 @@ class SeasonManager
         ?string $status = self::DEFAULT_STATUS,
         ?bool $shopable = false
     ): array {
+        $results = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'shopable'));
-        $key = md5(serialize($query));
-
-        return $this->cache->get($key, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->serializer->denormalize($datum, Season::class);
-                }
+        $apiResponse = $this->apiProvider->request('GET', '/api/seasons', [
+            'query'       => $query,
+            'http_errors' => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, Season::class);
             }
+        } else {
+            $this->logger->error('SeasonManager::list unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
+        return $results;
     }
 
     /**
@@ -93,6 +107,7 @@ class SeasonManager
      * @param null|string $tags
      * @param null|string $models
      * @param string|null $language
+     *
      * @return Season[]
      */
     public function listFilters(
@@ -103,26 +118,25 @@ class SeasonManager
         ?string $models,
         ?string $language = null
     ): array {
+        $results = [];
         $query = array_filter(compact('type', 'city', 'designer', 'tags', 'models', 'language'));
-        $cacheKey = md5(serialize($query));
-
-        $seasons = $this->cache->get($cacheKey, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', [
-                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->serializer->denormalize($datum, Season::class);
-                }
+        $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, Season::class);
             }
+        } else {
+            $this->logger->error('SeasonManager::listFilters unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
-
-        return $seasons;
+        return $results;
     }
 
     /**
@@ -130,6 +144,7 @@ class SeasonManager
      * @param null|string $designers
      * @param null|string $tags
      * @param string|null $language
+     *
      * @return Season[]
      */
     public function listFiltersStreet(
@@ -138,23 +153,24 @@ class SeasonManager
         ?string $tags,
         ?string $language = null
     ): array {
+        $results = [];
         $query = array_filter(compact('city', 'designers', 'tags', 'language'));
-        $cacheKey = md5(serialize($query));
-
-        return $this->cache->get($cacheKey, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', [
-                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->serializer->denormalize($datum, Season::class);
-                }
+        $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, Season::class);
             }
+        } else {
+            $this->logger->error('SeasonManager::listFiltersStreet unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
+        return $results;
     }
 }
