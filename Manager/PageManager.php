@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2019 TAGWALK
  * @license     proprietary
  */
 
@@ -13,8 +13,8 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Page;
@@ -51,6 +51,7 @@ class PageManager
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -79,9 +80,9 @@ class PageManager
         ?string $name = null,
         ?string $text = null
     ): array {
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
         $pages = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/page', [RequestOptions::QUERY => $query]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $pages = [];
@@ -89,7 +90,7 @@ class PageManager
                 $pages[] = $this->serializer->denormalize($datum, Page::class);
             }
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageManager::get invalid status code', [
+            $this->logger->error('PageManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -111,7 +112,16 @@ class PageManager
         ?string $text = null
     ): int {
         $query = array_filter(compact('status', 'name', 'text'));
-        $apiResponse = $this->apiProvider->request('GET', '/api/page', ['query' => $query]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/page', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            $this->logger->error('PageManager::count unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
         return (int) $apiResponse->getHeaderLine('X-Total-Count');
     }
@@ -137,7 +147,7 @@ class PageManager
             $data = json_decode($apiResponse->getBody(), true);
             $page = $this->serializer->denormalize($data, Page::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageMAnager::get invalid status code', [
+            $this->logger->error('PageManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -159,11 +169,16 @@ class PageManager
                 RequestOptions::HTTP_ERRORS => false,
             ]
         );
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new AccessDeniedHttpException();
+        if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
+            $this->logger->error('PageManager::delete unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+
+            return false;
         }
 
-        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
+        return true;
     }
 
     /**

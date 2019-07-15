@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -40,7 +41,6 @@ class NewsManager
      */
     private $serializer;
 
-
     /**
      * @var LoggerInterface
      */
@@ -56,6 +56,7 @@ class NewsManager
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -86,12 +87,13 @@ class NewsManager
         $sort = self::DEFAULT_SORT,
         $status = self::DEFAULT_STATUS
     ): array {
+        $data = [];
+        $this->lastCount = 0;
         $categories = is_array($categories) ? implode(',', $categories) : $categories;
         $query = array_filter(compact('text', 'categories', 'language', 'from', 'size', 'sort', 'status'));
-        $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/news', [
-            RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
@@ -100,11 +102,10 @@ class NewsManager
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } else {
-            $this->logger->error('NewsManager::list invalid status code', [
+            $this->logger->error('NewsManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
-            $this->lastCount = 0;
         }
 
         return $data;
@@ -129,7 +130,7 @@ class NewsManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = $this->serializer->deserialize($apiResponse->getBody(), News::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('NewsManager::get invalid status code', [
+            $this->logger->error('NewsManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

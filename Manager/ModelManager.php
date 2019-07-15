@@ -46,22 +46,22 @@ class ModelManager extends IndividualManager
     public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10): array
     {
         $data = [];
+        $this->lastCount = 0;
         $query = array_filter(compact('type', 'season', 'city', 'length'));
         $apiResponse = $this->apiProvider->request('GET', '/api/models/who-walked-the-most', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
                 foreach ($data as $i => $datum) {
                     $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
             }
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } else {
-            $this->lastCount = 0;
-            $this->logger->error('ModelManager::whoWalkedTheMost invalid status code', [
+            $this->logger->error('ModelManager::whoWalkedTheMost unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -80,25 +80,25 @@ class ModelManager extends IndividualManager
     public function listMediasModels(int $size, int $page, array $query = []): array
     {
         $data = [];
+        $this->lastCount = 0;
         $query = array_merge($query, [
             'size' => $size,
             'page' => $page,
         ]);
         $apiResponse = $this->apiProvider->request('GET', '/api/models', [
-            RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
                 foreach ($data as $i => $datum) {
                     $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
             }
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } else {
-            $this->lastCount = 0;
-            $this->logger->error('ModelManager::listMediasModels invalid status code', [
+            $this->logger->error('ModelManager::listMediasModels unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -113,18 +113,18 @@ class ModelManager extends IndividualManager
     public function getNewFaces(): array
     {
         $data = [];
+        $this->lastCount = 0;
         $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
                 foreach ($data as $i => $datum) {
                     $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
             }
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } else {
-            $this->lastCount = 0;
-            $this->logger->error('ModelManager::getNewFaces invalid status code', [
+            $this->logger->error('ModelManager::getNewFaces unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -151,14 +151,13 @@ class ModelManager extends IndividualManager
         $models = [];
         $query = array_filter(compact('type', 'season', 'city', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/models/filter', [
-            RequestOptions::QUERY       => array_merge($query, ['analytics' => 0]),
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $models = json_decode($apiResponse->getBody()->getContents(), true);
         } else {
-            $this->lastCount = 0;
-            $this->logger->error('ModelManager::listFilters invalid status code', [
+            $this->logger->error('ModelManager::listFilters unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -177,8 +176,8 @@ class ModelManager extends IndividualManager
     {
         $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/models/top', [
-            RequestOptions::QUERY       => array_filter(compact('size', 'type')),
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => array_filter(compact('size', 'type')),
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);

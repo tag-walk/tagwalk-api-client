@@ -69,6 +69,11 @@ class ApiProvider
     private $lightData;
 
     /**
+     * @var bool
+     */
+    private $analytics;
+
+    /**
      * @param RequestStack     $requestStack
      * @param SessionInterface $session
      * @param string           $baseUri
@@ -76,6 +81,8 @@ class ApiProvider
      * @param string           $clientSecret
      * @param float            $timeout
      * @param bool             $lightData do not resolve files path property
+     * @param bool             $analytics
+     * @param string           $cacheDirectory
      */
     public function __construct(
         RequestStack $requestStack,
@@ -84,7 +91,9 @@ class ApiProvider
         string $clientId,
         string $clientSecret,
         $timeout = 10.0,
-        $lightData = true
+        $lightData = true,
+        $analytics = false,
+        $cacheDirectory = null
     ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -94,8 +103,9 @@ class ApiProvider
             'base_uri' => $baseUri,
             'timeout'  => $timeout,
         ]);
-        $this->cache = new FilesystemAdapter('tagwalk_api_client');
         $this->lightData = $lightData;
+        $this->analytics = $analytics;
+        $this->cache = new FilesystemAdapter('tagwalk_api_client', 3600, $cacheDirectory);
     }
 
     /**
@@ -128,12 +138,13 @@ class ApiProvider
                 'Accept'          => 'application/json',
                 'Accept-Language' => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
-                    : 'en', // Fallback if console mode
+                    : 'en',
+                // Fallback if console mode
                 'Cookie'          => $this->session->get('Cookie'),
             ],
             RequestOptions::QUERY       => [
                 'light'     => $this->lightData,
-                'analytics' => false,
+                'analytics' => $this->analytics,
             ],
         ];
     }

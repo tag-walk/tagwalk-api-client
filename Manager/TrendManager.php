@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -42,6 +43,7 @@ class TrendManager
     public function __construct(ApiProvider $apiProvider)
     {
         $this->apiProvider = $apiProvider;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -73,17 +75,17 @@ class TrendManager
         $status = self::DEFAULT_STATUS
     ): array {
         $data = [];
+        $this->lastCount = 0;
         $query = array_filter(compact('type', 'season', 'city', 'from', 'size', 'sort', 'status'));
         $apiResponse = $this->apiProvider->request('GET', '/api/trends', [
-            RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->lastCount = 0;
-            $this->logger->error('TrendManager::findBy invalid status code', [
+        } else {
+            $this->logger->error('TrendManager::findBy unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -104,7 +106,7 @@ class TrendManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('TrendManager::get invalid status code', [
+            $this->logger->error('TrendManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -125,13 +127,13 @@ class TrendManager
         $data = [];
         $query = array_filter(compact('city'));
         $apiResponse = $this->apiProvider->request('GET', "/api/trends/$type/$season", [
-            RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('TrendManager::findBy invalid status code', [
+            $this->logger->error('TrendManager::findBy unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

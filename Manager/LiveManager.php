@@ -5,7 +5,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2019 TAGWALK
  * @license     proprietary
  */
 
@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -50,6 +51,7 @@ class LiveManager
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -72,7 +74,7 @@ class LiveManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('LiveManager::get invalid status code', [
+            $this->logger->error('LiveManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -120,7 +122,7 @@ class LiveManager
                 $lives = $data;
             }
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('LiveManager::list invalid status code', [
+            $this->logger->error('LiveManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

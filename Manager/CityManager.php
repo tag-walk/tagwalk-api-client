@@ -12,7 +12,8 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -21,8 +22,8 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class CityManager
 {
-    const DEFAULT_STATUS = 'enabled';
-    const DEFAULT_SORT = 'name:asc';
+    public const DEFAULT_STATUS = 'enabled';
+    public const DEFAULT_SORT = 'name:asc';
 
     /**
      * @var ApiProvider
@@ -35,29 +36,36 @@ class CityManager
     private $serializer;
 
     /**
-     * @var FilesystemAdapter
+     * @var LoggerInterface
      */
-    private $cache;
+    private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
-     * @param int $cacheTTL
-     * @param string $cacheDirectory
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer, int $cacheTTL = 3600, string $cacheDirectory = null)
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
     {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->cache = new FilesystemAdapter('cities', $cacheTTL, $cacheDirectory);
+        $this->logger = new NullLogger();
+    }
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 
     /**
      * @param string|null $language
-     * @param int $from
-     * @param int $size
-     * @param string $sort
-     * @param string $status
+     * @param int         $from
+     * @param int         $size
+     * @param string      $sort
+     * @param string      $status
+     *
      * @return City[]
      */
     public function list(
@@ -67,23 +75,25 @@ class CityManager
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS
     ): array {
+        $results = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
-        $key = md5(serialize($query));
-
-        $cities = $this->cache->get($key, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->serializer->denormalize($datum, City::class);
-                }
+        $apiResponse = $this->apiProvider->request('GET', '/api/cities', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, City::class);
             }
+        } else {
+            $this->logger->error('CityManager::list unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
-
-        return $cities;
+        return $results;
     }
 
     /**
@@ -93,6 +103,7 @@ class CityManager
      * @param null|string $tags
      * @param null|string $models
      * @param string|null $language
+     *
      * @return City[]
      */
     public function listFilters(
@@ -104,25 +115,24 @@ class CityManager
         ?string $language = null
     ): array {
         $query = array_filter(compact('type', 'season', 'designer', 'tags', 'models', 'language'));
-        $key = md5(serialize($query));
-
-        $cities = $this->cache->get($key, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', [
-                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->serializer->denormalize($datum, City::class);
-                }
+        $results = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, City::class);
             }
+        } else {
+            $this->logger->error('CityManager::listFilters unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
-
-        return $cities;
+        return $results;
     }
 
     /**
@@ -130,6 +140,7 @@ class CityManager
      * @param null|string $designers
      * @param null|string $tags
      * @param string|null $language
+     *
      * @return City[]
      */
     public function listFiltersStreet(
@@ -138,25 +149,24 @@ class CityManager
         ?string $tags,
         ?string $language = null
     ): array {
+        $results = [];
         $query = array_filter(compact('season', 'designers', 'tags', 'language'));
-        $key = md5(serialize($query));
-
-        $cities = $this->cache->get($key, function () use ($query) {
-            $results = [];
-            $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', [
-                RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
-            ]);
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody()->getContents(), true);
-                foreach ($data as $datum) {
-                    $results[] = $this->serializer->denormalize($datum, City::class);
-                }
+        $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, City::class);
             }
+        } else {
+            $this->logger->error('CityManager::listFiltersStreet unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
 
-            return $results;
-        });
-
-        return $cities;
+        return $results;
     }
 }
