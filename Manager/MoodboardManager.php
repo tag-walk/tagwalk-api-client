@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -107,7 +107,7 @@ class MoodboardManager
     public function get(string $slug): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -126,7 +126,7 @@ class MoodboardManager
     public function getByToken(string $token): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/shared/' . $token, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/shared/'.$token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -175,6 +175,7 @@ class MoodboardManager
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
+
             throw new BadRequestHttpException(); //TODO remove
         }
 
@@ -188,7 +189,7 @@ class MoodboardManager
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE', '/api/moodboards/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('DELETE', '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
             throw new AccessDeniedHttpException(); //TODO remove
         }
@@ -226,7 +227,7 @@ class MoodboardManager
     public function update(string $slug, Moodboard $moodboard): Moodboard
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request('PUT', '/api/moodboards/' . $slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        $apiResponse = $this->apiProvider->request('PUT', '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -234,6 +235,7 @@ class MoodboardManager
             throw new NotFoundHttpException(); //TODO remove
         } else {
             $this->logger->error($apiResponse->getBody()->getContents());
+
             throw new BadRequestHttpException(); //TODO remove
         }
 

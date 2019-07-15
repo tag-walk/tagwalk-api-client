@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -67,7 +67,7 @@ class UserManager
     public function get(string $email): ?User
     {
         $user = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/users/' . $email, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/users/'.$email, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $user = $this->deserialize($apiResponse);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {

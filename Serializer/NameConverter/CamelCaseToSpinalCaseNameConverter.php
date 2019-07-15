@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -19,8 +19,8 @@ class CamelCaseToSpinalCaseNameConverter implements NameConverterInterface
     private $lowerCamelCase;
 
     /**
-     * @param null|array $attributes The list of attributes to rename or null for all attributes
-     * @param bool $lowerCamelCase Use lowerCamelCase style
+     * @param null|array $attributes     The list of attributes to rename or null for all attributes
+     * @param bool       $lowerCamelCase Use lowerCamelCase style
      */
     public function __construct(array $attributes = null, bool $lowerCamelCase = true)
     {
@@ -46,7 +46,7 @@ class CamelCaseToSpinalCaseNameConverter implements NameConverterInterface
     public function denormalize($propertyName)
     {
         $camelCasedName = preg_replace_callback('/(^|_|\.)+(.)/', function ($match) {
-            return ('.' === $match[1] ? '-' : '') . strtoupper($match[2]);
+            return ('.' === $match[1] ? '-' : '').strtoupper($match[2]);
         }, $propertyName);
 
         if ($this->lowerCamelCase) {

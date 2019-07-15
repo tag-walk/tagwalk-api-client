@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -77,7 +77,7 @@ class DesignerManager
     {
         $data = null;
         $query = array_filter(compact('language'));
-        $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, [
+        $apiResponse = $this->apiProvider->request('GET', '/api/designers/'.$slug, [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);

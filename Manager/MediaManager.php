@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -76,7 +76,7 @@ class MediaManager
     public function get(string $slug): ?Media
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/medias/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/medias/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $data = $this->mediaNormalizer->denormalize($data, Media::class);
@@ -189,7 +189,7 @@ class MediaManager
     }
 
     /**
-     * Find medias looks by model slug
+     * Find medias looks by model slug.
      *
      * @param string $slug
      * @param array  $query
@@ -200,7 +200,7 @@ class MediaManager
     {
         $query = array_merge($query, ['sort' => self::DEFAULT_MEDIAS_MODEL_SORT]);
         $data = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/' . $slug . '/medias', [
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/'.$slug.'/medias', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
         ]);

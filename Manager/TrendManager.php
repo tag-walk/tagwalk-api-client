@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -102,7 +102,7 @@ class TrendManager
     public function get(string $slug): ?array
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/trends/' . $slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/trends/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -71,7 +71,7 @@ class GalleryManager
     public function get(string $slug, array $query = []): ?Gallery
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/' . $slug, [
+        $apiResponse = $this->apiProvider->request('GET', '/api/galleries/'.$slug, [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
         ]);

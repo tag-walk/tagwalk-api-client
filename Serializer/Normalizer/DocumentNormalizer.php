@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -20,14 +20,14 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Document;
 
 /**
- * Normalizer for all Document instances
+ * Normalizer for all Document instances.
  *
  * @extends ObjectNormalizer for nested properties but extract attributes only from object properties like PropertyNormalizer
  */
 class DocumentNormalizer extends ObjectNormalizer
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __construct(
         ClassMetadataFactoryInterface $classMetadataFactory = null,
@@ -81,7 +81,7 @@ class DocumentNormalizer extends ObjectNormalizer
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function normalize($object, $format = null, array $context = [])
     {

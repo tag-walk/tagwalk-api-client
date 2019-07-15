@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     Tagwalk\ApiClientBundle\Validator\Constraints
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2019 TAGWALK
  * @license     proprietary
@@ -30,7 +29,7 @@ class Homepage extends Constraint
     public $duplicateSlug = 'The cell slug {{ slug }} is already taken';
 
     /**
-     * Returns the name of the class that validates this constraint
+     * Returns the name of the class that validates this constraint.
      *
      * @return string
      */
@@ -40,7 +39,7 @@ class Homepage extends Constraint
     }
 
     /**
-     * Get the class name to be validated
+     * Get the class name to be validated.
      *
      * @return string
      */

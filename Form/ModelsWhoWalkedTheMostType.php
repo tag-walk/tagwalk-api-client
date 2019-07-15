@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -48,9 +48,9 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     private $tokenStorage;
 
     /**
-     * @param RouterInterface $router
-     * @param ApiProvider $apiProvider
-     * @param RequestStack $requestStack
+     * @param RouterInterface       $router
+     * @param ApiProvider           $apiProvider
+     * @param RequestStack          $requestStack
      * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(RouterInterface $router, ApiProvider $apiProvider, RequestStack $requestStack, TokenStorageInterface $tokenStorage)
@@ -62,7 +62,7 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -70,41 +70,41 @@ class ModelsWhoWalkedTheMostType extends AbstractType
             ->setAction($this->router->generate('models_who_walked_the_most'))
             ->add('type', ChoiceType::class, [
                 'required' => true,
-                'attr' => [
-                    'class' => 'autocomplete-type',
-                    'data-placeholder' => 'Select a type'
+                'attr'     => [
+                    'class'            => 'autocomplete-type',
+                    'data-placeholder' => 'Select a type',
                 ],
                 'choices' => [
-                    'Womenswear' => 'woman',
-                    'Menswear' => 'man',
+                    'Womenswear'             => 'woman',
+                    'Menswear'               => 'man',
                     'Womenswear accessories' => 'accessory',
-                    'Menswear accessories' => 'accessory-man',
-                    'Couture' => 'couture',
-                    'Streetstyles' => 'street',
+                    'Menswear accessories'   => 'accessory-man',
+                    'Couture'                => 'couture',
+                    'Streetstyles'           => 'street',
                 ],
             ])
             ->add('season', ChoiceType::class, [
-                'required' => false,
-                'choices' => $this->getSeasons(),
+                'required'          => false,
+                'choices'           => $this->getSeasons(),
                 'validation_groups' => null,
-                'attr' => [
-                    'class' => 'autocomplete-season',
-                    'data-placeholder' => 'Select a season filter'
-                ]
+                'attr'              => [
+                    'class'            => 'autocomplete-season',
+                    'data-placeholder' => 'Select a season filter',
+                ],
             ])
             ->add('city', ChoiceType::class, [
                 'required' => false,
-                'choices' => $this->getCities(),
-                'attr' => [
-                    'class' => 'autocomplete-city',
-                    'data-placeholder' => 'Select a city filter'
-                ]
+                'choices'  => $this->getCities(),
+                'attr'     => [
+                    'class'            => 'autocomplete-city',
+                    'data-placeholder' => 'Select a city filter',
+                ],
             ])
             ->add('length', NumberType::class, [
                 'required' => false,
-                'attr' => [
-                    'data-placeholder' => 'Number of results to show'
-                ]
+                'attr'     => [
+                    'data-placeholder' => 'Number of results to show',
+                ],
             ])
             ->add('submit', SubmitType::class, ['label' => 'View', 'attr' => ['class' => 'btn btn-primary']]);
 
@@ -121,15 +121,15 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     private function getSeasons()
     {
         $query = [
-            'size' => 100,
-            'sort' => 'position:asc',
-            'status' => 'enabled'
+            'size'   => 100,
+            'sort'   => 'position:asc',
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
         $seasons = [];
         $locale = $this->requestStack->getCurrentRequest()->getLocale();
-        $column = $locale === 'en' ? 'name' : 'name_' . $locale;
+        $column = $locale === 'en' ? 'name' : 'name_'.$locale;
         foreach ($data as $i => $datum) {
             $key = false === empty($datum[$column]) ? $datum[$column] : $datum['name'];
             $seasons[$key] = $datum['slug'];
@@ -144,11 +144,11 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     private function getCities()
     {
         $locale = $this->requestStack->getCurrentRequest()->getLocale();
-        $column = $locale === 'en' ? 'name' : 'name_' . $locale;
+        $column = $locale === 'en' ? 'name' : 'name_'.$locale;
         $query = [
-            'size' => 100,
-            'sort' => $column . ':asc',
-            'status' => 'enabled'
+            'size'   => 100,
+            'sort'   => $column.':asc',
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -162,13 +162,13 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ModelsWhoWalkedTheMost::class,
-            'translation_domain' => 'models'
+            'data_class'         => ModelsWhoWalkedTheMost::class,
+            'translation_domain' => 'models',
         ]);
     }
 }

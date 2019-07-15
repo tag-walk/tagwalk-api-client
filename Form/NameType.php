@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -21,12 +21,12 @@ class NameType extends AbstractType
     {
         $resolver->setDefaults([
             'required' => true,
-            'attr' => [
-                'class' => 'nameInput',
-                'autocomplete' => 'off'
+            'attr'     => [
+                'class'        => 'nameInput',
+                'autocomplete' => 'off',
             ],
-            'help' => 'help.name',
-            'translation_domain' => 'forms'
+            'help'               => 'help.name',
+            'translation_domain' => 'forms',
         ]);
     }
 

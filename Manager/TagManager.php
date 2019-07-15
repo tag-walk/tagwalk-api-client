@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -46,7 +46,6 @@ class TagManager
      */
     public $lastCount;
 
-
     /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
@@ -76,7 +75,7 @@ class TagManager
     {
         $tag = null;
         $query = isset($locale) ? ['language' => $locale] : [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/tags/' . $slug, [
+        $apiResponse = $this->apiProvider->request('GET', '/api/tags/'.$slug, [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);

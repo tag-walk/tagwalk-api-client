@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -67,7 +67,7 @@ class CoverManager
     public function get(string $slug): ?Cover
     {
         $cover = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/covers/' . $slug, [
+        $apiResponse = $this->apiProvider->request('GET', '/api/covers/'.$slug, [
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if (Response::HTTP_OK === $apiResponse->getStatusCode()) {

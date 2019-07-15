@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -52,9 +52,9 @@ class ExportModelsType extends AbstractType
     /**
      * FilterLookType constructor.
      *
-     * @param RouterInterface $router
-     * @param ApiProvider $apiProvider
-     * @param RequestStack $requestStack
+     * @param RouterInterface       $router
+     * @param ApiProvider           $apiProvider
+     * @param RequestStack          $requestStack
      * @param TokenStorageInterface $tokenStorage
      */
     public function __construct(RouterInterface $router, ApiProvider $apiProvider, RequestStack $requestStack, TokenStorageInterface $tokenStorage)
@@ -66,7 +66,7 @@ class ExportModelsType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -74,60 +74,60 @@ class ExportModelsType extends AbstractType
             ->setAction($this->router->generate('export_models'))
             ->add('email', TextType::class, [
                 'required' => false,
-                'data' => $this->tokenStorage->getToken()->getUsername()
+                'data'     => $this->tokenStorage->getToken()->getUsername(),
             ])
             ->add('type', ChoiceType::class, [
                 'required' => true,
-                'choices' => [
-                    'Womenswear' => 'woman',
-                    'Menswear' => 'man',
+                'choices'  => [
+                    'Womenswear'             => 'woman',
+                    'Menswear'               => 'man',
                     'Womenswear accessories' => 'accessory',
-                    'Menswear accessories' => 'accessory-man',
-                    'Couture' => 'couture',
-                    'Streetstyles' => 'street',
+                    'Menswear accessories'   => 'accessory-man',
+                    'Couture'                => 'couture',
+                    'Streetstyles'           => 'street',
                 ],
             ])
             ->add('seasons', HiddenType::class, [
                 'required' => false,
-                'attr' => [
-                    'class' => 'export-seasons'
-                ]
+                'attr'     => [
+                    'class' => 'export-seasons',
+                ],
             ])
             ->add('seasonsSelect', ChoiceType::class, [
-                'mapped' => false,
-                'required' => false,
-                'multiple' => true,
-                'choices' => $this->getSeasons(),
+                'mapped'            => false,
+                'required'          => false,
+                'multiple'          => true,
+                'choices'           => $this->getSeasons(),
                 'validation_groups' => null,
-                'attr' => [
-                    'class' => 'autocomplete-seasons',
-                    'data-placeholder' => 'Enter season(s) filter'
-                ]
+                'attr'              => [
+                    'class'            => 'autocomplete-seasons',
+                    'data-placeholder' => 'Enter season(s) filter',
+                ],
             ])
             ->add('city', ChoiceType::class, [
                 'required' => false,
-                'choices' => $this->getCities(),
-                'attr' => [
-                    'class' => 'autocomplete-city',
-                    'data-placeholder' => 'Select a city filter'
-                ]
+                'choices'  => $this->getCities(),
+                'attr'     => [
+                    'class'            => 'autocomplete-city',
+                    'data-placeholder' => 'Select a city filter',
+                ],
             ])
             ->add('designers', HiddenType::class, [
                 'required' => false,
-                'attr' => [
-                    'class' => 'export-designers'
-                ]
+                'attr'     => [
+                    'class' => 'export-designers',
+                ],
             ])
             ->add('designersSelect', ChoiceType::class, [
-                'mapped' => false,
-                'required' => false,
-                'multiple' => true,
+                'mapped'            => false,
+                'required'          => false,
+                'multiple'          => true,
                 'validation_groups' => null,
-                'attr' => [
-                    'data-path' => $this->router->generate('autocomplete_designer'),
-                    'class' => 'autocomplete-designers',
-                    'data-placeholder' => 'Select designer(s) filter'
-                ]
+                'attr'              => [
+                    'data-path'        => $this->router->generate('autocomplete_designer'),
+                    'class'            => 'autocomplete-designers',
+                    'data-placeholder' => 'Select designer(s) filter',
+                ],
             ])
             ->add('splitDesigner', CheckboxType::class, ['required' => false])
             ->add('filename', TextType::class, ['required' => false])
@@ -146,11 +146,11 @@ class ExportModelsType extends AbstractType
     private function getCities()
     {
         $locale = $this->requestStack->getCurrentRequest()->getLocale();
-        $column = $locale === 'en' ? 'name' : 'name_' . $locale;
+        $column = $locale === 'en' ? 'name' : 'name_'.$locale;
         $query = [
-            'size' => 100,
-            'sort' => $column . ':asc',
-            'status' => 'enabled'
+            'size'   => 100,
+            'sort'   => $column.':asc',
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -169,15 +169,15 @@ class ExportModelsType extends AbstractType
     private function getSeasons()
     {
         $query = [
-            'size' => 100,
-            'sort' => 'position:asc',
-            'status' => 'enabled'
+            'size'   => 100,
+            'sort'   => 'position:asc',
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
         $seasons = [];
         $locale = $this->requestStack->getCurrentRequest()->getLocale();
-        $column = $locale === 'en' ? 'name' : 'name_' . $locale;
+        $column = $locale === 'en' ? 'name' : 'name_'.$locale;
         foreach ($data as $i => $datum) {
             $key = false === empty($datum[$column]) ? $datum[$column] : $datum['name'];
             $seasons[$key] = $datum['slug'];
@@ -187,13 +187,13 @@ class ExportModelsType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ExportModels::class,
-            'translation_domain' => 'export'
+            'data_class'         => ExportModels::class,
+            'translation_domain' => 'export',
         ]);
     }
 }

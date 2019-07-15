@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -43,9 +43,9 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     private $session;
 
     /**
-     * @param ApiProvider $provider
+     * @param ApiProvider         $provider
      * @param SerializerInterface $serializer
-     * @param SessionInterface $session
+     * @param SessionInterface    $session
      */
     public function __construct(ApiProvider $provider, SerializerInterface $serializer, SessionInterface $session)
     {
@@ -60,6 +60,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      * to be skipped.
      *
      * @param Request $request
+     *
      * @return bool
      */
     public function supports(Request $request)
@@ -73,6 +74,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      * be passed to getUser() as $credentials.
      *
      * @param Request $request
+     *
      * @return array
      */
     public function getCredentials(Request $request)
@@ -84,7 +86,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
@@ -94,9 +96,9 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
             try {
                 $response = $this->provider->request('POST', '/api/users/login', [
                     RequestOptions::JSON => [
-                        'email' => $email,
-                        'password' => $password
-                    ]
+                        'email'    => $email,
+                        'password' => $password,
+                    ],
                 ]);
                 $json = $response->getBody()->getContents();
                 $sessid = explode(';', $response->getHeaderLine('Set-Cookie'));
@@ -106,12 +108,10 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
             } catch (GuzzleException $exception) {
             }
         }
-
-        return null;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function checkCredentials($credentials, UserInterface $user)
     {
@@ -123,40 +123,39 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        return null;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        return null;
     }
 
     /**
-     * Called when authentication is needed, but it's not sent
+     * Called when authentication is needed, but it's not sent.
      *
-     * @param Request $request
+     * @param Request                      $request
      * @param AuthenticationException|null $authException
+     *
      * @return JsonResponse
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $data = [
             // you might translate this message
-            'message' => 'Authentication Required'
+            'message' => 'Authentication Required',
         ];
 
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function supportsRememberMe()
     {

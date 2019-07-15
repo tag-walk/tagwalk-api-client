@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -138,7 +138,7 @@ class PageManager
         $query = compact('language');
         $apiResponse = $this->apiProvider->request(
             'GET',
-            '/api/page/' . $slug,
+            '/api/page/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::QUERY       => $query,
@@ -164,7 +164,7 @@ class PageManager
     public function delete(string $slug): bool
     {
         $apiResponse = $this->apiProvider->request('DELETE',
-            '/api/page/' . $slug,
+            '/api/page/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,
             ]
@@ -204,7 +204,7 @@ class PageManager
     public function update(string $slug, Page $record): Page
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request('PUT', '/api/page/' . $slug, $params);
+        $apiResponse = $this->apiProvider->request('PUT', '/api/page/'.$slug, $params);
         $data = json_decode($apiResponse->getBody(), true);
 
         return $this->serializer->denormalize($data, Page::class);
