@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -19,7 +19,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Statusable;
 use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
 
 /**
- * Describe User document
+ * Describe User document.
  *
  * Used for persistance and authentication
  *
@@ -134,8 +134,7 @@ class User implements UserInterface, EquatableInterface
         ?string $password = null,
         ?string $salt = null,
         ?array $roles = []
-    )
-    {
+    ) {
         $this->name = $name;
         $this->password = $password;
         $this->salt = $salt;
@@ -212,6 +211,7 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @param bool|null $fashionIndustry
+     *
      * @return User
      */
     public function setFashionIndustry(?bool $fashionIndustry): self
@@ -411,6 +411,7 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @param string|null
+     *
      * @return self
      */
     public function setToken(?string $token): self
@@ -499,7 +500,7 @@ class User implements UserInterface, EquatableInterface
      */
     public function isEqualTo(UserInterface $user)
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof self) {
             return false;
         }
         if ($this->email !== $user->getEmail()) {

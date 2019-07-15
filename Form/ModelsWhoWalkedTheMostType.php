@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -62,7 +62,7 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -72,7 +72,7 @@ class ModelsWhoWalkedTheMostType extends AbstractType
                 'required' => true,
                 'attr' => [
                     'class' => 'autocomplete-type',
-                    'data-placeholder' => 'Select a type'
+                    'data-placeholder' => 'Select a type',
                 ],
                 'choices' => [
                     'Womenswear' => 'woman',
@@ -89,22 +89,22 @@ class ModelsWhoWalkedTheMostType extends AbstractType
                 'validation_groups' => null,
                 'attr' => [
                     'class' => 'autocomplete-season',
-                    'data-placeholder' => 'Select a season filter'
-                ]
+                    'data-placeholder' => 'Select a season filter',
+                ],
             ])
             ->add('city', ChoiceType::class, [
                 'required' => false,
                 'choices' => $this->getCities(),
                 'attr' => [
                     'class' => 'autocomplete-city',
-                    'data-placeholder' => 'Select a city filter'
-                ]
+                    'data-placeholder' => 'Select a city filter',
+                ],
             ])
             ->add('length', NumberType::class, [
                 'required' => false,
                 'attr' => [
-                    'data-placeholder' => 'Number of results to show'
-                ]
+                    'data-placeholder' => 'Number of results to show',
+                ],
             ])
             ->add('submit', SubmitType::class, ['label' => 'View', 'attr' => ['class' => 'btn btn-primary']]);
 
@@ -123,7 +123,7 @@ class ModelsWhoWalkedTheMostType extends AbstractType
         $query = [
             'size' => 100,
             'sort' => 'position:asc',
-            'status' => 'enabled'
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -148,7 +148,7 @@ class ModelsWhoWalkedTheMostType extends AbstractType
         $query = [
             'size' => 100,
             'sort' => $column . ':asc',
-            'status' => 'enabled'
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -162,13 +162,13 @@ class ModelsWhoWalkedTheMostType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => ModelsWhoWalkedTheMost::class,
-            'translation_domain' => 'models'
+            'translation_domain' => 'models',
         ]);
     }
 }

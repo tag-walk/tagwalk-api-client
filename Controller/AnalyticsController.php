@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Tagwalk\ApiClientBundle\Manager\AnalyticsManager;
 
 /**
- * Tagwalk tracking system
+ * Tagwalk tracking system.
  *
  * @Route("/tts")
  */
@@ -42,6 +42,7 @@ class AnalyticsController extends AbstractController
      *
      * @param Request $request
      * @param string $slug
+     *
      * @return Response
      */
     public function media(Request $request, string $slug): Response
@@ -53,8 +54,10 @@ class AnalyticsController extends AbstractController
 
     /**
      * @Route("/streetstyle/{slug}", name="tts_streetstyle", methods={"POST"}, options={"expose"=true})
+     *
      * @param Request $request
      * @param string $slug
+     *
      * @return Response
      */
     public function streetstyle(Request $request, string $slug): Response
@@ -66,8 +69,10 @@ class AnalyticsController extends AbstractController
 
     /**
      * @Route("/page/{route}", name="tts_page", methods={"POST"}, options={"expose"=true})
+     *
      * @param Request $request
      * @param string $route
+     *
      * @return Response
      */
     public function page(Request $request, string $route): Response

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -61,6 +61,7 @@ class DesignerManager
     /**
      * @param string $slug
      * @param string $language
+     *
      * @return Designer|null
      */
     public function get(string $slug, $language = null): ?Designer
@@ -71,7 +72,7 @@ class DesignerManager
             $query = array_filter(compact('language'));
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/' . $slug, [
                 RequestOptions::HTTP_ERRORS => false,
-                RequestOptions::QUERY => $query
+                RequestOptions::QUERY => $query,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
@@ -92,6 +93,7 @@ class DesignerManager
      * @param bool $talent
      * @param bool $tagbook
      * @param bool $denormalize
+     *
      * @return array|Designer[]
      */
     public function list(
@@ -127,7 +129,7 @@ class DesignerManager
                 $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
 
-                $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
                 $this->lastQueryCount = $count;
                 $countCacheItem->set($count);
                 $countCacheItem->expiresAfter(3600);
@@ -139,9 +141,10 @@ class DesignerManager
     }
 
     /**
-     * TODO implement count API endpoint
+     * TODO implement count API endpoint.
      *
      * @param string $status
+     *
      * @return int
      */
     public function count(string $status = self::DEFAULT_STATUS): int
@@ -154,10 +157,10 @@ class DesignerManager
         } else {
             $apiResponse = $this->apiProvider->request('GET', '/api/designers', [
                 RequestOptions::QUERY => ['status' => $status, 'size' => 1],
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
                 $cacheItem->set($count);
                 $this->cache->save($cacheItem);
             }
@@ -169,6 +172,7 @@ class DesignerManager
     /**
      * @param string $prefix
      * @param string|null $language
+     *
      * @return array
      */
     public function suggest(
@@ -184,7 +188,7 @@ class DesignerManager
         } else {
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/suggestions', [
                 RequestOptions::QUERY => $query,
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $designers = json_decode($apiResponse->getBody()->getContents(), true);
@@ -204,6 +208,7 @@ class DesignerManager
      * @param null|string $models
      * @param bool|null $talent
      * @param string|null $language
+     *
      * @return Designer[]
      */
     public function listFilters(
@@ -222,7 +227,7 @@ class DesignerManager
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', [
                 RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
@@ -242,6 +247,7 @@ class DesignerManager
      * @param null|string $season
      * @param null|string $tags
      * @param string|null $language
+     *
      * @return Designer[]
      */
     public function listFiltersStreet(
@@ -257,7 +263,7 @@ class DesignerManager
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter-streetstyle', [
                 RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);

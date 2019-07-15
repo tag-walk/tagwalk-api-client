@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -109,6 +109,7 @@ class StreetstyleManager
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
             $this->lastCount = 0;
+
             throw new OutOfBoundsException('API response: Range not satisfiable');
         } else {
             $this->lastCount = 0;

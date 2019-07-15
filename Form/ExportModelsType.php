@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -66,7 +66,7 @@ class ExportModelsType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -74,7 +74,7 @@ class ExportModelsType extends AbstractType
             ->setAction($this->router->generate('export_models'))
             ->add('email', TextType::class, [
                 'required' => false,
-                'data' => $this->tokenStorage->getToken()->getUsername()
+                'data' => $this->tokenStorage->getToken()->getUsername(),
             ])
             ->add('type', ChoiceType::class, [
                 'required' => true,
@@ -90,8 +90,8 @@ class ExportModelsType extends AbstractType
             ->add('seasons', HiddenType::class, [
                 'required' => false,
                 'attr' => [
-                    'class' => 'export-seasons'
-                ]
+                    'class' => 'export-seasons',
+                ],
             ])
             ->add('seasonsSelect', ChoiceType::class, [
                 'mapped' => false,
@@ -101,22 +101,22 @@ class ExportModelsType extends AbstractType
                 'validation_groups' => null,
                 'attr' => [
                     'class' => 'autocomplete-seasons',
-                    'data-placeholder' => 'Enter season(s) filter'
-                ]
+                    'data-placeholder' => 'Enter season(s) filter',
+                ],
             ])
             ->add('city', ChoiceType::class, [
                 'required' => false,
                 'choices' => $this->getCities(),
                 'attr' => [
                     'class' => 'autocomplete-city',
-                    'data-placeholder' => 'Select a city filter'
-                ]
+                    'data-placeholder' => 'Select a city filter',
+                ],
             ])
             ->add('designers', HiddenType::class, [
                 'required' => false,
                 'attr' => [
-                    'class' => 'export-designers'
-                ]
+                    'class' => 'export-designers',
+                ],
             ])
             ->add('designersSelect', ChoiceType::class, [
                 'mapped' => false,
@@ -126,8 +126,8 @@ class ExportModelsType extends AbstractType
                 'attr' => [
                     'data-path' => $this->router->generate('autocomplete_designer'),
                     'class' => 'autocomplete-designers',
-                    'data-placeholder' => 'Select designer(s) filter'
-                ]
+                    'data-placeholder' => 'Select designer(s) filter',
+                ],
             ])
             ->add('splitDesigner', CheckboxType::class, ['required' => false])
             ->add('filename', TextType::class, ['required' => false])
@@ -150,7 +150,7 @@ class ExportModelsType extends AbstractType
         $query = [
             'size' => 100,
             'sort' => $column . ':asc',
-            'status' => 'enabled'
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -171,7 +171,7 @@ class ExportModelsType extends AbstractType
         $query = [
             'size' => 100,
             'sort' => 'position:asc',
-            'status' => 'enabled'
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -187,13 +187,13 @@ class ExportModelsType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => ExportModels::class,
-            'translation_domain' => 'export'
+            'translation_domain' => 'export',
         ]);
     }
 }

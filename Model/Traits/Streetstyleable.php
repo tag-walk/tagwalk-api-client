@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -25,7 +25,7 @@ trait Streetstyleable
     protected $streetstyles;
 
     /**
-     * Get the streetstyles collection
+     * Get the streetstyles collection.
      *
      * @return Streetstyle[]|null
      */
@@ -39,9 +39,10 @@ trait Streetstyleable
     }
 
     /**
-     * Set the streetstyle collection
+     * Set the streetstyle collection.
      *
      * @param Streetstyle[]|null $streetstyles
+     *
      * @return self
      */
     public function setStreetstyles(?array $streetstyles): self
@@ -56,9 +57,10 @@ trait Streetstyleable
     }
 
     /**
-     * Add an element to the streetstyle collection
+     * Add an element to the streetstyle collection.
      *
      * @param Streetstyle $streetstyle
+     *
      * @return self
      */
     public function addStreetstyle(Streetstyle $streetstyle): self
@@ -76,9 +78,10 @@ trait Streetstyleable
     }
 
     /**
-     * Remove an element from the streetstyle collection
+     * Remove an element from the streetstyle collection.
      *
      * @param string $slug
+     *
      * @return bool
      */
     public function removeStreetstyle(string $slug): bool

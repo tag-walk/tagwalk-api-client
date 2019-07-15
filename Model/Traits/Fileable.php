@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     Tagwalk\ApiClientBundle\Model\Traits
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2019 TAGWALK
  * @license     proprietary
@@ -15,11 +14,11 @@ namespace Tagwalk\ApiClientBundle\Model\Traits;
 use Tagwalk\ApiClientBundle\Model\File;
 
 /**
- * Add files property to document
+ * Add files property to document.
  */
 trait Fileable
 {
-    /** Used to reindex files collection on set/add/remove */
+    /* Used to reindex files collection on set/add/remove */
     use Reindexable;
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -58,6 +58,7 @@ class UserManager
 
     /**
      * @param string $email
+     *
      * @return User|null
      */
     public function get(string $email)
@@ -73,6 +74,7 @@ class UserManager
 
     /**
      * @param ResponseInterface $response
+     *
      * @return User
      */
     private function deserialize($response)
@@ -86,6 +88,7 @@ class UserManager
 
     /**
      * @param User $user
+     *
      * @return User|null
      */
     public function create(User $user)
@@ -93,7 +96,7 @@ class UserManager
         $data = $this->serializer->normalize($user, null, ['registration' => true]);
         $apiResponse = $this->apiProvider->request('POST', '/api/users/register', [
             'json' => $data,
-            'http_errors' => false
+            'http_errors' => false,
         ]);
         $created = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
@@ -108,6 +111,7 @@ class UserManager
     /**
      * @param string $email
      * @param User $user
+     *
      * @return User|null
      */
     public function update(string $email, User $user)
@@ -119,7 +123,7 @@ class UserManager
         $apiResponse = $this->apiProvider->request('PATCH', '/api/users', [
             'query' => ['email' => $email],
             'json' => $data,
-            'http_errors' => false
+            'http_errors' => false,
         ]);
         $updated = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -134,17 +138,18 @@ class UserManager
     /**
      * @param string $property
      * @param string $value
+     *
      * @return User|null
      */
     public function findBy(string $property, string $value)
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET' , '/api/users/find', [
+        $apiResponse = $this->apiProvider->request('GET', '/api/users/find', [
             'query' => [
                 'key' => $property,
-                'value' => $value
+                'value' => $value,
             ],
-            'http_errors' => false
+            'http_errors' => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = $this->deserialize($apiResponse);

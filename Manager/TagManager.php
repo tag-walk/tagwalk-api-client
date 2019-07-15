@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -22,7 +22,7 @@ class TagManager
 {
     const DEFAULT_STATUS = 'enabled';
     const DEFAULT_SORT = 'name:asc';
-    
+
     /**
      * @var ApiProvider
      */
@@ -38,7 +38,6 @@ class TagManager
      */
     private $cache;
 
-
     /**
      * @param ApiProvider $apiProvider
      * @param SerializerInterface $serializer
@@ -53,6 +52,7 @@ class TagManager
     /**
      * @param string $slug
      * @param string $locale
+     *
      * @return Tag|null
      */
     public function get(string $slug, $locale = null): ?Tag
@@ -83,6 +83,7 @@ class TagManager
      * @param string $sort
      * @param string $status
      * @param bool $denormalize
+     *
      * @return array|Tag[]
      */
     public function list(
@@ -120,9 +121,10 @@ class TagManager
     }
 
     /**
-     * TODO implement count API endpoint
+     * TODO implement count API endpoint.
      *
      * @param string $status
+     *
      * @return int
      */
     public function count(string $status = self::DEFAULT_STATUS): int
@@ -134,7 +136,7 @@ class TagManager
         } else {
             $apiResponse = $this->apiProvider->request('GET', '/api/tags', ['query' => ['status' => $status, 'size' => 1], 'http_errors' => false]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $count = (int)$apiResponse->getHeaderLine('X-Total-Count');
+                $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
                 $cacheItem->set($count);
                 $cacheItem->expiresAfter(3600);
                 $this->cache->save($cacheItem);
@@ -147,6 +149,7 @@ class TagManager
     /**
      * @param string $prefix
      * @param string|null $language
+     *
      * @return array
      */
     public function suggest(

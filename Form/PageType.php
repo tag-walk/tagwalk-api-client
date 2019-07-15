@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -32,13 +32,13 @@ class PageType extends AbstractType
             ->add('name', NameType::class, ['label_format' => 'label.%name%'])
             ->add('slug', SlugType::class, [
                 'label_format' => 'label.%name%',
-                'attr' => ['readonly' => true]
+                'attr' => ['readonly' => true],
             ])
             ->add('status', ChoiceType::class, [
-                'choices' => Status::getOptions()
+                'choices' => Status::getOptions(),
             ])
             ->add('text', TextareaType::class, [
-                'required' => false
+                'required' => false,
             ])
             ->add('text_fr', TextareaType::class, ['required' => false])
             ->add('text_es', TextareaType::class, ['required' => false])
@@ -54,7 +54,7 @@ class PageType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Page::class,
-            'translation_domain' => 'forms'
+            'translation_domain' => 'forms',
         ]);
     }
 }

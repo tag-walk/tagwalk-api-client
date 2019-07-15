@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -11,11 +11,11 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
 use Tagwalk\ApiClientBundle\Utils\Constants\AccessoryCategories;
 use Tagwalk\ApiClientBundle\Utils\Constants\MediaType;
-use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Utils\Reindexer;
 
 class Media extends AbstractDocument
@@ -262,7 +262,6 @@ class Media extends AbstractDocument
 
     /**
      * @param Affiliation $affiliation
-
      */
     public function addAffiliations(Affiliation $affiliation)
     {

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\User;
 
 /**
- * Normalizer for File instances
+ * Normalizer for File instances.
  *
  * @extends DocumentNormalizer
  */
@@ -41,6 +41,7 @@ class UserNormalizer extends DocumentNormalizer implements NormalizerInterface
      * @param mixed $object
      * @param null $format
      * @param array $context
+     *
      * @return array|bool|float|int|string
      */
     public function normalize($object, $format = null, array $context = [])

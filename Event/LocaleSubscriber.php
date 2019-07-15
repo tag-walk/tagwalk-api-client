@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     App\Event
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2019 TAGWALK
  * @license     proprietary
@@ -18,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Tagwalk\ApiClientBundle\Utils\Constants\Language;
 
 /**
- * Handle kernel request to determine the locale from headers
+ * Handle kernel request to determine the locale from headers.
  */
 class LocaleSubscriber implements EventSubscriberInterface
 {
@@ -36,12 +35,12 @@ class LocaleSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => [['onKernelRequest', 20]]
+            KernelEvents::REQUEST => [['onKernelRequest', 20]],
         ];
     }
 

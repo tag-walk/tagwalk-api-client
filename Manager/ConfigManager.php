@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -42,6 +42,7 @@ class ConfigManager
 
     /**
      * @param string $id
+     *
      * @return null|Config
      */
     public function get(string $id): ?Config
@@ -64,6 +65,7 @@ class ConfigManager
 
     /**
      * @param string $namespace
+     *
      * @return array
      */
     public function list(string $namespace): array
@@ -88,6 +90,7 @@ class ConfigManager
     /**
      * @param string $key
      * @param string $value
+     *
      * @return bool
      */
     public function set(string $key, string $value): bool

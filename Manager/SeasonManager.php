@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -59,6 +59,7 @@ class SeasonManager
      * @param string|null $sort
      * @param string|null $status
      * @param bool|null $shopable
+     *
      * @return Season[]
      */
     public function list(
@@ -93,6 +94,7 @@ class SeasonManager
      * @param null|string $tags
      * @param null|string $models
      * @param string|null $language
+     *
      * @return Season[]
      */
     public function listFilters(
@@ -110,7 +112,7 @@ class SeasonManager
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter', [
                 RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
@@ -130,6 +132,7 @@ class SeasonManager
      * @param null|string $designers
      * @param null|string $tags
      * @param string|null $language
+     *
      * @return Season[]
      */
     public function listFiltersStreet(
@@ -145,7 +148,7 @@ class SeasonManager
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/seasons/filter-streetstyle', [
                 RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);

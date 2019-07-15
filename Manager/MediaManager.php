@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -68,6 +68,7 @@ class MediaManager
 
     /**
      * @param string $slug
+     *
      * @return null|Media
      */
     public function get(string $slug): ?Media
@@ -92,6 +93,7 @@ class MediaManager
      * @param string $season
      * @param string $designer
      * @param string $look
+     *
      * @return null|Media
      */
     public function findByTypeSeasonDesignerLook(string $type, string $season, string $designer, string $look): ?Media
@@ -122,6 +124,7 @@ class MediaManager
      * @param string $season
      * @param string $designer
      * @param string|null $city
+     *
      * @return array|mixed
      */
     public function listRelated(string $type, string $season, string $designer, ?string $city = null): array
@@ -130,7 +133,7 @@ class MediaManager
         $query = array_merge([
             'analytics' => 0,
             'from' => 0,
-            'size' => 6
+            'size' => 6,
         ], compact('type', 'season', 'designer', 'city'));
         $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
             RequestOptions::QUERY       => $query,
@@ -153,6 +156,7 @@ class MediaManager
      * @param int $from
      * @param int $size
      * @param string $status
+     *
      * @return Media[]
      */
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
@@ -171,6 +175,7 @@ class MediaManager
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
             $this->lastCount = 0;
+
             throw new OutOfBoundsException('Api response: Range not satisfiable');
         } else {
             $this->lastCount = 0;
@@ -184,7 +189,7 @@ class MediaManager
     }
 
     /**
-     * Find medias looks by model slug
+     * Find medias looks by model slug.
      *
      * @param string $slug
      * @param array $query

@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     App\Document
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2019 TAGWALK
  * @license     proprietary
@@ -35,7 +34,7 @@ class Tag extends AbstractDocument
     private $similars;
 
     /**
-     * @var boolean
+     * @var bool
      * @Assert\Type("boolean")
      */
     private $beauty = false;
@@ -93,9 +92,9 @@ class Tag extends AbstractDocument
         return $this->beauty;
     }
 
-
     /**
      * @param bool $beauty
+     *
      * @return self
      */
     public function setBeauty(bool $beauty): self

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -17,7 +17,7 @@ use Tagwalk\ApiClientBundle\Model\File;
 use Tagwalk\ApiClientBundle\Model\News;
 
 /**
- * Normalizer for News instances
+ * Normalizer for News instances.
  *
  * @extends DocumentNormalizer
  */
@@ -37,7 +37,7 @@ class NewsNormalizer extends DocumentNormalizer implements NormalizerInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function denormalize($data, $class, $format = null, array $context = [])
     {

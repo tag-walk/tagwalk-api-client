@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -66,7 +66,7 @@ class ExportDesignersType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -74,7 +74,7 @@ class ExportDesignersType extends AbstractType
             ->setAction($this->router->generate('export_designers'))
             ->add('email', TextType::class, [
                 'required' => false,
-                'data' => $this->tokenStorage->getToken()->getUsername()
+                'data' => $this->tokenStorage->getToken()->getUsername(),
             ])
             ->add('filename', TextType::class, ['required' => false])
             ->add('type', ChoiceType::class, [
@@ -86,29 +86,29 @@ class ExportDesignersType extends AbstractType
                     'Menswear accessories' => 'accessory-man',
                     'Couture' => 'couture',
                     'Streetstyles' => 'street',
-                ]
+                ],
             ])
             ->add('season', ChoiceType::class, [
                 'required' => false,
                 'choices' => $this->getSeasons(),
                 'attr' => [
                     'class' => 'autocomplete-season',
-                    'data-placeholder' => 'Filter on season'
-                ]
+                    'data-placeholder' => 'Filter on season',
+                ],
             ])
             ->add('city', ChoiceType::class, [
                 'required' => false,
                 'choices' => $this->getCities(),
                 'attr' => [
                     'class' => 'autocomplete-city',
-                    'data-placeholder' => 'Filter on city'
-                ]
+                    'data-placeholder' => 'Filter on city',
+                ],
             ])
             ->add('designers', HiddenType::class, [
                 'required' => false,
                 'attr' => [
-                    'class' => 'export-designers'
-                ]
+                    'class' => 'export-designers',
+                ],
             ])
             ->add('designersSelect', ChoiceType::class, [
                 'multiple' => true,
@@ -118,8 +118,8 @@ class ExportDesignersType extends AbstractType
                 'attr' => [
                     'data-path' => $this->router->generate('autocomplete_designer'),
                     'class' => 'autocomplete-designers',
-                    'data-placeholder' => 'Filter on designers'
-                ]
+                    'data-placeholder' => 'Filter on designers',
+                ],
             ])
             ->add('keepEmpty', CheckboxType::class, ['required' => false])
             ->add('splitSeason', CheckboxType::class, ['required' => false])
@@ -141,7 +141,7 @@ class ExportDesignersType extends AbstractType
         $query = [
             'size' => 100,
             'sort' => $column . ':asc',
-            'status' => 'enabled'
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/cities', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -162,7 +162,7 @@ class ExportDesignersType extends AbstractType
         $query = [
             'size' => 100,
             'sort' => 'position:asc',
-            'status' => 'enabled'
+            'status' => 'enabled',
         ];
         $apiResponse = $this->apiProvider->request('GET', '/api/seasons', ['query' => $query, 'http_errors' => false]);
         $data = json_decode($apiResponse->getBody(), true);
@@ -178,14 +178,14 @@ class ExportDesignersType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => ExportDesigners::class,
             'empty_data' => null,
-            'translation_domain' => 'export'
+            'translation_domain' => 'export',
         ]);
     }
 }

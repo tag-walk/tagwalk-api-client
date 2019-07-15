@@ -9,7 +9,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Utils\Constants\MediaType;
 
 /**
- * Collection Document
+ * Collection Document.
  *
  * @see Document
  */

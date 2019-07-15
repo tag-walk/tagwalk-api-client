@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -58,6 +58,7 @@ class CityManager
      * @param int $size
      * @param string $sort
      * @param string $status
+     *
      * @return City[]
      */
     public function list(
@@ -93,6 +94,7 @@ class CityManager
      * @param null|string $tags
      * @param null|string $models
      * @param string|null $language
+     *
      * @return City[]
      */
     public function listFilters(
@@ -110,7 +112,7 @@ class CityManager
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter', [
                 RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);
@@ -130,6 +132,7 @@ class CityManager
      * @param null|string $designers
      * @param null|string $tags
      * @param string|null $language
+     *
      * @return City[]
      */
     public function listFiltersStreet(
@@ -145,7 +148,7 @@ class CityManager
             $results = [];
             $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', [
                 RequestOptions::QUERY => array_merge($query, ['analytics' => 0]),
-                RequestOptions::HTTP_ERRORS => false
+                RequestOptions::HTTP_ERRORS => false,
             ]);
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody()->getContents(), true);

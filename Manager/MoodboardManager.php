@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -60,6 +60,7 @@ class MoodboardManager
 
     /**
      * @param array $params
+     *
      * @return array
      */
     public function list(array $params): array
@@ -80,13 +81,14 @@ class MoodboardManager
 
     /**
      * @param array $params
+     *
      * @return int
      */
     public function count(array $params): int
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', [RequestOptions::QUERY => array_merge($params, ['analytics' => 0]), RequestOptions::HTTP_ERRORS => false]);
 
-        return (int)$apiResponse->getHeaderLine('X-Total-Count');
+        return (int) $apiResponse->getHeaderLine('X-Total-Count');
     }
 
     /**
@@ -112,6 +114,7 @@ class MoodboardManager
 
     /**
      * @param string $token
+     *
      * @return null|Moodboard
      */
     public function getByToken(string $token): ?Moodboard
@@ -138,7 +141,7 @@ class MoodboardManager
     public function getPdfByToken(string $token): ?StreamInterface
     {
         $pdf = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/pdf/'.$token, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/pdf/' . $token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $pdf = $apiResponse->getBody();
         } else {
@@ -150,8 +153,10 @@ class MoodboardManager
 
     /**
      * @param Moodboard $moodboard
-     * @return Moodboard
+     *
      * @throws \GuzzleHttp\Exception\GuzzleException
+     *
+     * @return Moodboard
      */
     public function create(Moodboard $moodboard): Moodboard
     {
@@ -161,6 +166,7 @@ class MoodboardManager
             $data = json_decode($apiResponse->getBody(), true);
         } else {
             $this->logger->error($apiResponse->getBody()->getContents());
+
             throw new BadRequestHttpException();
         }
         $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -170,6 +176,7 @@ class MoodboardManager
 
     /**
      * @param string $slug
+     *
      * @return bool
      */
     public function delete(string $slug): bool
@@ -186,6 +193,7 @@ class MoodboardManager
      * @param string $slug
      * @param string $type
      * @param string $lookSlug
+     *
      * @return bool
      */
     public function removeLook(string $slug, string $type, string $lookSlug): bool
@@ -205,6 +213,7 @@ class MoodboardManager
     /**
      * @param string $slug
      * @param Moodboard $moodboard
+     *
      * @return Moodboard
      */
     public function update(string $slug, Moodboard $moodboard): Moodboard
@@ -218,6 +227,7 @@ class MoodboardManager
             throw new NotFoundHttpException();
         } else {
             $this->logger->error($apiResponse->getBody()->getContents());
+
             throw new BadRequestHttpException();
         }
 
@@ -228,6 +238,7 @@ class MoodboardManager
      * @param string $slug
      * @param string $type
      * @param string $lookSlug
+     *
      * @return bool
      */
     public function addLook(string $slug, string $type, string $lookSlug): bool

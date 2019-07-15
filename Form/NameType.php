@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -23,10 +23,10 @@ class NameType extends AbstractType
             'required' => true,
             'attr' => [
                 'class' => 'nameInput',
-                'autocomplete' => 'off'
+                'autocomplete' => 'off',
             ],
             'help' => 'help.name',
-            'translation_domain' => 'forms'
+            'translation_domain' => 'forms',
         ]);
     }
 

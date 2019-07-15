@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     App\Serializer\Normalizer
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2019 TAGWALK
  * @license     proprietary
@@ -17,7 +16,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Export;
 
 /**
- * Normalizer for File instances
+ * Normalizer for File instances.
  *
  * @extends DocumentNormalizer
  */

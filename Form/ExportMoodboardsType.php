@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -47,7 +47,7 @@ class ExportMoodboardsType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -55,7 +55,7 @@ class ExportMoodboardsType extends AbstractType
             ->setAction($this->router->generate('export_moodboards_designers'))
             ->add('email', TextType::class, [
                 'required' => false,
-                'data' => $this->tokenStorage->getToken()->getUsername()
+                'data' => $this->tokenStorage->getToken()->getUsername(),
             ])
             ->add('type', ChoiceType::class, [
                 'required' => true,
@@ -66,13 +66,13 @@ class ExportMoodboardsType extends AbstractType
                     'Menswear accessories' => 'accessory-man',
                     'Couture' => 'couture',
                     'Streetstyles' => 'street',
-                ]
+                ],
             ])
             ->add('designers', HiddenType::class, [
                 'required' => false,
                 'attr' => [
-                    'class' => 'export-designers'
-                ]
+                    'class' => 'export-designers',
+                ],
             ])
             ->add('designersSelect', ChoiceType::class, [
                 'multiple' => true,
@@ -82,8 +82,8 @@ class ExportMoodboardsType extends AbstractType
                 'attr' => [
                     'data-path' => $this->router->generate('autocomplete_designer'),
                     'class' => 'autocomplete-designers',
-                    'data-placeholder' => 'Filter on designers'
-                ]
+                    'data-placeholder' => 'Filter on designers',
+                ],
             ])
             ->add('filename', TextType::class, ['required' => false])
             ->add('submit', SubmitType::class, ['label' => 'Generate', 'attr' => ['class' => 'btn btn-primary']]);
@@ -95,13 +95,13 @@ class ExportMoodboardsType extends AbstractType
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => ExportMoodboards::class,
-            'translation_domain' => 'export'
+            'translation_domain' => 'export',
         ]);
     }
 }

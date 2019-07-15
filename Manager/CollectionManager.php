@@ -52,6 +52,7 @@ class CollectionManager
      * @param string $designer
      * @param string $season
      * @param array $query
+     *
      * @return null|Collection
      */
     public function find(string $type, string $designer, string $season, array $query = []): ?Collection

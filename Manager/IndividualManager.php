@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -130,7 +130,7 @@ class IndividualManager
     }
 
     /**
-     * TODO implement count API endpoint
+     * TODO implement count API endpoint.
      *
      * @param string $status
      *

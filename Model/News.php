@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     App\Document
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2019 TAGWALK
  * @license     proprietary
@@ -81,6 +80,7 @@ class News extends AbstractDocument
 
     /**
      * @param array $categoriesI18n
+     *
      * @return News
      */
     public function setCategoriesI18n($categoriesI18n): self
