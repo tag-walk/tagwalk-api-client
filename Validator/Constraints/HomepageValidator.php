@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     Tagwalk\ApiClientBundle\Validator\Constraints
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2019 TAGWALK
  * @license     proprietary
@@ -17,16 +16,16 @@ use Symfony\Component\Validator\ConstraintValidator;
 use Tagwalk\ApiClientBundle\Model\Homepage;
 
 /**
- * Validate the Homepage class
+ * Validate the Homepage class.
  */
 class HomepageValidator extends ConstraintValidator
 {
     /**
-     * Validate the homepage properties
+     * Validate the homepage properties.
      *
      * {@inheritdoc}
      *
-     * @param Homepage $homepage
+     * @param Homepage                                                $homepage
      * @param \Tagwalk\ApiClientBundle\Validator\Constraints\Homepage $constraint
      */
     public function validate($homepage, Constraint $constraint)
@@ -36,9 +35,9 @@ class HomepageValidator extends ConstraintValidator
     }
 
     /**
-     * Validate that the homepage cells positions are not greater than the number of cells
+     * Validate that the homepage cells positions are not greater than the number of cells.
      *
-     * @param Homepage $homepage
+     * @param Homepage                                                           $homepage
      * @param Constraint|\Tagwalk\ApiClientBundle\Validator\Constraints\Homepage $constraint
      */
     private function validateCellsPositions(Homepage $homepage, Constraint $constraint)
@@ -59,9 +58,9 @@ class HomepageValidator extends ConstraintValidator
     }
 
     /**
-     * Validate that the homepage cells positions are not greater than the number of cells
+     * Validate that the homepage cells positions are not greater than the number of cells.
      *
-     * @param Homepage $homepage
+     * @param Homepage                                                           $homepage
      * @param Constraint|\Tagwalk\ApiClientBundle\Validator\Constraints\Homepage $constraint
      */
     private function validateCellsSlug(Homepage $homepage, Constraint $constraint)

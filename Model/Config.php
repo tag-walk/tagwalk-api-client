@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -37,6 +37,7 @@ class Config
 
     /**
      * @param string $key
+     *
      * @return self
      */
     public function setKey(string $key): self
@@ -56,6 +57,7 @@ class Config
 
     /**
      * @param string $value
+     *
      * @return self
      */
     public function setValue(string $value): self

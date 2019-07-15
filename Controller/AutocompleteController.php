@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -43,10 +43,10 @@ class AutocompleteController extends AbstractController
     private $tagManager;
 
     /**
-     * @param ApiProvider $apiProvider
-     * @param DesignerManager $designerManager
+     * @param ApiProvider       $apiProvider
+     * @param DesignerManager   $designerManager
      * @param IndividualManager $individualManager
-     * @param TagManager $tagManager
+     * @param TagManager        $tagManager
      */
     public function __construct(ApiProvider $apiProvider, DesignerManager $designerManager, IndividualManager $individualManager, TagManager $tagManager)
     {
@@ -83,8 +83,8 @@ class AutocompleteController extends AbstractController
             $count = $this->designerManager->lastQueryCount;
         }
         $data = [
-            'results' => $results,
-            'total_count' => $count
+            'results'     => $results,
+            'total_count' => $count,
         ];
         $response = new JsonResponse($data);
         $response->setCache([
@@ -114,15 +114,15 @@ class AutocompleteController extends AbstractController
             $results = $this->tagManager->list(
                 $request->getLocale(),
                 ($page - 1) * 20, 20,
-                $request->getLocale() === 'en' ? 'name:asc' : 'name_' . $request->getLocale() . ':asc',
+                $request->getLocale() === 'en' ? 'name:asc' : 'name_'.$request->getLocale().':asc',
                 $this->tagManager::DEFAULT_STATUS,
                 false
             );
             $count = $this->tagManager->lastCount;
         }
         $data = [
-            'results' => $results,
-            'total_count' => $count
+            'results'     => $results,
+            'total_count' => $count,
         ];
         $response = new JsonResponse($data);
         $response->setCache([
@@ -159,8 +159,8 @@ class AutocompleteController extends AbstractController
             $count = $this->individualManager->lastCount;
         }
         $data = [
-            'results' => $results,
-            'total_count' => $count
+            'results'     => $results,
+            'total_count' => $count,
         ];
         $response = new JsonResponse($data);
         $response->setCache([

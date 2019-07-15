@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -71,7 +71,7 @@ class HomepageCell extends AbstractDocument
      *
      * @return HomepageCell
      */
-    public function setPosition(int $position): HomepageCell
+    public function setPosition(int $position): self
     {
         $this->position = $position;
 
@@ -91,7 +91,7 @@ class HomepageCell extends AbstractDocument
      *
      * @return HomepageCell
      */
-    public function setFiles(?array $files): HomepageCell
+    public function setFiles(?array $files): self
     {
         $this->files = $files;
 
@@ -111,7 +111,7 @@ class HomepageCell extends AbstractDocument
      *
      * @return HomepageCell
      */
-    public function setWidth(int $width): HomepageCell
+    public function setWidth(int $width): self
     {
         $this->width = $width;
 
@@ -131,7 +131,7 @@ class HomepageCell extends AbstractDocument
      *
      * @return HomepageCell
      */
-    public function setType(string $type): HomepageCell
+    public function setType(string $type): self
     {
         $this->type = $type;
 
@@ -151,7 +151,7 @@ class HomepageCell extends AbstractDocument
      *
      * @return HomepageCell
      */
-    public function setFilters(?array $filters): HomepageCell
+    public function setFilters(?array $filters): self
     {
         $this->filters = $filters;
 

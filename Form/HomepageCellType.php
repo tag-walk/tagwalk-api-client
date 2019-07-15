@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -47,8 +47,8 @@ class HomepageCellType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => HomepageCell::class,
-            'translation_domain' => 'forms'
+            'data_class'         => HomepageCell::class,
+            'translation_domain' => 'forms',
         ]);
     }
 }

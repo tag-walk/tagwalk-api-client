@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -11,10 +11,10 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Linkable;
-use Symfony\Component\Validator\Constraints as Assert;
 
 class Individual extends AbstractDocument
 {
@@ -64,6 +64,7 @@ class Individual extends AbstractDocument
 
     /**
      * @param bool $model
+     *
      * @return self
      */
     public function setModel(bool $model): self
@@ -83,6 +84,7 @@ class Individual extends AbstractDocument
 
     /**
      * @param string $gender
+     *
      * @return self
      */
     public function setGender(string $gender): self
@@ -102,6 +104,7 @@ class Individual extends AbstractDocument
 
     /**
      * @param \DateTime|null $birthdate
+     *
      * @return self
      */
     public function setBirthdate(?\DateTime $birthdate): self
@@ -121,6 +124,7 @@ class Individual extends AbstractDocument
 
     /**
      * @param string|null $nationality
+     *
      * @return self
      */
     public function setNationality(?string $nationality): self
@@ -140,6 +144,7 @@ class Individual extends AbstractDocument
 
     /**
      * @param Agency[]|null $agencies
+     *
      * @return self
      */
     public function setAgencies(?array $agencies): self

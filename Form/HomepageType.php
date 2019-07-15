@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -25,33 +25,33 @@ class HomepageType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
-     * @param array $options
+     * @param array                $options
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('section', HomepageSectionType::class, ['label_format' => 'label.homepage.%name%',])
+            ->add('section', HomepageSectionType::class, ['label_format' => 'label.homepage.%name%'])
             ->add('name', NameType::class, ['label_format' => 'label.%name%'])
             ->add('slug', SlugType::class, ['label_format' => 'label.%name%'])
             ->add('beginAt', DateTimeType::class, [
-                'required' => false,
-                'widget' => 'single_text',
+                'required'     => false,
+                'widget'       => 'single_text',
                 'label_format' => 'label.%name%',
-                'help' => 'help.beginAt',
+                'help'         => 'help.beginAt',
             ])
             ->add('endAt', DateTimeType::class, [
-                'required' => false,
-                'widget' => 'single_text',
+                'required'     => false,
+                'widget'       => 'single_text',
                 'label_format' => 'label.%name%',
-                'help' => 'help.endAt',
+                'help'         => 'help.endAt',
             ])
             ->add('status', HiddenType::class, ['data' => Status::DISABLED])
             ->add('cells', CollectionType::class, [
-                'entry_type' => HomepageCellType::class,
+                'entry_type'    => HomepageCellType::class,
                 'entry_options' => ['label' => false],
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
+                'allow_add'     => true,
+                'allow_delete'  => true,
+                'by_reference'  => false,
             ])
             ->add('submit', SubmitType::class, ['label' => 'Create']);
     }
@@ -62,8 +62,8 @@ class HomepageType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Homepage::class,
-            'translation_domain' => 'forms'
+            'data_class'         => Homepage::class,
+            'translation_domain' => 'forms',
         ]);
     }
 }

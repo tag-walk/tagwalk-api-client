@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -37,7 +37,7 @@ class UserProvider implements UserProviderInterface
     private $serializer;
 
     /**
-     * @param ApiProvider $provider
+     * @param ApiProvider         $provider
      * @param SerializerInterface $serializer
      */
     public function __construct(ApiProvider $provider, SerializerInterface $serializer)
@@ -52,7 +52,7 @@ class UserProvider implements UserProviderInterface
     public function loadUserByUsername($username)
     {
         try {
-            $response = $this->provider->request('GET', '/api/users/' . strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
+            $response = $this->provider->request('GET', '/api/users/'.strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
             if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
                 throw new UsernameNotFoundException();
             }

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -85,7 +85,7 @@ class LiveManager
 
     /**
      * @param null|string $type
-     * @param null|string $season slug
+     * @param null|string $season      slug
      * @param null|string $city
      * @param int         $from
      * @param int         $size

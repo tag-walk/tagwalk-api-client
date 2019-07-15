@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -54,7 +54,7 @@ class Homepage extends AbstractDocument
      *
      * @return Homepage
      */
-    public function setSection(string $section): Homepage
+    public function setSection(string $section): self
     {
         $this->section = $section;
 
@@ -99,6 +99,7 @@ class Homepage extends AbstractDocument
 
     /**
      * @param string $slug
+     *
      * @return HomepageCell|null
      */
     public function getCell(string $slug): ?HomepageCell

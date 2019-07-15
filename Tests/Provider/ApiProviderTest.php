@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -26,8 +26,8 @@ class ApiProviderTest extends TestCase
         $request->method('getLocale')->willReturn('en');
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn($request);
-        /** @var RequestStack $requestStack */
-        /** @var SessionInterface $session */
+        /* @var RequestStack $requestStack */
+        /* @var SessionInterface $session */
         return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, $timeout);
     }
 

@@ -1,7 +1,9 @@
-<?php /** @noinspection ALL */
+<?php
+
+/** @noinspection ALL */
 
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *

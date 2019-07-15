@@ -7,7 +7,7 @@ use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Utils\Reindexer;
 
 /**
- * Trait Mediable
+ * Trait Mediable.
  *
  * Add medias property to a document
  */
@@ -20,7 +20,7 @@ trait Mediable
     protected $medias;
 
     /**
-     * Get the medias collection
+     * Get the medias collection.
      *
      * @return Media[]|null
      */
@@ -34,7 +34,7 @@ trait Mediable
     }
 
     /**
-     * Set the media collection
+     * Set the media collection.
      *
      * @param Media[]|null $medias
      *
@@ -52,7 +52,7 @@ trait Mediable
     }
 
     /**
-     * Add an element to the media collection
+     * Add an element to the media collection.
      *
      * @param Media $media
      *
@@ -73,7 +73,7 @@ trait Mediable
     }
 
     /**
-     * Remove an element from the media collection
+     * Remove an element from the media collection.
      *
      * @param string $slug
      *

@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -63,7 +63,7 @@ class ConfigManager
     public function get(string $id): ?Config
     {
         $config = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/config/' . $id, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/config/'.$id, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $config = $this->serializer->denormalize($data, Config::class);
@@ -114,7 +114,7 @@ class ConfigManager
      */
     public function set(string $key, string $value): bool
     {
-        $apiResponse = $this->apiProvider->request('PUT', '/api/config/' . $key . '/' . $value);
+        $apiResponse = $this->apiProvider->request('PUT', '/api/config/'.$key.'/'.$value);
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
             $this->logger->error('ConfigManager::set unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),

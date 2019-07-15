@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -22,12 +22,12 @@ class HomepageSectionType extends AbstractType
     {
         $resolver->setDefaults([
             'choices' => [
-                'input.homepage.section.home' => HomepageSection::HOME,
-                'input.homepage.section.shop' => HomepageSection::SHOP,
+                'input.homepage.section.home'   => HomepageSection::HOME,
+                'input.homepage.section.shop'   => HomepageSection::SHOP,
                 'input.homepage.section.street' => HomepageSection::STREET,
             ],
-            'help' => 'help.homepage.section',
-            'translation_domain' => 'forms',
+            'help'                      => 'help.homepage.section',
+            'translation_domain'        => 'forms',
             'choice_translation_domain' => true,
         ]);
     }

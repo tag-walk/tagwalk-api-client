@@ -1,10 +1,9 @@
 <?php
 /**
- * PHP version 7
+ * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     Tagwalk\ApiClientBundle\Model
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2019 TAGWALK
  * @license     proprietary
@@ -16,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 
 /**
- * Describe a File document
+ * Describe a File document.
  */
 class File extends AbstractDocument
 {
@@ -123,9 +122,10 @@ class File extends AbstractDocument
 
     /**
      * @param string $filename
+     *
      * @return File
      */
-    public function setFilename(?string $filename): File
+    public function setFilename(?string $filename): self
     {
         $this->filename = $filename;
 
@@ -142,6 +142,7 @@ class File extends AbstractDocument
 
     /**
      * @param string|null $pathCover
+     *
      * @return File
      */
     public function setPathCover(?string $pathCover): self
@@ -161,6 +162,7 @@ class File extends AbstractDocument
 
     /**
      * @param string|null $pathList
+     *
      * @return File
      */
     public function setPathList(?string $pathList): self
@@ -180,6 +182,7 @@ class File extends AbstractDocument
 
     /**
      * @param string|null $pathThumbnail
+     *
      * @return File
      */
     public function setPathThumbnail(?string $pathThumbnail): self
@@ -199,6 +202,7 @@ class File extends AbstractDocument
 
     /**
      * @param string|null $pathZoom
+     *
      * @return File
      */
     public function setPathZoom(?string $pathZoom): self
@@ -273,7 +277,7 @@ class File extends AbstractDocument
      */
     public function getKeyname()
     {
-        return sprintf("%s.%s", $this->slug, $this->extension);
+        return sprintf('%s.%s', $this->slug, $this->extension);
     }
 
     /**
