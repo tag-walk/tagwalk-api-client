@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -127,6 +128,24 @@ class MoodboardManager
         }
 
         return $moodboard;
+    }
+
+    /**
+     * @param string $token
+     *
+     * @return StreamInterface|null
+     */
+    public function getPdfByToken(string $token): ?StreamInterface
+    {
+        $pdf = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/pdf/'.$token, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $pdf = $apiResponse->getBody();
+        } else {
+            throw new NotFoundHttpException();
+        }
+
+        return $pdf;
     }
 
     /**
