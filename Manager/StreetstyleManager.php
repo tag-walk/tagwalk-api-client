@@ -24,7 +24,7 @@ use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 class StreetstyleManager
 {
     /** @var int default listing size */
-    public const DEFAULT_SIZE = 12;
+    public const DEFAULT_SIZE = 24;
 
     /**
      * @var int last list count
