@@ -111,8 +111,8 @@ class IndividualManager
         int $size = 20,
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS,
-        string $model = self::DEFAULT_MODEL,
-        bool $denormalize = true
+        bool $denormalize = true,
+        string $model = self::DEFAULT_MODEL
     ): array {
         $individuals = [];
         $this->lastCount = 0;

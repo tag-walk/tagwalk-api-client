@@ -154,7 +154,6 @@ class AutocompleteController extends AbstractController
                 ($page - 1) * 20, 20,
                 $this->individualManager::DEFAULT_SORT,
                 $this->individualManager::DEFAULT_STATUS,
-                $this->individualManager::DEFAULT_MODEL,
                 false
             );
             $count = $this->individualManager->lastCount;
