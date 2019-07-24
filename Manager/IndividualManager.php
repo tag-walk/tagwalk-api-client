@@ -25,6 +25,7 @@ class IndividualManager
 {
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'name:asc';
+    public const DEFAULT_MODEL = 'true';
 
     /**
      * @var ApiProvider
@@ -99,6 +100,7 @@ class IndividualManager
      * @param int         $size
      * @param string      $sort
      * @param string      $status
+     * @param string      $model
      * @param bool        $denormalize
      *
      * @return array|Individual[]
@@ -109,11 +111,12 @@ class IndividualManager
         int $size = 20,
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS,
+        string $model = self::DEFAULT_MODEL,
         bool $denormalize = true
     ): array {
         $individuals = [];
         $this->lastCount = 0;
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'model'));
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
