@@ -200,7 +200,7 @@ class DesignerManager
      * @param bool|null   $talent
      * @param string|null $language
      *
-     * @return Designer[]
+     * @return array
      */
     public function listFilters(
         ?string $type,
@@ -218,10 +218,7 @@ class DesignerManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
-            foreach ($data as $datum) {
-                $results[] = $this->serializer->denormalize($datum, Designer::class);
-            }
+            $results = json_decode($apiResponse->getBody()->getContents(), true);
         } else {
             $this->logger->error('DesignerManager::listFilters unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
