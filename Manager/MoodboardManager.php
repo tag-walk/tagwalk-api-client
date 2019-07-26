@@ -15,6 +15,7 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -26,6 +27,13 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class MoodboardManager
 {
+    public const DEFAULT_SIZE = 12;
+
+    /**
+     * @var int
+     */
+    public $lastCount;
+
     /**
      * @var ApiProvider
      */
@@ -68,7 +76,7 @@ class MoodboardManager
     public function list(array $params): array
     {
         $list = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-cover', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
@@ -78,6 +86,7 @@ class MoodboardManager
                 foreach ($data as $datum) {
                     $list[] = $this->serializer->denormalize($datum, Moodboard::class);
                 }
+                $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             }
         }
 
@@ -91,7 +100,7 @@ class MoodboardManager
      */
     public function count(array $params): int
     {
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/list-with-cover', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-cover', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
@@ -107,7 +116,7 @@ class MoodboardManager
     public function get(string $slug): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -126,7 +135,7 @@ class MoodboardManager
     public function getByToken(string $token): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/shared/'.$token, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/shared/'.$token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -148,7 +157,7 @@ class MoodboardManager
     public function getPdfByToken(string $token): ?StreamInterface
     {
         $pdf = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/moodboards/pdf/'.$token, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/pdf/'.$token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $pdf = $apiResponse->getBody();
         } else {
@@ -166,7 +175,7 @@ class MoodboardManager
     public function create(Moodboard $moodboard): ?Moodboard
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request('POST', '/api/moodboards', $params);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/moodboards', $params);
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -189,7 +198,7 @@ class MoodboardManager
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE', '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_DELETE, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
             throw new AccessDeniedHttpException(); //TODO remove
         }
@@ -207,7 +216,7 @@ class MoodboardManager
     public function removeLook(string $slug, string $type, string $lookSlug): bool
     {
         $apiResponse = $this->apiProvider->request(
-            'DELETE',
+            Request::METHOD_DELETE,
             sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
@@ -227,7 +236,7 @@ class MoodboardManager
     public function update(string $slug, Moodboard $moodboard): Moodboard
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request('PUT', '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $moodboard = $this->serializer->denormalize($data, Moodboard::class);
@@ -252,7 +261,7 @@ class MoodboardManager
     public function addLook(string $slug, string $type, string $lookSlug): bool
     {
         $apiResponse = $this->apiProvider->request(
-            'PUT',
+            Request::METHOD_PUT,
             sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
