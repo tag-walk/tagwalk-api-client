@@ -76,6 +76,7 @@ class MoodboardManager
     public function list(array $params): array
     {
         $list = [];
+        $this->lastCount = 0;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-cover', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
