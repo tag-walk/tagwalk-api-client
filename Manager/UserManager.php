@@ -109,6 +109,11 @@ class UserManager
         $created = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             $created = $this->deserialize($apiResponse);
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            $this->logger->notice('User already exists', [
+               'code'    => $apiResponse->getStatusCode(),
+               'message' => $apiResponse->getBody()->getContents(),
+            ]);
         } else {
             $this->logger->error('UserManager::create unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
