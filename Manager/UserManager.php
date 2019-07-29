@@ -155,13 +155,13 @@ class UserManager
     }
 
     /**
-     * @param string $email
-     * @param        $property
-     * @param        $value
+     * @param string                $email
+     * @param string                $property
+     * @param string|int|float|bool $value
      *
      * @return User|null
      */
-    public function patch(string $email, $property, $value): ?User
+    public function patch(string $email, string $property, $value): ?User
     {
         $data = [$property => $value];
         $apiResponse = $this->apiProvider->request('PATCH',
