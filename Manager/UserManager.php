@@ -155,6 +155,37 @@ class UserManager
     }
 
     /**
+     * @param string                $email
+     * @param string                $property
+     * @param string|int|float|bool $value
+     *
+     * @return User|null
+     */
+    public function patch(string $email, string $property, $value): ?User
+    {
+        $data = [$property => $value];
+        $apiResponse = $this->apiProvider->request('PATCH',
+            '/api/users',
+            [
+                RequestOptions::QUERY       => ['email' => $email],
+                RequestOptions::JSON        => $data,
+                RequestOptions::HTTP_ERRORS => false,
+            ]);
+        $updated = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $updated = $this->deserialize($apiResponse);
+        } else {
+            $this->logger->error('UserManager::update unexpected status code',
+                [
+                    'code'    => $apiResponse->getStatusCode(),
+                    'message' => $apiResponse->getBody()->getContents(),
+                ]);
+        }
+
+        return $updated;
+    }
+
+    /**
      * @param string $property
      * @param string $value
      *
