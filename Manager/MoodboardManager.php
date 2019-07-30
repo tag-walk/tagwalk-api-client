@@ -272,4 +272,56 @@ class MoodboardManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
+
+    /**
+     * @param Moodboard $moodboard
+     *
+     * @return void
+     */
+    public function setPositions(Moodboard $moodboard): void
+    {
+        $items = array_merge($moodboard->getMedias(), $moodboard->getStreetstyles());
+
+        $biggerPosisition = 0;
+        foreach ($items as $item) {
+            if ($item->getPosition() > $biggerPosisition) {
+                $biggerPosisition = $item->getPosition();
+            }
+        }
+
+        $this->reOrderPositions($items, $biggerPosisition);
+        $this->refreshPositions($items, $biggerPosisition);
+    }
+
+    /**
+     * @param array $items
+     * @param int   $biggerPosisition
+     *
+     * @return void
+     */
+    private function reOrderPositions(array $items, $biggerPosisition): void
+    {
+        if (count($items) - 1 !== $biggerPosisition) {
+            $index = 0;
+            foreach ($items as $item) {
+                $item->setPosition($index++);
+            }
+        }
+    }
+
+    /**
+     * @param array $items
+     * @param int   $biggerPosition
+     *
+     * @return void
+     */
+    private function refreshPositions(array $items, int $biggerPosition): void
+    {
+        foreach ($items as $item) {
+            if ($item->getPosition() === null) {
+                $item->setPosition($biggerPosition);
+                $biggerPosition++;
+            }
+        }
+    }
 }
