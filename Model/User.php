@@ -446,7 +446,7 @@ class User implements UserInterface, EquatableInterface
      *
      * @return string The username
      */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->email;
     }
@@ -457,11 +457,8 @@ class User implements UserInterface, EquatableInterface
      * This is important if, at any given point, sensitive information like
      * the plain-text password is stored on this object.
      */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
-        $this->password = null;
-        $this->salt = null;
-        $this->facebookId = null;
     }
 
     /**
@@ -498,7 +495,7 @@ class User implements UserInterface, EquatableInterface
      *
      * @return bool
      */
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof self) {
             return false;
@@ -533,7 +530,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @return string
      */
-    public function getFullName()
+    public function getFullName(): string
     {
         return $this->firstname.' '.$this->lastname;
     }
