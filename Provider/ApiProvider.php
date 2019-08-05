@@ -85,7 +85,7 @@ class ApiProvider
      * @param string           $clientId
      * @param string           $clientSecret
      * @param float            $timeout
-     * @param bool             $lightData do not resolve files path property
+     * @param bool             $lightData      do not resolve files path property
      * @param bool             $analytics
      * @param string|null      $cacheDirectory
      * @param string|null      $showroom
