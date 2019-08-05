@@ -145,7 +145,6 @@ class ApiProvider
         return $stack;
     }
 
-
     /**
      * @param string $method
      * @param string $uri
