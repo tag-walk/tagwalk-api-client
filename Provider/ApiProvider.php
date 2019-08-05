@@ -122,11 +122,11 @@ class ApiProvider
     }
 
     /**
-     * @param string $cacheDirectory
+     * @param string|null $cacheDirectory
      *
      * @return HandlerStack
      */
-    private function getClientCacheHandler(string $cacheDirectory): HandlerStack
+    private function getClientCacheHandler(?string $cacheDirectory): HandlerStack
     {
         // Create a HandlerStack
         $stack = HandlerStack::create();
