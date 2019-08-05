@@ -74,7 +74,7 @@ class ApiProvider
     private $analytics;
 
     /**
-     * @var null
+     * @var string
      */
     private $showroom;
 
