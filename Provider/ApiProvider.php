@@ -74,15 +74,21 @@ class ApiProvider
     private $analytics;
 
     /**
+     * @var string
+     */
+    private $showroom;
+
+    /**
      * @param RequestStack     $requestStack
      * @param SessionInterface $session
      * @param string           $baseUri
      * @param string           $clientId
      * @param string           $clientSecret
      * @param float            $timeout
-     * @param bool             $lightData      do not resolve files path property
+     * @param bool             $lightData do not resolve files path property
      * @param bool             $analytics
-     * @param string           $cacheDirectory
+     * @param string|null      $cacheDirectory
+     * @param string|null      $showroom
      */
     public function __construct(
         RequestStack $requestStack,
@@ -90,10 +96,11 @@ class ApiProvider
         string $baseUri,
         string $clientId,
         string $clientSecret,
-        $timeout = 10.0,
-        $lightData = true,
-        $analytics = false,
-        $cacheDirectory = null
+        float $timeout = 30.0,
+        bool $lightData = true,
+        bool $analytics = false,
+        ?string $cacheDirectory = null,
+        ?string $showroom = null
     ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -106,6 +113,7 @@ class ApiProvider
         $this->lightData = $lightData;
         $this->analytics = $analytics;
         $this->cache = new FilesystemAdapter('tagwalk_api_client', 3600, $cacheDirectory);
+        $this->showroom = $showroom;
     }
 
     /**
@@ -133,15 +141,16 @@ class ApiProvider
     {
         return [
             RequestOptions::HTTP_ERRORS => true,
-            RequestOptions::HEADERS     => [
-                'Authorization'   => $this->getBearer(),
-                'Accept'          => 'application/json',
-                'Accept-Language' => $this->requestStack->getCurrentRequest()
+            RequestOptions::HEADERS     => array_filter([
+                'Authorization'         => $this->getBearer(),
+                'Accept'                => 'application/json',
+                'Accept-Language'       => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en',
                 // Fallback if console mode
-                'Cookie'          => $this->session->get('Cookie'),
-            ],
+                'Cookie'                => $this->session->get('Cookie'),
+                'Tagwalk-Showroom-Name' => $this->showroom,
+            ]),
             RequestOptions::QUERY       => [
                 'light'     => $this->lightData,
                 'analytics' => $this->analytics,

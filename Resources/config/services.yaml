@@ -1,3 +1,6 @@
+parameters:
+  env(CACHE_DIRECTORY): '/tmp'
+
 services:
   _defaults:
     autowire: false
@@ -55,10 +58,11 @@ services:
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''
-      $timeout: 10.0
+      $timeout: 30.0
       $lightData: true
       $analytics: true
-      $cacheDirectory: /tmp
+      $cacheDirectory: '%env(CACHE_DIRECTORY)%'
+      $showroom: null
 
   Tagwalk\ApiClientBundle\Controller\AutocompleteController:
     arguments:
@@ -124,14 +128,14 @@ services:
           - '@logger'
 
   Tagwalk\ApiClientBundle\Manager\ConfigManager:
-      arguments:
-        $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-        $serializer: '@serializer'
-      calls:
-        - method: setLogger
-          arguments:
-            - '@logger'
-            -
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
+          -
   Tagwalk\ApiClientBundle\Manager\CityManager:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'

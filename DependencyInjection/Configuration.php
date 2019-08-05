@@ -35,17 +35,13 @@ class Configuration implements ConfigurationInterface
         }
         $rootNode
             ->children()
-                ->arrayNode('api')
-                    ->children()
-                        ->scalarNode('client_id')->end()
-                        ->scalarNode('client_secret')->end()
-                        ->scalarNode('host_url')->end()
-                        ->floatNode('timeout')->defaultValue(10.0)->min(0)->max(60)->end()
-                        ->scalarNode('cache_directory')->defaultNull()->end()
-                        ->booleanNode('analytics')->defaultFalse()->end()
-                        ->booleanNode('light')->defaultTrue()->end()
-                    ->end()
-                ->end()
+            ->scalarNode('client_id')->end()
+            ->scalarNode('client_secret')->end()
+            ->scalarNode('host_url')->defaultValue('https://test.api.tag-walk.com')->end()
+            ->floatNode('timeout')->defaultValue(30.0)->min(0.0)->max(60.0)->end()
+            ->booleanNode('analytics')->defaultFalse()->end()
+            ->booleanNode('light')->defaultTrue()->end()
+            ->scalarNode('showroom')->defaultNull()->end()
             ->end();
 
         return $treeBuilder;
