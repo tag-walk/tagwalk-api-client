@@ -35,37 +35,36 @@ class TagwalkApiClientExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__).'/Resources/config'));
         $loader->load('services.yaml');
-        $api = $config['api'];
-        if (!isset($api['host_url'])) {
+        $this->checkRequiredConfig($config);
+        $definition = $container->getDefinition(ApiProvider::class);
+        $definition->replaceArgument('$baseUri', $config['host_url']);
+        $definition->replaceArgument('$clientId', $config['client_id']);
+        $definition->replaceArgument('$clientSecret', $config['client_secret']);
+        $definition->replaceArgument('$showroom', $config['showroom']);
+        $definition->replaceArgument('$timeout', $config['timeout']);
+        $definition->replaceArgument('$lightData', $config['light']);
+        $definition->replaceArgument('$analytics', $config['analytics']);
+    }
+
+    /**
+     * @param array $config
+     */
+    private function checkRequiredConfig(array $config): void
+    {
+        if (!isset($config['host_url'])) {
             throw new InvalidArgumentException(
                 'The "tagwalk_api_client.api.host_url" config option must be set'
             );
         }
-        if (!isset($api['client_id'])) {
+        if (!isset($config['client_id'])) {
             throw new InvalidArgumentException(
                 'The "tagwalk_api_client.api.client_id" config option must be set'
             );
         }
-        if (!isset($api['client_secret'])) {
+        if (!isset($config['client_secret'])) {
             throw new InvalidArgumentException(
                 'The "tagwalk_api_client.api.client_secret" config option must be set'
             );
-        }
-        $definition = $container->getDefinition(ApiProvider::class);
-        $definition->replaceArgument('$baseUri', $api['host_url']);
-        $definition->replaceArgument('$clientId', $api['client_id']);
-        $definition->replaceArgument('$clientSecret', $api['client_secret']);
-        if (isset($api['timeout'])) {
-            $definition->replaceArgument('$timeout', $api['timeout']);
-        }
-        if (isset($api['light'])) {
-            $definition->replaceArgument('$lightData', $api['light']);
-        }
-        if (isset($api['analytics'])) {
-            $definition->replaceArgument('$analytics', $api['analytics']);
-        }
-        if (isset($api['cache_directory'])) {
-            $definition->replaceArgument('$cacheDirectory', $api['cache_directory']);
         }
     }
 }
