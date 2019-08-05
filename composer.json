@@ -13,7 +13,10 @@
   "require": {
     "php": ">=7.2",
     "ext-json": "*",
+    "ext-curl": "*",
     "guzzlehttp/guzzle": "^6.3",
+    "kevinrob/guzzle-cache-middleware": "^3.2",
+    "psr/cache": "^1.0",
     "symfony/framework-bundle": "^4.2",
     "symfony/security-bundle": "^4.2",
     "symfony/validator": "^4.2",

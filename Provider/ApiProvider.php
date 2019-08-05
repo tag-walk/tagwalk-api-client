@@ -12,8 +12,12 @@
 namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
+use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
+use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -106,15 +110,41 @@ class ApiProvider
         $this->session = $session;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
+        $this->lightData = $lightData;
+        $this->analytics = $analytics;
+        $this->showroom = $showroom;
+        $this->cache = new FilesystemAdapter('api-client-token', 3600, $cacheDirectory);
         $this->client = new Client([
             'base_uri' => $baseUri,
             'timeout'  => $timeout,
+            'handler'  => $this->getClientCacheHandler($cacheDirectory),
         ]);
-        $this->lightData = $lightData;
-        $this->analytics = $analytics;
-        $this->cache = new FilesystemAdapter('tagwalk_api_client', 3600, $cacheDirectory);
-        $this->showroom = $showroom;
     }
+
+    /**
+     * @param string|null $cacheDirectory
+     *
+     * @return HandlerStack
+     */
+    private function getClientCacheHandler(?string $cacheDirectory): HandlerStack
+    {
+        // Create a HandlerStack
+        $stack = HandlerStack::create();
+        // Add cache middleware to the top of the stack with `push`
+        $stack->push(
+            new CacheMiddleware(
+                new PrivateCacheStrategy(
+                    new Psr6CacheStorage(
+                        new FilesystemAdapter('api-client-http-cache', 600, $cacheDirectory)
+                    )
+                )
+            ),
+            'cache'
+        );
+
+        return $stack;
+    }
+
 
     /**
      * @param string $method
