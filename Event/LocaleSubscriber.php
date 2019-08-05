@@ -1,19 +1,20 @@
-<?php /** @noinspection NullPointerExceptionInspection */
-
+<?php
 /**
  * PHP version 7.
  *
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2019 TAGWALK
  * @license     proprietary
  */
+
+/** @noinspection NullPointerExceptionInspection */
 
 namespace Tagwalk\ApiClientBundle\Event;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -45,9 +46,9 @@ class LocaleSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @param GetResponseEvent $event
+     * @param RequestEvent $event
      */
-    public function onKernelRequest(GetResponseEvent $event): void
+    public function onKernelRequest(RequestEvent $event): void
     {
         $request = $event->getRequest();
         if (!$request->hasPreviousSession()) {
