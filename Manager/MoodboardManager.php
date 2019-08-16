@@ -128,6 +128,7 @@ class MoodboardManager
                 break;
             case Response::HTTP_FORBIDDEN:
                 throw new ApiAccessDeniedException();
+                break;
         }
 
         return $moodboard;
