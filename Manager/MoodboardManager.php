@@ -113,9 +113,8 @@ class MoodboardManager
     /**
      * @param string $slug
      *
-     * @return null|Moodboard
      * @throws ApiAccessDeniedException
-     *
+     * @return null|Moodboard
      */
     public function get(string $slug): ?Moodboard
     {
