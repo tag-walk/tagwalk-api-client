@@ -6,14 +6,13 @@ Create a file in config/packages/tagwalk_api_client.yaml
 
 ```yaml
 tagwalk_api_client:
-    api:
-        host_url: "%env(TAGWALK_API_URL)%"
-        client_id: "%env(TAGWALK_API_CLIENT_ID)%"
-        client_secret: "%env(TAGWALK_API_CLIENT_SECRET)%"
-        timeout: 10
-        cache_directory: ""
-        analytics: false
-        light: true
+    host_url: "%env(TAGWALK_API_URL)%"
+    client_id: "%env(TAGWALK_API_CLIENT_ID)%"
+    client_secret: "%env(TAGWALK_API_CLIENT_SECRET)%"
+    cache_directory: "/tmp"
+    timeout: 10
+    analytics: false
+    light: true
 ```
 Add the following environment variables to your system or to your `.env` file:
 
