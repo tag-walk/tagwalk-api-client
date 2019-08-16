@@ -15,4 +15,5 @@ use Exception;
 
 class ApiAccessDeniedException extends Exception
 {
+
 }
