@@ -22,6 +22,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -118,11 +119,17 @@ class MoodboardManager
     {
         $moodboard = null;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error($apiResponse->getBody()->getContents());
+
+        switch ($apiResponse->getStatusCode()) {
+            case Response::HTTP_NOT_FOUND:
+                $this->logger->error($apiResponse->getBody()->getContents());
+                break;
+            case Response::HTTP_OK:
+                $data = json_decode($apiResponse->getBody(), true);
+                $moodboard = $this->serializer->denormalize($data, Moodboard::class);
+                break;
+            default:
+                throw new ApiAccessDeniedException($apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
         }
 
         return $moodboard;
