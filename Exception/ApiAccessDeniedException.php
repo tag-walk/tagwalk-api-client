@@ -12,22 +12,20 @@
 namespace Tagwalk\ApiClientBundle\Exception;
 
 use Exception;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class ApiAccessDeniedException extends HttpException
+class ApiAccessDeniedException extends Exception
 {
-    private const DEFAULT_MESSAGE = 'Access Denied moodboard';
+    private const DEFAULT_MESSAGE = 'Api Access Denied';
 
     /**
      * {@inheritDoc}
      */
     public function __construct(
-        int $statusCode = 403,
         string $message = self::DEFAULT_MESSAGE,
-        Exception $previous = null,
-        array $headers = [],
-        ?int $code = 0
+        ?int $code = 403,
+        Exception $previous = null
+
     ) {
-        parent::__construct($statusCode, $message, $previous, $headers, $code);
+        parent::__construct($message, $code, $previous);
     }
 }

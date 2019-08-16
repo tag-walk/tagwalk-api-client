@@ -114,6 +114,7 @@ class MoodboardManager
      * @param string $slug
      *
      * @return null|Moodboard
+     * @throws ApiAccessDeniedException
      */
     public function get(string $slug): ?Moodboard
     {
@@ -128,8 +129,10 @@ class MoodboardManager
                 $data = json_decode($apiResponse->getBody(), true);
                 $moodboard = $this->serializer->denormalize($data, Moodboard::class);
                 break;
+            case Response::HTTP_FORBIDDEN:
+                throw new ApiAccessDeniedException();
             default:
-                throw new ApiAccessDeniedException($apiResponse->getStatusCode(), $apiResponse->getBody()->getContents());
+                break;
         }
 
         return $moodboard;
