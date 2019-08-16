@@ -122,17 +122,12 @@ class MoodboardManager
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
 
         switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_NOT_FOUND:
-                $this->logger->error($apiResponse->getBody()->getContents());
-                break;
             case Response::HTTP_OK:
                 $data = json_decode($apiResponse->getBody(), true);
                 $moodboard = $this->serializer->denormalize($data, Moodboard::class);
                 break;
             case Response::HTTP_FORBIDDEN:
                 throw new ApiAccessDeniedException();
-            default:
-                break;
         }
 
         return $moodboard;

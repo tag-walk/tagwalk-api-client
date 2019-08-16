@@ -15,17 +15,4 @@ use Exception;
 
 class ApiAccessDeniedException extends Exception
 {
-    private const DEFAULT_MESSAGE = 'Api Access Denied';
-
-    /**
-     * {@inheritDoc}
-     */
-    public function __construct(
-        string $message = self::DEFAULT_MESSAGE,
-        ?int $code = 403,
-        Exception $previous = null
-
-    ) {
-        parent::__construct($message, $code, $previous);
-    }
 }
