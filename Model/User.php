@@ -54,7 +54,7 @@ class User implements UserInterface, EquatableInterface
     private $email;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $gender;
 
