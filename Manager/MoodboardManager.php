@@ -202,6 +202,7 @@ class MoodboardManager
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
+
             throw new BadRequestHttpException();
         }
         $data = json_decode($apiResponse->getBody(), true);
@@ -267,6 +268,7 @@ class MoodboardManager
             'code'    => $apiResponse->getStatusCode(),
             'message' => $apiResponse->getBody()->getContents(),
         ]);
+
         throw new BadRequestHttpException();
     }
 
