@@ -11,8 +11,8 @@
 
 namespace Tagwalk\ApiClientBundle\Exception;
 
-use Exception;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
-class ApiAccessDeniedException extends Exception
+class ApiAccessDeniedException extends AccessDeniedHttpException
 {
 }
