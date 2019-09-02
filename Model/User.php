@@ -13,11 +13,11 @@ namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Nameable;
 use Tagwalk\ApiClientBundle\Model\Traits\Sluggable;
 use Tagwalk\ApiClientBundle\Model\Traits\Statusable;
 use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Describe User document.
