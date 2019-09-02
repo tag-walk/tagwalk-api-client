@@ -17,6 +17,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Nameable;
 use Tagwalk\ApiClientBundle\Model\Traits\Sluggable;
 use Tagwalk\ApiClientBundle\Model\Traits\Statusable;
 use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Describe User document.
@@ -40,71 +41,88 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
      */
     private $firstname;
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
      */
     private $lastname;
 
     /**
      * @var string
+     * @Assert\Email()
      */
     private $email;
 
     /**
      * @var string
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
      */
     private $gender;
 
     /**
      * @var bool|null
+     * @Assert\Type("bool")
      */
     private $fashionIndustry;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $jobTitle;
 
     /**
      * @var bool
+     * @Assert\Type("bool")
      */
     private $newsletter;
 
     /**
      * @var bool|null
+     * @Assert\Type("bool")
      */
     private $survey;
 
     /**
      * @var bool|null
+     * @Assert\Type("bool")
      */
     private $vip = false;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $sector;
 
     /**
      * @var string|null
+     * @Assert\NotBlank()
      */
     private $country;
 
     /**
      * @var string
+     * @Assert\NotBlank()
      */
     private $locale;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $salt;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $password;
 
