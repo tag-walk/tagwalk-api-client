@@ -123,6 +123,7 @@ class User implements UserInterface, EquatableInterface
     /**
      * @var string|null
      * @Assert\Type("string")
+     * @Assert\NotBlank()
      */
     private $password;
 
