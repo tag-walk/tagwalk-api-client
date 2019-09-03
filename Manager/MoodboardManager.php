@@ -240,7 +240,7 @@ class MoodboardManager
             [RequestOptions::HTTP_ERRORS => false]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new AccessDeniedHttpException();
+            throw new ApiAccessDeniedException();
         }
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
