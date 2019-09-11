@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Model\ShowroomUser;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -85,26 +86,35 @@ class ShowroomUserManager
 		$data = array_filter($data, static function ($v) {
 			return $v !== null;
 		});
-		$data = $this->serializer->normalize($data, null, ['groups' => 'showroom_user']);
 		$apiResponse = $this->apiProvider->request('POST', '/api/showroom/users/register', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON        => $data,
+			RequestOptions::HEADERS		=>
+			[
+				'Tagwalk-Showroom-Name'	=> 'stalker'
+			],
         ]);
         $created = null;
-        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
-            $created = $this->deserialize($apiResponse);
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
-            $this->logger->notice('User already exists', [
-               'code'    => $apiResponse->getStatusCode(),
-               'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        } else {
-            $this->logger->error('UserManager::create unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
-
+		switch ($apiResponse->getStatusCode()) {
+			case Response::HTTP_FORBIDDEN:
+				throw new ApiAccessDeniedException();
+			case Response::HTTP_CREATED:
+				$created = $this->deserialize($apiResponse);
+				break;
+			case Response::HTTP_CONFLICT:
+				$this->logger->notice('User already exists', [
+					'code'    => $apiResponse->getStatusCode(),
+					'message' => $apiResponse->getBody()->getContents(),
+				]);
+				break;
+			default:
+				$this->logger->error('MoodboardManager::get unexpected status code', [
+					'code'    => $apiResponse->getStatusCode(),
+					'message' => $apiResponse->getBody()->getContents(),
+				]
+			);
+		}
+		
         return $created;
     }
 }
