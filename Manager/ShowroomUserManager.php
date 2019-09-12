@@ -4,9 +4,8 @@
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author      Florian Ajir <florian@tag-walk.com>
  * @author      Steve Valette <steve@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2019 TAGWALK
  * @license     proprietary
  */
 
@@ -22,7 +21,6 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Model\ShowroomUser;
-use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ShowroomUserManager
