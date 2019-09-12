@@ -89,9 +89,6 @@ class ShowroomUserManager
         $apiResponse = $this->apiProvider->request('POST', '/api/showroom/users/register', [
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::JSON        => $data,
-                RequestOptions::HEADERS     => [
-                        'Tagwalk-Showroom-Name' => 'stalker',
-                ],
             ]);
         $created = null;
         switch ($apiResponse->getStatusCode()) {
