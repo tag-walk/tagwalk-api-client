@@ -46,6 +46,6 @@ class ShowroomUserNormalizer extends DocumentNormalizer implements NormalizerInt
      */
     public function normalize($object, $format = null, array $context = [])
     {
-    	return parent::normalize($object, $format, $context);
+        return parent::normalize($object, $format, $context);
     }
 }

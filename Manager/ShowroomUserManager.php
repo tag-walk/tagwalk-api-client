@@ -31,17 +31,17 @@ class ShowroomUserManager
      * @var ApiProvider
      */
     private $apiProvider;
-    
+
     /**
      * @var SerializerInterface|Serializer
      */
     private $serializer;
-    
+
     /**
      * @var LoggerInterface
      */
     private $logger;
-    
+
     /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
@@ -52,7 +52,7 @@ class ShowroomUserManager
         $this->serializer = $serializer;
         $this->logger = new NullLogger();
 	}
-	
+
 	/**
      * @param LoggerInterface $logger
      */
@@ -60,7 +60,7 @@ class ShowroomUserManager
     {
         $this->logger = $logger;
     }
-    
+
     /**
      * @param ResponseInterface $response
      *
@@ -74,7 +74,7 @@ class ShowroomUserManager
             JsonEncoder::FORMAT
         );
     }
-    
+
     /**
      * @param ShowroomUser $user
      *
@@ -115,7 +115,7 @@ class ShowroomUserManager
                     ]
                 );
         }
-        
+
         return $created;
     }
 }
