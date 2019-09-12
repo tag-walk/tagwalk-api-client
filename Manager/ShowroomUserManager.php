@@ -51,12 +51,12 @@ class ShowroomUserManager
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
         $this->logger = new NullLogger();
-	}
+    }
 
-	/**
+    /**
      * @param LoggerInterface $logger
      */
-	public function setLogger(LoggerInterface $logger): void
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
