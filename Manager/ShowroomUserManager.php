@@ -102,13 +102,13 @@ class ShowroomUserManager
 				$created = $this->deserialize($apiResponse);
 				break;
 			case Response::HTTP_CONFLICT:
-				$this->logger->notice('User already exists', [
+				$this->logger->notice('ShowroomUser already exists', [
 					'code'    => $apiResponse->getStatusCode(),
 					'message' => $apiResponse->getBody()->getContents(),
 				]);
 				break;
 			default:
-				$this->logger->error('MoodboardManager::get unexpected status code', [
+				$this->logger->error('ShowroomUserManager::create unexpected status code', [
 					'code'    => $apiResponse->getStatusCode(),
 					'message' => $apiResponse->getBody()->getContents(),
 				]
