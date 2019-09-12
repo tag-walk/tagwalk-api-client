@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
-use DateTime;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -30,20 +29,20 @@ class ShowroomUser extends User
 	 * @Assert\Type("string")
 	 * @Assert\NotBlank(groups={"showroom_user"})
 	 */
-    private $company;
+	private $company;
 	
 	/**
 	 * @var string
 	 * @Assert\Type("string")
 	 * @Assert\NotBlank(groups={"showroom_user"})
 	 */
-    private $address;
+	private $address;
 	
 	/**
 	 * @var string
 	 * @Assert\Type("string")
 	 */
-    private $note;
+	private $note;
 	
 	/**
 	 * @return string

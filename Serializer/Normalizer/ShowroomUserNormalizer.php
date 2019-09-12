@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Tagwalk\ApiClientBundle\Model\ShowroomUser;
-use Tagwalk\ApiClientBundle\Model\User;
 
 /**
  * Normalizer for File instances.
@@ -47,6 +46,6 @@ class ShowroomUserNormalizer extends DocumentNormalizer implements NormalizerInt
      */
     public function normalize($object, $format = null, array $context = [])
     {
-		return parent::normalize($object, $format, $context);
+    	return parent::normalize($object, $format, $context);
     }
 }
