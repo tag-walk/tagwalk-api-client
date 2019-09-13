@@ -74,6 +74,27 @@ class ShowroomUserManager
     }
 
     /**
+     * @param string $email
+     *
+     * @return ShowroomUser|null
+     */
+    public function get(string $email): ?ShowroomUser
+    {
+        $showroomUser = null;
+        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/'.$email, [RequestOptions::HTTP_ERRORS => false]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $showroomUser = $this->deserialize($apiResponse);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('ShowroomUserManager::get unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $showroomUser;
+    }
+
+    /**
      * @param ShowroomUser $user
      *
      * @return ShowroomUser|null
