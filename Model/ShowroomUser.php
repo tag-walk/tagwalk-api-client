@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Describe showroomUser document.
+ * Describe ShowroomUser document.
  *
  * Used for persistance and authentication
  *
