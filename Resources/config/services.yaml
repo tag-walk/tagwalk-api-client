@@ -199,6 +199,15 @@ services:
         arguments:
           - '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\ShowroomUserManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+    calls:
+      - method: setLogger
+        arguments:
+          - '@logger'
+
   Tagwalk\ApiClientBundle\Manager\MoodboardManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
@@ -348,6 +357,13 @@ services:
       - '@serializer.property_accessor'
 
   Tagwalk\ApiClientBundle\Serializer\Normalizer\UserNormalizer:
+    tags: ['serializer.normalizer']
+    arguments:
+      - '@serializer.mapping.class_metadata_factory'
+      - '@serializer.name_converter.camel_case_to_snake_case'
+      - '@serializer.property_accessor'
+
+  Tagwalk\ApiClientBundle\Serializer\Normalizer\ShowroomUserNormalizer:
     tags: ['serializer.normalizer']
     arguments:
       - '@serializer.mapping.class_metadata_factory'

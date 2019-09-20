@@ -57,7 +57,7 @@ class User implements UserInterface, EquatableInterface
      * @var string
      * @Assert\Email()
      */
-    private $email;
+    protected $email;
 
     /**
      * @var string
@@ -76,7 +76,7 @@ class User implements UserInterface, EquatableInterface
      * @var string|null
      * @Assert\Type("string")
      */
-    private $jobTitle;
+    protected $jobTitle;
 
     /**
      * @var bool
@@ -106,7 +106,7 @@ class User implements UserInterface, EquatableInterface
      * @var string|null
      * @Assert\NotBlank()
      */
-    private $country;
+    protected $country;
 
     /**
      * @var string

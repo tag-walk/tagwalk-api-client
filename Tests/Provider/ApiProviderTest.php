@@ -11,13 +11,13 @@
 
 namespace Tagwalk\ApiClientBundle\Tests\Provider;
 
-use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
-class ApiProviderTest extends TestCase
+class ApiProviderTest extends WebTestCase
 {
     private function getNewApiProvider($baseUri = '', $clientId = '', $clientSecret = '', $timeout = 0)
     {
