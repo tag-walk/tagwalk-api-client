@@ -57,6 +57,9 @@ class LocaleSubscriber implements EventSubscriberInterface
         if (!$request->hasPreviousSession()) {
             return;
         }
+        if ($event->getRequest()->attributes->get('_route') === 'tts_page') {
+            return;
+        }
         // try to see if the locale has been set as a _locale routing parameter
         $locale = $request->attributes->get('_locale');
         if ($locale) {
