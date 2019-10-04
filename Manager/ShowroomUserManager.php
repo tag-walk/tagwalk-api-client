@@ -164,8 +164,8 @@ class ShowroomUserManager
     }
 
     /**
-     * @param string    $email
-     * @param array     $data
+     * @param string $email
+     * @param array  $data
      *
      * @return ShowroomUser|null
      */
@@ -188,7 +188,7 @@ class ShowroomUserManager
                     'message' => $apiResponse->getBody()->getContents(),
                 ]);
         }
-        
+
         return $updated;
     }
 }
