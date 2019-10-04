@@ -134,7 +134,7 @@ class ShowroomUserManager
 
         return $created;
     }
-    
+
     /**
      * @param string $property
      * @param string $value
@@ -146,10 +146,10 @@ class ShowroomUserManager
         $data = null;
         $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/find', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY => [
+            RequestOptions::QUERY       => [
                 'key'   => $property,
                 'value' => $value,
-            ]
+            ],
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = $this->deserialize($apiResponse);
@@ -159,13 +159,13 @@ class ShowroomUserManager
                 'message'   => $apiResponse->getBody()->getContents(),
             ]);
         }
-        
+
         return $data;
     }
-    
+
     /**
-     * @param string                $email
-     * @param array                 $data
+     * @param string    $email
+     * @param array     $data
      *
      * @return ShowroomUser|null
      */
