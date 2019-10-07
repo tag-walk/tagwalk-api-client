@@ -28,35 +28,17 @@ class File extends AbstractDocument
     protected $path;
 
     /**
+     * @var array|null
+     * @Assert\Type("array")
+     */
+    protected $variants;
+
+    /**
      * @var string|null
      * @Assert\Type("string")
      * @Assert\NotBlank()
      */
     protected $filename;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathCover;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathList;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathThumbnail;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathZoom;
 
     /**
      * @var string
@@ -318,5 +300,35 @@ class File extends AbstractDocument
         $this->courtesy = $courtesy;
 
         return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getVariants(): ?array
+    {
+        return $this->variants;
+    }
+
+    /**
+     * @param array|null $variants
+     *
+     * @return File
+     */
+    public function setVariants(?array $variants): File
+    {
+        $this->variants = $variants;
+
+        return $this;
+    }
+
+    /**
+     * @param string $variant
+     *
+     * @return array|null
+     */
+    public function getVariant(string $variant): ?string
+    {
+        return $this->variants[$variant] ?? null;
     }
 }
