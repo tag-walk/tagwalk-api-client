@@ -245,7 +245,7 @@ class File extends AbstractDocument
     /**
      * @param string $variant
      *
-     * @return array|null
+     * @return string|null
      */
     public function getVariant(string $variant): ?string
     {
