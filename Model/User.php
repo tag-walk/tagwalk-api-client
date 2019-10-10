@@ -44,14 +44,14 @@ class User implements UserInterface, EquatableInterface
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
-    private $firstname;
+    protected $firstname;
 
     /**
      * @var string
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
-    private $lastname;
+    protected $lastname;
 
     /**
      * @var string
@@ -64,13 +64,13 @@ class User implements UserInterface, EquatableInterface
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
-    private $gender;
+    protected $gender;
 
     /**
      * @var bool|null
      * @Assert\Type("bool")
      */
-    private $fashionIndustry;
+    protected $fashionIndustry;
 
     /**
      * @var string|null
@@ -82,29 +82,29 @@ class User implements UserInterface, EquatableInterface
      * @var bool
      * @Assert\Type("bool")
      */
-    private $newsletter;
+    protected $newsletter;
 
     /**
      * @var bool|null
      * @Assert\Type("bool")
      */
-    private $survey;
+    protected $survey;
 
     /**
      * @var bool|null
      * @Assert\Type("bool")
      */
-    private $vip = false;
+    protected $vip = false;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    private $sector;
+    protected $sector;
 
     /**
      * @var string|null
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"Default", "ShowroomUser"})
      */
     protected $country;
 
@@ -112,35 +112,55 @@ class User implements UserInterface, EquatableInterface
      * @var string
      * @Assert\NotBlank()
      */
-    private $locale;
+    protected $locale;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    private $salt;
+    protected $salt;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    private $password;
+    protected $password;
 
     /**
      * @var string[]|null
      */
-    private $roles;
+    protected $roles;
 
     /**
      * @var string|null
      */
-    private $facebookId;
+    protected $facebookId;
 
     /**
      * @var string|null
      */
-    private $token;
-
+    protected $token;
+    
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank(groups={"ShowroomUser"})
+     */
+    private $company;
+    
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank(groups={"ShowroomUser"})
+     */
+    private $address;
+    
+    /**
+     * @var string
+     * @Assert\Type("string")
+     */
+    private $note;
+    
     /**
      * @param string      $name
      * @param string|null $password
@@ -551,5 +571,53 @@ class User implements UserInterface, EquatableInterface
     public function getFullName(): string
     {
         return $this->firstname.' '.$this->lastname;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getCompany(): ?string
+    {
+        return $this->company;
+    }
+    
+    /**
+     * @param string $company
+     */
+    public function setCompany(string $company): void
+    {
+        $this->company = $company;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+    
+    /**
+     * @param string $address
+     */
+    public function setAddress(string $address): void
+    {
+        $this->address = $address;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+    
+    /**
+     * @param string|null $note
+     */
+    public function setNote(?string $note): void
+    {
+        $this->note = $note;
     }
 }
