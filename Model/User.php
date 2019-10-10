@@ -146,20 +146,20 @@ class User implements UserInterface, EquatableInterface
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
-    private $company;
+    protected $company;
 
     /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
-    private $address;
+    protected $address;
 
     /**
      * @var string
      * @Assert\Type("string")
      */
-    private $note;
+    protected $note;
 
     /**
      * @param string      $name
