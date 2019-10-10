@@ -12,18 +12,7 @@ services:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
 
-  Tagwalk\ApiClientBundle\Security\ShowroomUserProvider:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
-
   Tagwalk\ApiClientBundle\Security\ApiAuthenticator:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
-      - '@session'
-
-  Tagwalk\ApiClientBundle\Security\ShowroomApiAuthenticator:
     arguments:
       - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       - '@serializer'
