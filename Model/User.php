@@ -140,27 +140,27 @@ class User implements UserInterface, EquatableInterface
      * @var string|null
      */
     protected $token;
-    
+
     /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
     private $company;
-    
+
     /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
     private $address;
-    
+
     /**
      * @var string
      * @Assert\Type("string")
      */
     private $note;
-    
+
     /**
      * @param string      $name
      * @param string|null $password
@@ -572,7 +572,7 @@ class User implements UserInterface, EquatableInterface
     {
         return $this->firstname.' '.$this->lastname;
     }
-    
+
     /**
      * @return string
      */
@@ -580,7 +580,7 @@ class User implements UserInterface, EquatableInterface
     {
         return $this->company;
     }
-    
+
     /**
      * @param string $company
      */
@@ -588,7 +588,7 @@ class User implements UserInterface, EquatableInterface
     {
         $this->company = $company;
     }
-    
+
     /**
      * @return string
      */
@@ -596,7 +596,7 @@ class User implements UserInterface, EquatableInterface
     {
         return $this->address;
     }
-    
+
     /**
      * @param string $address
      */
@@ -604,7 +604,7 @@ class User implements UserInterface, EquatableInterface
     {
         $this->address = $address;
     }
-    
+
     /**
      * @return string
      */
@@ -612,7 +612,7 @@ class User implements UserInterface, EquatableInterface
     {
         return $this->note;
     }
-    
+
     /**
      * @param string|null $note
      */
