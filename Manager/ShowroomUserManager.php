@@ -74,27 +74,6 @@ class ShowroomUserManager
     }
 
     /**
-     * @param string $email
-     *
-     * @return ShowroomUser|null
-     */
-    public function get(string $email): ?ShowroomUser
-    {
-        $showroomUser = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/'.$email, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $showroomUser = $this->deserialize($apiResponse);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('ShowroomUserManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
-
-        return $showroomUser;
-    }
-
-    /**
      * @param ShowroomUser $user
      *
      * @return ShowroomUser|null
@@ -133,62 +112,5 @@ class ShowroomUserManager
         }
 
         return $created;
-    }
-
-    /**
-     * @param string $property
-     * @param string $value
-     *
-     * @return ShowroomUser|null
-     */
-    public function findBy(string $property, string $value): ?ShowroomUser
-    {
-        $data = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/find', [
-            RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => [
-                'key'   => $property,
-                'value' => $value,
-            ],
-        ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = $this->deserialize($apiResponse);
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            $this->logger->error('ShowroomUserManager::findBy unexpected status code', [
-                'code'      => $apiResponse->getStatusCode(),
-                'message'   => $apiResponse->getBody()->getContents(),
-            ]);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param string $email
-     * @param array  $data
-     *
-     * @return ShowroomUser|null
-     */
-    public function patch(string $email, $data): ?ShowroomUser
-    {
-        $apiResponse = $this->apiProvider->request('PATCH',
-            '/api/showroom/users',
-            [
-                RequestOptions::QUERY       => ['email' => $email],
-                RequestOptions::JSON        => $data,
-                RequestOptions::HTTP_ERRORS => false,
-            ]);
-        $updated = null;
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $updated = $this->deserialize($apiResponse);
-        } else {
-            $this->logger->error('ShowroomUserManager::update unexpected status code',
-                [
-                    'code'    => $apiResponse->getStatusCode(),
-                    'message' => $apiResponse->getBody()->getContents(),
-                ]);
-        }
-
-        return $updated;
     }
 }

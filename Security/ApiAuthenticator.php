@@ -63,7 +63,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      *
      * @return bool
      */
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         // GOOD behavior: only authenticate (i.e. return true) on a specific route
         return 'login' === $request->attributes->get('_route') && $request->isMethod('POST');
@@ -77,7 +77,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      *
      * @return array
      */
-    public function getCredentials(Request $request)
+    public function getCredentials(Request $request): array
     {
         return [
             'username' => $request->request->get('_username'),
@@ -92,7 +92,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     {
         $password = $credentials['password'];
         $email = $credentials['username'];
-        if (isset($password) && isset($email)) {
+        if (isset($password, $email)) {
             try {
                 $response = $this->provider->request('POST', '/api/users/login', [
                     RequestOptions::JSON => [
@@ -113,7 +113,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     /**
      * {@inheritdoc}
      */
-    public function checkCredentials($credentials, UserInterface $user)
+    public function checkCredentials($credentials, UserInterface $user): bool
     {
         // check credentials - e.g. make sure the password is valid
         // no credential check is needed in this case
@@ -144,7 +144,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      *
      * @return JsonResponse
      */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, AuthenticationException $authException = null): JsonResponse
     {
         $data = [
             // you might translate this message
@@ -157,7 +157,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     /**
      * {@inheritdoc}
      */
-    public function supportsRememberMe()
+    public function supportsRememberMe(): bool
     {
         return false;
     }
