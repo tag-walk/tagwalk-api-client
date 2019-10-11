@@ -59,8 +59,8 @@ services:
       $clientId: ''
       $clientSecret: ''
       $timeout: 30.0
-      $lightData: true
-      $analytics: true
+      $lightData: false
+      $analytics: false
       $cacheDirectory: '%env(CACHE_DIRECTORY)%'
       $showroom: null
 

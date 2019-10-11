@@ -40,7 +40,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('host_url')->defaultValue('https://test.api.tag-walk.com')->end()
             ->floatNode('timeout')->defaultValue(30.0)->min(0.0)->max(60.0)->end()
             ->booleanNode('analytics')->defaultFalse()->end()
-            ->booleanNode('light')->defaultTrue()->end()
+            ->booleanNode('light')->defaultFalse()->end()
             ->scalarNode('showroom')->defaultNull()->end()
             ->end();
 
