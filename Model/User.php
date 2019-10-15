@@ -44,122 +44,122 @@ class User implements UserInterface, EquatableInterface
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
-    protected $firstname;
+    private $firstname;
 
     /**
      * @var string
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
-    protected $lastname;
+    private $lastname;
 
     /**
      * @var string
      * @Assert\Email()
      */
-    protected $email;
+    private $email;
 
     /**
      * @var string
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
-    protected $gender;
+    private $gender;
 
     /**
      * @var bool|null
      * @Assert\Type("bool")
      */
-    protected $fashionIndustry;
+    private $fashionIndustry;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    protected $jobTitle;
+    private $jobTitle;
 
     /**
      * @var bool
      * @Assert\Type("bool")
      */
-    protected $newsletter;
+    private $newsletter;
 
     /**
      * @var bool|null
      * @Assert\Type("bool")
      */
-    protected $survey;
+    private $survey;
 
     /**
      * @var bool|null
      * @Assert\Type("bool")
      */
-    protected $vip = false;
+    private $vip = false;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    protected $sector;
+    private $sector;
 
     /**
      * @var string|null
      * @Assert\NotBlank(groups={"Default", "ShowroomUser"})
      */
-    protected $country;
+    private $country;
 
     /**
      * @var string
      * @Assert\NotBlank()
      */
-    protected $locale;
+    private $locale;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    protected $salt;
+    private $salt;
 
     /**
      * @var string|null
      * @Assert\Type("string")
      */
-    protected $password;
+    private $password;
 
     /**
      * @var string[]|null
      */
-    protected $roles;
+    private $roles;
 
     /**
      * @var string|null
      */
-    protected $facebookId;
+    private $facebookId;
 
     /**
      * @var string|null
      */
-    protected $token;
+    private $token;
 
     /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
-    protected $company;
+    private $company;
 
     /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
-    protected $address;
+    private $address;
 
     /**
      * @var string
      * @Assert\Type("string")
      */
-    protected $note;
+    private $note;
 
     /**
      * @param string      $name
