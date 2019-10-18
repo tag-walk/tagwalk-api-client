@@ -180,7 +180,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getFirstname(): ?string
     {
@@ -188,11 +188,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $firstname
+     * @param string|null $firstname
      *
      * @return self
      */
-    public function setFirstname(string $firstname): self
+    public function setFirstname(?string $firstname): self
     {
         $this->firstname = $firstname;
 
@@ -200,7 +200,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getLastname(): ?string
     {
@@ -208,11 +208,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $lastname
+     * @param string|null $lastname
      *
      * @return self
      */
-    public function setLastname(string $lastname): self
+    public function setLastname(?string $lastname): self
     {
         $this->lastname = $lastname;
 
@@ -220,7 +220,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getGender(): ?string
     {
@@ -228,11 +228,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $gender
+     * @param string|null $gender
      *
      * @return self
      */
-    public function setGender(string $gender): self
+    public function setGender(?string $gender): self
     {
         $this->gender = $gender;
 
@@ -280,7 +280,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
     public function isNewsletter(): ?bool
     {
@@ -288,11 +288,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param bool $newsletter
+     * @param bool|null $newsletter
      *
      * @return self
      */
-    public function setNewsletter(bool $newsletter): self
+    public function setNewsletter(?bool $newsletter): self
     {
         $this->newsletter = $newsletter;
 
@@ -380,7 +380,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getLocale(): ?string
     {
@@ -388,11 +388,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $locale
+     * @param string|null $locale
      *
      * @return self
      */
-    public function setLocale(string $locale): self
+    public function setLocale(?string $locale): self
     {
         $this->locale = $locale;
 
@@ -574,7 +574,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getCompany(): ?string
     {
@@ -582,15 +582,15 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $company
+     * @param string|null $company
      */
-    public function setCompany(string $company): void
+    public function setCompany(?string $company): void
     {
         $this->company = $company;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getAddress(): ?string
     {
@@ -598,15 +598,15 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $address
+     * @param string|null $address
      */
-    public function setAddress(string $address): void
+    public function setAddress(?string $address): void
     {
         $this->address = $address;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getNote(): ?string
     {
