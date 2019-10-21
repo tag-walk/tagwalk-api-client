@@ -28,35 +28,17 @@ class File extends AbstractDocument
     protected $path;
 
     /**
+     * @var array|null
+     * @Assert\Type("array")
+     */
+    protected $variants;
+
+    /**
      * @var string|null
      * @Assert\Type("string")
      * @Assert\NotBlank()
      */
     protected $filename;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathCover;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathList;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathThumbnail;
-
-    /**
-     * @var string|null
-     * @Assert\Type("string")
-     */
-    protected $pathZoom;
 
     /**
      * @var string
@@ -128,86 +110,6 @@ class File extends AbstractDocument
     public function setFilename(?string $filename): self
     {
         $this->filename = $filename;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPathCover(): ?string
-    {
-        return $this->pathCover;
-    }
-
-    /**
-     * @param string|null $pathCover
-     *
-     * @return File
-     */
-    public function setPathCover(?string $pathCover): self
-    {
-        $this->pathCover = $pathCover;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPathList(): ?string
-    {
-        return $this->pathList;
-    }
-
-    /**
-     * @param string|null $pathList
-     *
-     * @return File
-     */
-    public function setPathList(?string $pathList): self
-    {
-        $this->pathList = $pathList;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPathThumbnail(): ?string
-    {
-        return $this->pathThumbnail;
-    }
-
-    /**
-     * @param string|null $pathThumbnail
-     *
-     * @return File
-     */
-    public function setPathThumbnail(?string $pathThumbnail): self
-    {
-        $this->pathThumbnail = $pathThumbnail;
-
-        return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getPathZoom(): ?string
-    {
-        return $this->pathZoom;
-    }
-
-    /**
-     * @param string|null $pathZoom
-     *
-     * @return File
-     */
-    public function setPathZoom(?string $pathZoom): self
-    {
-        $this->pathZoom = $pathZoom;
 
         return $this;
     }
@@ -318,5 +220,35 @@ class File extends AbstractDocument
         $this->courtesy = $courtesy;
 
         return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getVariants(): ?array
+    {
+        return $this->variants;
+    }
+
+    /**
+     * @param array|null $variants
+     *
+     * @return File
+     */
+    public function setVariants(?array $variants): self
+    {
+        $this->variants = $variants;
+
+        return $this;
+    }
+
+    /**
+     * @param string $variant
+     *
+     * @return string|null
+     */
+    public function getVariant(string $variant): ?string
+    {
+        return $this->variants[$variant] ?? null;
     }
 }
