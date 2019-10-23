@@ -57,7 +57,7 @@ class User implements UserInterface, EquatableInterface
      * @var string
      * @Assert\Email()
      */
-    protected $email;
+    private $email;
 
     /**
      * @var string
@@ -76,7 +76,7 @@ class User implements UserInterface, EquatableInterface
      * @var string|null
      * @Assert\Type("string")
      */
-    protected $jobTitle;
+    private $jobTitle;
 
     /**
      * @var bool
@@ -104,9 +104,9 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @var string|null
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"Default", "ShowroomUser"})
      */
-    protected $country;
+    private $country;
 
     /**
      * @var string
@@ -142,6 +142,26 @@ class User implements UserInterface, EquatableInterface
     private $token;
 
     /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank(groups={"ShowroomUser"})
+     */
+    private $company;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     * @Assert\NotBlank(groups={"ShowroomUser"})
+     */
+    private $address;
+
+    /**
+     * @var string
+     * @Assert\Type("string")
+     */
+    private $note;
+
+    /**
      * @param string      $name
      * @param string|null $password
      * @param string|null $salt
@@ -160,7 +180,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getFirstname(): ?string
     {
@@ -168,11 +188,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $firstname
+     * @param string|null $firstname
      *
      * @return self
      */
-    public function setFirstname(string $firstname): self
+    public function setFirstname(?string $firstname): self
     {
         $this->firstname = $firstname;
 
@@ -180,7 +200,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getLastname(): ?string
     {
@@ -188,11 +208,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $lastname
+     * @param string|null $lastname
      *
      * @return self
      */
-    public function setLastname(string $lastname): self
+    public function setLastname(?string $lastname): self
     {
         $this->lastname = $lastname;
 
@@ -200,7 +220,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getGender(): ?string
     {
@@ -208,11 +228,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $gender
+     * @param string|null $gender
      *
      * @return self
      */
-    public function setGender(string $gender): self
+    public function setGender(?string $gender): self
     {
         $this->gender = $gender;
 
@@ -260,7 +280,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
     public function isNewsletter(): ?bool
     {
@@ -268,11 +288,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param bool $newsletter
+     * @param bool|null $newsletter
      *
      * @return self
      */
-    public function setNewsletter(bool $newsletter): self
+    public function setNewsletter(?bool $newsletter): self
     {
         $this->newsletter = $newsletter;
 
@@ -360,7 +380,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getLocale(): ?string
     {
@@ -368,11 +388,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $locale
+     * @param string|null $locale
      *
      * @return self
      */
-    public function setLocale(string $locale): self
+    public function setLocale(?string $locale): self
     {
         $this->locale = $locale;
 
@@ -551,5 +571,53 @@ class User implements UserInterface, EquatableInterface
     public function getFullName(): string
     {
         return $this->firstname.' '.$this->lastname;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCompany(): ?string
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param string|null $company
+     */
+    public function setCompany(?string $company): void
+    {
+        $this->company = $company;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    /**
+     * @param string|null $address
+     */
+    public function setAddress(?string $address): void
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    /**
+     * @param string|null $note
+     */
+    public function setNote(?string $note): void
+    {
+        $this->note = $note;
     }
 }

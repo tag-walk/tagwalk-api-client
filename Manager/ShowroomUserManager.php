@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
-use Tagwalk\ApiClientBundle\Model\ShowroomUser;
+use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ShowroomUserManager
@@ -62,44 +62,23 @@ class ShowroomUserManager
     /**
      * @param ResponseInterface $response
      *
-     * @return ShowroomUser
+     * @return User
      */
-    private function deserialize($response): ShowroomUser
+    private function deserialize($response): User
     {
         return $this->serializer->deserialize(
             $response->getBody()->getContents(),
-            ShowroomUser::class,
+            User::class,
             JsonEncoder::FORMAT
         );
     }
 
     /**
-     * @param string $email
+     * @param User $user
      *
-     * @return ShowroomUser|null
+     * @return User|null
      */
-    public function get(string $email): ?ShowroomUser
-    {
-        $showroomUser = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/'.$email, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $showroomUser = $this->deserialize($apiResponse);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('ShowroomUserManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
-
-        return $showroomUser;
-    }
-
-    /**
-     * @param ShowroomUser $user
-     *
-     * @return ShowroomUser|null
-     */
-    public function create(ShowroomUser $user): ?ShowroomUser
+    public function create(User $user): ?User
     {
         $data = $this->serializer->normalize($user);
         $data = array_filter($data, static function ($v) {
