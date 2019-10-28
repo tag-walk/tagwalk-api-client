@@ -83,7 +83,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/page/{route}/{event}", name="tts_page", methods={"POST"}, options={"expose"=true})
+     * @Route("/photos/{route}/{event}", name="tts_photos", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
      * @param string  $route
