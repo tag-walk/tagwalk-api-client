@@ -81,4 +81,20 @@ class AnalyticsController extends AbstractController
 
         return new Response();
     }
+
+    /**
+     * @Route("/page/{route}/{event}", name="tts_page", methods={"POST"}, options={"expose"=true})
+     *
+     * @param Request $request
+     * @param string  $route
+     * @param string  $event
+     *
+     * @return Response
+     */
+    public function photos(Request $request, string $route, string $event): Response
+    {
+        $this->manager->photos($request, $route, $event, $request->request->all(), $request->getClientIp());
+
+        return new Response();
+    }
 }
