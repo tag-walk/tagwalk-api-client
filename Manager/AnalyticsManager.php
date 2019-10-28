@@ -141,7 +141,6 @@ class AnalyticsManager
      * @param string      $route
      * @param string      $event
      * @param array       $query
-     *
      * @param string|null $clientIp
      *
      * @return bool success
