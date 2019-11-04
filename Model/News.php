@@ -18,6 +18,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Linkable;
 use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
+use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
 
 class News extends AbstractDocument
 {
@@ -27,6 +28,12 @@ class News extends AbstractDocument
     use Linkable;
     use Fileable;
     use Coverable;
+
+    /**
+     * @var \DateTime
+     * @Assert\DateTime()
+     */
+    protected $date;
 
     /**
      * @var string
@@ -49,6 +56,26 @@ class News extends AbstractDocument
      * @var array
      */
     private $categoriesI18n;
+
+    /**
+     * @return \DateTime
+     */
+    public function getDate(): ?\DateTime
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param \DateTime $date
+     *
+     * @return self
+     */
+    public function setDate(?\DateTime $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
 
     /**
      * @return null|string[]
