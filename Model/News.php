@@ -18,7 +18,6 @@ use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Linkable;
 use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
-use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
 
 class News extends AbstractDocument
 {
