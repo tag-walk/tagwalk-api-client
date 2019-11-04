@@ -29,6 +29,12 @@ class News extends AbstractDocument
     use Coverable;
 
     /**
+     * @var \DateTime
+     * @Assert\DateTime()
+     */
+    protected $date;
+
+    /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank()
@@ -49,6 +55,26 @@ class News extends AbstractDocument
      * @var array
      */
     private $categoriesI18n;
+
+    /**
+     * @return \DateTime
+     */
+    public function getDate(): ?\DateTime
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param \DateTime $date
+     *
+     * @return self
+     */
+    public function setDate(?\DateTime $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
 
     /**
      * @return null|string[]
