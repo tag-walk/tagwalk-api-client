@@ -24,7 +24,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 class NewsManager
 {
     public const DEFAULT_STATUS = 'enabled';
-    public const DEFAULT_SORT = 'created_at:desc';
+    public const DEFAULT_SORT = 'date:desc';
     public const DEFAULT_SIZE = 12;
     /**
      * @var int
