@@ -29,7 +29,7 @@ class News extends AbstractDocument
     use Coverable;
 
     /**
-     * @var \DateTime
+     * @var \DateTime|null
      * @Assert\DateTime()
      */
     protected $date;
@@ -57,7 +57,7 @@ class News extends AbstractDocument
     private $categoriesI18n;
 
     /**
-     * @return \DateTime
+     * @return \DateTime|null
      */
     public function getDate(): ?\DateTime
     {
