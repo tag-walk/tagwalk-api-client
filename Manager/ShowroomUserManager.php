@@ -128,7 +128,7 @@ class ShowroomUserManager
             RequestOptions::QUERY       => [
                 'key'   => $property,
                 'value' => $value,
-            ]
+            ],
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
