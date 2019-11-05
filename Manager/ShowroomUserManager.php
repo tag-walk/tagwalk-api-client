@@ -113,7 +113,7 @@ class ShowroomUserManager
 
         return $created;
     }
-    
+
     /**
      * @param string $property
      * @param string $value
@@ -127,7 +127,7 @@ class ShowroomUserManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => [
                 'key'   => $property,
-                'value' => $value
+                'value' => $value,
             ]
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
@@ -143,7 +143,7 @@ class ShowroomUserManager
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
         }
-        
+
         return $data;
     }
 }
