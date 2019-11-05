@@ -363,13 +363,6 @@ services:
       - '@serializer.name_converter.camel_case_to_snake_case'
       - '@serializer.property_accessor'
 
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\ShowroomUserNormalizer:
-    tags: ['serializer.normalizer']
-    arguments:
-      - '@serializer.mapping.class_metadata_factory'
-      - '@serializer.name_converter.camel_case_to_snake_case'
-      - '@serializer.property_accessor'
-
   Tagwalk\ApiClientBundle\Serializer\Normalizer\PageNormalizer:
     tags: ['serializer.normalizer']
     arguments:

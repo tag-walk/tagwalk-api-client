@@ -113,4 +113,37 @@ class ShowroomUserManager
 
         return $created;
     }
+    
+    /**
+     * @param string $property
+     * @param string $value
+     *
+     * @return array
+     */
+    public function findAllBy(string $property, string $value): array
+    {
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/findAll', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => [
+                'key'   => $property,
+                'value' => $value
+            ]
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            if (!empty($data)) {
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->serializer->denormalize($datum, User::class);
+                }
+            }
+        } else {
+            $this->logger->error('ShowroomManager::FindAllBy unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+        
+        return $data;
+    }
 }
