@@ -123,7 +123,7 @@ class ShowroomUserManager
     public function findAllBy(string $property, string $value): array
     {
         $data = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/findAll', [
+        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/find', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => [
                 'key'   => $property,
