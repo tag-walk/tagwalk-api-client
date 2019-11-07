@@ -26,7 +26,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 class ShowroomUserManager
 {
     public const DEFAULT_STATUS = 'ENABLED';
-    
+
     /**
      * @var ApiProvider
      */
@@ -115,7 +115,7 @@ class ShowroomUserManager
 
         return $created;
     }
-    
+
     /**
      * @param string $status
      * @param int    $from
