@@ -25,6 +25,8 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ShowroomUserManager
 {
+    public const DEFAULT_STATUS = 'ENABLED';
+    
     /**
      * @var ApiProvider
      */
@@ -113,28 +115,27 @@ class ShowroomUserManager
 
         return $created;
     }
-
+    
     /**
-     * @param string $property
-     * @param string $value
+     * @param string $status
+     * @param int    $from
+     * @param int    $size
      *
      * @return array
      */
-    public function findAllBy(string $property, string $value): array
+    public function list(string $status = self::DEFAULT_STATUS, int $from = 0, int $size = 10): array
     {
-        $data = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users/find', [
+        $result = [];
+        $query = array_filter(compact('from', 'size', 'status'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => [
-                'key'   => $property,
-                'value' => $value,
-            ],
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
             if (!empty($data)) {
                 foreach ($data as $i => $datum) {
-                    $data[$i] = $this->serializer->denormalize($datum, User::class);
+                    $result[$i] = $this->serializer->denormalize($datum, User::class);
                 }
             }
         } else {
@@ -144,6 +145,6 @@ class ShowroomUserManager
             ]);
         }
 
-        return $data;
+        return $result;
     }
 }
