@@ -25,9 +25,8 @@ trait Nameable
      * @Assert\NotBlank()
      * @Assert\Type("string")
      * @Assert\Length(
-     *     min=2,
-     *     max=255,
-     *     groups={"moodboard"}
+     *      min = 2,
+     *      max = 255
      * )
      */
     protected $name;
