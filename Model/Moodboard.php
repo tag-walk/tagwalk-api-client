@@ -19,7 +19,7 @@ class Moodboard extends AbstractDocument
      * @var string
      * @Assert\NotBlank()
      * @Assert\Type("string")
-     * @Assert\Length(max=255, groups={"Moodboard"})
+     * @Assert\Length(max=255, groups={"no_minimum_length"})
      */
     protected $name;
 
