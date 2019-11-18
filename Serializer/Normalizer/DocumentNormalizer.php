@@ -29,17 +29,6 @@ class DocumentNormalizer extends ObjectNormalizer
     /**
      * {@inheritdoc}
      */
-    public function __construct(
-        ClassMetadataFactoryInterface $classMetadataFactory = null,
-        NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null
-    ) {
-        parent::__construct($classMetadataFactory, $nameConverter, $propertyAccessor);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Document;
