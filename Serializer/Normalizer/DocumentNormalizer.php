@@ -13,9 +13,6 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use DateTime;
 use ReflectionObject;
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Document;
 
