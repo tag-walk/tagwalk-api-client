@@ -16,6 +16,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Moodboard extends AbstractDocument
 {
     /**
+     * @var string
+     * @Assert\NotBlank()
+     * @Assert\Type("string")
+     * @Assert\Length(max=255, groups={"no_minimum_length"})
+     */
+    protected $name;
+
+    /**
      * @var Media[]|null
      */
     private $medias;
