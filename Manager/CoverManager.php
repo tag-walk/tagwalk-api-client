@@ -81,4 +81,28 @@ class CoverManager
 
         return $cover;
     }
+
+    /**
+     * @param Cover $cover
+     *
+     * @return Cover|null
+     */
+    public function update(Cover $cover): ?Cover
+    {
+        $updated = null;
+        $apiResponse = $this->apiProvider->request('PUT', '/api/covers/'.$cover->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON        => $this->serializer->normalize($cover, null, ['write' => true]),
+        ]);
+        if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
+            $updated = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('CoverManager::get unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $updated;
+    }
 }

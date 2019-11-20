@@ -58,6 +58,7 @@ services:
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''
+      $environment: '%kernel.environment%'
       $timeout: 30.0
       $lightData: false
       $analytics: false
