@@ -77,7 +77,7 @@ class MoodboardManager
     {
         $list = [];
         $this->lastCount = 0;
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-cover', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-multi-cover', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
