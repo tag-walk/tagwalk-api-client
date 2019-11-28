@@ -77,7 +77,7 @@ class MoodboardManager
     {
         $list = [];
         $this->lastCount = 0;
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-multi-cover', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-moodboard-items', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
@@ -101,7 +101,7 @@ class MoodboardManager
      */
     public function count(array $params): int
     {
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-with-cover', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/list-moodboard-items', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
