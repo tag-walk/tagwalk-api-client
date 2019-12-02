@@ -29,7 +29,7 @@ class Individual extends AbstractDocument
     private $model;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      */
     private $gender = 'female';

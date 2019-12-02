@@ -21,7 +21,7 @@ class Agency extends AbstractDocument
     use Linkable;
 
     /**
-     * @var boolean
+     * @var bool
      * @Assert\Type("boolean")
      */
     private $main = false;
