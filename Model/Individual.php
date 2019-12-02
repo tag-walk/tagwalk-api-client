@@ -31,9 +31,8 @@ class Individual extends AbstractDocument
     /**
      * @var string
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
-    private $gender = 'woman';
+    private $gender = 'female';
 
     /**
      * @var \DateTime|null
@@ -46,6 +45,24 @@ class Individual extends AbstractDocument
      * @Assert\Type("string")
      */
     private $nationality;
+
+    /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $location;
+
+    /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $hairColor;
+
+    /**
+     * @var string|null
+     * @Assert\Url()
+     */
+    private $instagram;
 
     /**
      * @var Agency[]|null
@@ -75,19 +92,19 @@ class Individual extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getGender(): string
+    public function getGender(): ?string
     {
         return $this->gender;
     }
 
     /**
-     * @param string $gender
+     * @param string|null $gender
      *
      * @return self
      */
-    public function setGender(string $gender): self
+    public function setGender(?string $gender): self
     {
         $this->gender = $gender;
 
@@ -130,6 +147,66 @@ class Individual extends AbstractDocument
     public function setNationality(?string $nationality): self
     {
         $this->nationality = $nationality;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    /**
+     * @param null|string $location
+     *
+     * @return self
+     */
+    public function setLocation(?string $location): self
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getHairColor(): ?string
+    {
+        return $this->hairColor;
+    }
+
+    /**
+     * @param null|string $hairColor
+     *
+     * @return self
+     */
+    public function setHairColor(?string $hairColor): self
+    {
+        $this->hairColor = $hairColor;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getInstagram(): ?string
+    {
+        return $this->instagram;
+    }
+
+    /**
+     * @param null|string $instagram
+     *
+     * @return self
+     */
+    public function setInstagram(?string $instagram): self
+    {
+        $this->instagram = $instagram;
 
         return $this;
     }
