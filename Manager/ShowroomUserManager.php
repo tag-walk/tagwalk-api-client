@@ -25,7 +25,9 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ShowroomUserManager
 {
-    public const DEFAULT_STATUS = 'ENABLED';
+    public const DEFAULT_STATUS = 'all';
+    
+    public const DEFAULT_SIZE = 10;
 
     /**
      * @var ApiProvider
@@ -41,7 +43,12 @@ class ShowroomUserManager
      * @var LoggerInterface
      */
     private $logger;
-
+    
+    /**
+     * @var int last query result count
+     */
+    public $lastCount;
+    
     /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
@@ -126,6 +133,7 @@ class ShowroomUserManager
     public function list(string $status = self::DEFAULT_STATUS, int $from = 0, int $size = 10): array
     {
         $result = [];
+        $this->lastCount = 0;
         $query = array_filter(compact('from', 'size', 'status'));
         $apiResponse = $this->apiProvider->request('GET', '/api/showroom/users', [
             RequestOptions::HTTP_ERRORS => false,
@@ -133,13 +141,12 @@ class ShowroomUserManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
-            if (!empty($data)) {
-                foreach ($data as $i => $datum) {
-                    $result[$i] = $this->serializer->denormalize($datum, User::class);
-                }
+            foreach ($data as $i => $datum) {
+                $result[$i] = $this->serializer->denormalize($datum, User::class);
             }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } else {
-            $this->logger->error('ShowroomManager::FindAllBy unexpected status code', [
+            $this->logger->error('ShowroomManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
