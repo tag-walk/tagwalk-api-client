@@ -26,7 +26,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 class ShowroomUserManager
 {
     public const DEFAULT_STATUS = 'all';
-    
+
     public const DEFAULT_SIZE = 10;
 
     /**
@@ -43,12 +43,12 @@ class ShowroomUserManager
      * @var LoggerInterface
      */
     private $logger;
-    
+
     /**
      * @var int last query result count
      */
     public $lastCount;
-    
+
     /**
      * @param ApiProvider         $apiProvider
      * @param SerializerInterface $serializer
