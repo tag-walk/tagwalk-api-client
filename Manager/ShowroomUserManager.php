@@ -146,7 +146,7 @@ class ShowroomUserManager
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } else {
-            $this->logger->error('ShowroomManager::list unexpected status code', [
+            $this->logger->error('ShowroomUserManager::list unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
