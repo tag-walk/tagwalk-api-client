@@ -31,6 +31,7 @@ class ApiProvider
      * @var string cache key for access token bearer
      */
     private const CACHE_KEY_TOKEN = 'access_token';
+    private const DEFAULT_TIMEOUT = 30.0;
 
     /**
      * @var string
@@ -88,8 +89,9 @@ class ApiProvider
      * @param string           $baseUri
      * @param string           $clientId
      * @param string           $clientSecret
+     * @param string           $environment
      * @param float            $timeout
-     * @param bool             $lightData      do not resolve files path property
+     * @param bool             $lightData do not resolve files path property
      * @param bool             $analytics
      * @param string|null      $cacheDirectory
      * @param string|null      $showroom
@@ -100,7 +102,8 @@ class ApiProvider
         string $baseUri,
         string $clientId,
         string $clientSecret,
-        float $timeout = 30.0,
+        string $environment,
+        float $timeout = self::DEFAULT_TIMEOUT,
         bool $lightData = true,
         bool $analytics = false,
         ?string $cacheDirectory = null,
@@ -114,11 +117,32 @@ class ApiProvider
         $this->analytics = $analytics;
         $this->showroom = $showroom;
         $this->cache = new FilesystemAdapter('api-client-token', 3600, $cacheDirectory);
-        $this->client = new Client([
+        $this->client = $this->createClient($baseUri, $environment, $timeout, $cacheDirectory);
+    }
+
+    /**
+     * @param string $baseUri
+     * @param int    $timeout
+     * @param string $cacheDirectory
+     * @param string $environment
+     *
+     * @return Client
+     */
+    private function createClient(
+        string $baseUri,
+        string $environment,
+        int $timeout = self::DEFAULT_TIMEOUT,
+        ?string $cacheDirectory = null
+    ): Client {
+        $params = [
             'base_uri' => $baseUri,
             'timeout'  => $timeout,
-            'handler'  => $this->getClientCacheHandler($cacheDirectory),
-        ]);
+        ];
+        if ($environment === 'prod') {
+            $params['handler'] = $this->getClientCacheHandler($cacheDirectory);
+        }
+
+        return new Client($params);
     }
 
     /**

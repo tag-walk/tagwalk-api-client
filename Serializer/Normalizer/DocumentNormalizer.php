@@ -13,9 +13,6 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 
 use DateTime;
 use ReflectionObject;
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
-use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
-use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Tagwalk\ApiClientBundle\Model\Document;
 
@@ -26,17 +23,6 @@ use Tagwalk\ApiClientBundle\Model\Document;
  */
 class DocumentNormalizer extends ObjectNormalizer
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct(
-        ClassMetadataFactoryInterface $classMetadataFactory = null,
-        NameConverterInterface $nameConverter = null,
-        PropertyAccessorInterface $propertyAccessor = null
-    ) {
-        parent::__construct($classMetadataFactory, $nameConverter, $propertyAccessor);
-    }
-
     /**
      * {@inheritdoc}
      */
