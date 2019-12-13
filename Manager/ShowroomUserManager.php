@@ -131,7 +131,7 @@ class ShowroomUserManager
     public function createSuperManager(string $email): ?User
     {
         $apiResponse = $this->apiProvider->request('POST', '/api/showroom/users/register/super-manager', [
-            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::HTTP_ERRORS  => false,
             RequestOptions::QUERY        => ['email' => $email],
         ]);
         $created = null;
