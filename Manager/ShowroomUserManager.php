@@ -124,6 +124,43 @@ class ShowroomUserManager
     }
 
     /**
+     * @param string $email
+     *
+     * @return User|null
+     */
+    public function createSuperManager(string $email): ?User
+    {
+        $apiResponse = $this->apiProvider->request('POST', '/api/showroom/users/register/super-manager', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY        => ['email' => $email],
+        ]);
+        $created = null;
+        switch ($apiResponse->getStatusCode()) {
+            case Response::HTTP_FORBIDDEN:
+                throw new ApiAccessDeniedException();
+            case Response::HTTP_CREATED:
+                $created = $this->deserialize($apiResponse);
+                break;
+            case Response::HTTP_CONFLICT:
+                $this->logger->notice('Super manager already exists',
+                    [
+                        'code'    => $apiResponse->getStatusCode(),
+                        'message' => $apiResponse->getBody()->getContents(),
+                    ]);
+                break;
+            default:
+                $this->logger->error('ShowroomUserManager::createSuperManager unexpected status code',
+                    [
+                        'code'    => $apiResponse->getStatusCode(),
+                        'message' => $apiResponse->getBody()->getContents(),
+                    ]
+                );
+        }
+
+        return $created;
+    }
+
+    /**
      * @param string $status
      * @param int    $from
      * @param int    $size
