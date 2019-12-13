@@ -360,7 +360,7 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getCountry(): ?string
     {
@@ -368,11 +368,11 @@ class User implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string $country
+     * @param string|null $country
      *
      * @return self
      */
-    public function setCountry(string $country): self
+    public function setCountry(?string $country): self
     {
         $this->country = $country;
 
