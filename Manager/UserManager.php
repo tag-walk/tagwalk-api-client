@@ -125,19 +125,24 @@ class UserManager
     }
 
     /**
-     * @param string $email
-     * @param User   $user
+     * @param string      $email
+     * @param User        $user
+     * @param string|null $appContext
      *
      * @return User|null
      */
-    public function update(string $email, User $user): ?User
+    public function update(string $email, User $user, ?string $appContext = null): ?User
     {
         $data = $this->serializer->normalize($user, null, ['account' => true]);
         $data = array_filter($data, static function ($v) {
             return $v !== null;
         });
+        $params = array_filter([
+            'email'               => $email,
+            'application_context' => $appContext,
+        ]);
         $apiResponse = $this->apiProvider->request('PATCH', '/api/users', [
-            RequestOptions::QUERY       => ['email' => $email],
+            RequestOptions::QUERY       => $params,
             RequestOptions::JSON        => $data,
             RequestOptions::HTTP_ERRORS => false,
         ]);
@@ -158,16 +163,21 @@ class UserManager
      * @param string                $email
      * @param string                $property
      * @param string|int|float|bool $value
+     * @param string|null           $appContext
      *
      * @return User|null
      */
-    public function patch(string $email, string $property, $value): ?User
+    public function patch(string $email, string $property, $value, ?string $appContext = null): ?User
     {
         $data = [$property => $value];
+        $params = array_filter([
+            'email'               => $email,
+            'application_context' => $appContext,
+        ]);
         $apiResponse = $this->apiProvider->request('PATCH',
             '/api/users',
             [
-                RequestOptions::QUERY       => ['email' => $email],
+                RequestOptions::QUERY       => $params,
                 RequestOptions::JSON        => $data,
                 RequestOptions::HTTP_ERRORS => false,
             ]);
