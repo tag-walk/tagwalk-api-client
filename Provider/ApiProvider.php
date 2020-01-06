@@ -200,8 +200,7 @@ class ApiProvider
                 'Accept-Language'       => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en',
-                // Fallback if console mode
-                'Cookie'                => $this->session->get('Cookie'),
+                'X-AUTH-TOKEN'          => $this->session->get('user-token'),
                 'Tagwalk-Showroom-Name' => $this->showroom,
             ]),
             RequestOptions::QUERY       => [

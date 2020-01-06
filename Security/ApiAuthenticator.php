@@ -101,8 +101,8 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
                     ],
                 ]);
                 $json = $response->getBody()->getContents();
-                $sessid = explode(';', $response->getHeaderLine('Set-Cookie'));
-                $this->session->set('Cookie', $sessid[0]);
+                $decoded = json_decode($json, true);
+                $this->session->set('user-token', $decoded['api_token']);
 
                 return $this->serializer->deserialize($json, User::class, 'json');
             } catch (GuzzleException $exception) {

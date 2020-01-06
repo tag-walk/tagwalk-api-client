@@ -142,6 +142,11 @@ class User implements UserInterface, EquatableInterface
     private $token;
 
     /**
+     * @var string|null
+     */
+    private $apiToken;
+
+    /**
      * @var string
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
@@ -583,10 +588,14 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @param string|null $company
+     *
+     * @return self
      */
-    public function setCompany(?string $company): void
+    public function setCompany(?string $company): self
     {
         $this->company = $company;
+
+        return $this;
     }
 
     /**
@@ -599,10 +608,14 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @param string|null $address
+     *
+     * @return self
      */
-    public function setAddress(?string $address): void
+    public function setAddress(?string $address): self
     {
         $this->address = $address;
+
+        return $this;
     }
 
     /**
@@ -615,9 +628,33 @@ class User implements UserInterface, EquatableInterface
 
     /**
      * @param string|null $note
+     *
+     * @return self
      */
-    public function setNote(?string $note): void
+    public function setNote(?string $note): self
     {
         $this->note = $note;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getApiToken(): ?string
+    {
+        return $this->apiToken;
+    }
+
+    /**
+     * @param string|null $apiToken
+     *
+     * @return self
+     */
+    public function setApiToken(?string $apiToken): self
+    {
+        $this->apiToken = $apiToken;
+
+        return $this;
     }
 }
