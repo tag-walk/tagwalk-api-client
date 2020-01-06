@@ -94,9 +94,9 @@ class ShowroomUserManager
             return $v !== null;
         });
         $apiResponse = $this->apiProvider->request('POST', '/api/showroom/users/register', [
-                RequestOptions::HTTP_ERRORS => false,
-                RequestOptions::JSON        => $data,
-            ]);
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON        => $data,
+        ]);
         $created = null;
         switch ($apiResponse->getStatusCode()) {
             case Response::HTTP_FORBIDDEN:
