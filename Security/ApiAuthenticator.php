@@ -13,6 +13,8 @@ namespace Tagwalk\ApiClientBundle\Security;
 
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
+use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +30,11 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ApiAuthenticator extends AbstractGuardAuthenticator
 {
+    /** @var string user token key name in session */
+    public const USER_TOKEN = 'user-token';
+    public const USER_COOKIE_SESSID = 'user-cookie-sessid';
+    public const USER_COOKIE_SESSID_NAME = 'user-cookie-sessid-name';
+
     /**
      * @var ApiProvider
      */
@@ -37,6 +44,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      * @var SerializerInterface
      */
     private $serializer;
+
     /**
      * @var SessionInterface
      */
@@ -65,7 +73,6 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request): bool
     {
-        // GOOD behavior: only authenticate (i.e. return true) on a specific route
         return 'login' === $request->attributes->get('_route') && $request->isMethod('POST');
     }
 
@@ -90,6 +97,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      */
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
+        $user = null;
         $password = $credentials['password'];
         $email = $credentials['username'];
         if (isset($password, $email)) {
@@ -100,14 +108,27 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
                         'password' => $password,
                     ],
                 ]);
+                $this->loginResponseToSessionCookie($response);
                 $json = $response->getBody()->getContents();
                 $decoded = json_decode($json, true);
-                $this->session->set('user-token', $decoded['api_token']);
-
-                return $this->serializer->deserialize($json, User::class, 'json');
+                $this->session->set(self::USER_TOKEN, $decoded['api_token']);
+                $user = $this->serializer->deserialize($json, User::class, 'json');
             } catch (GuzzleException $exception) {
             }
         }
+
+        return $user;
+    }
+
+    public function loginResponseToSessionCookie(ResponseInterface $response): void
+    {
+        $headers = $response->getHeaders();
+        if (empty($headers['Set-Cookie'][0])) {
+            throw new InvalidArgumentException('No cookie in the response');
+        }
+        $sessid = explode('=', current(explode(';', $headers['Set-Cookie'][0])));
+        $this->session->set(self::USER_COOKIE_SESSID_NAME, $sessid[0]);
+        $this->session->set(self::USER_COOKIE_SESSID, $sessid[1]);
     }
 
     /**
