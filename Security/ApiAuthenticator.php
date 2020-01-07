@@ -120,6 +120,11 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         return $user;
     }
 
+    /**
+     * Save sessid cookie from api login response
+     *
+     * @param ResponseInterface $response
+     */
     public function loginResponseToSessionCookie(ResponseInterface $response): void
     {
         $headers = $response->getHeaders();

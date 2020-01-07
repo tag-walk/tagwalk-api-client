@@ -83,7 +83,6 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             $this->cookieDomain
         ));
 
-
         return $response;
     }
 }
