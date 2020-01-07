@@ -86,7 +86,6 @@ class ApiProvider
      */
     private $showroom;
 
-
     /**
      * @param RequestStack     $requestStack
      * @param SessionInterface $session
