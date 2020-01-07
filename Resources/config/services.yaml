@@ -58,6 +58,7 @@ services:
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''
+      $redirectUri: ''
       $environment: '%kernel.environment%'
       $timeout: 30.0
       $lightData: false
@@ -450,3 +451,9 @@ services:
 
   serializer.name_converter.camel_case_to_spinal_case:
     class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
+
+  Tagwalk\ApiClientBundle\Event\LoginSuccessHandler:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $authorizationUrl: null
+      $cookieDomain: null

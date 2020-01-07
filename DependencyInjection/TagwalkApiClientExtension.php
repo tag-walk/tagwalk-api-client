@@ -17,6 +17,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Tagwalk\ApiClientBundle\Event\LoginSuccessHandler;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class TagwalkApiClientExtension extends Extension
@@ -36,14 +37,18 @@ class TagwalkApiClientExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(dirname(__DIR__).'/Resources/config'));
         $loader->load('services.yaml');
         $this->checkRequiredConfig($config);
-        $definition = $container->getDefinition(ApiProvider::class);
-        $definition->replaceArgument('$baseUri', $config['host_url']);
-        $definition->replaceArgument('$clientId', $config['client_id']);
-        $definition->replaceArgument('$clientSecret', $config['client_secret']);
-        $definition->replaceArgument('$showroom', $config['showroom']);
-        $definition->replaceArgument('$timeout', $config['timeout']);
-        $definition->replaceArgument('$lightData', $config['light']);
-        $definition->replaceArgument('$analytics', $config['analytics']);
+        $apiProviderDefinition = $container->getDefinition(ApiProvider::class);
+        $apiProviderDefinition->replaceArgument('$baseUri', $config['host_url']);
+        $apiProviderDefinition->replaceArgument('$clientId', $config['client_id']);
+        $apiProviderDefinition->replaceArgument('$clientSecret', $config['client_secret']);
+        $apiProviderDefinition->replaceArgument('$redirectUri', $config['redirect_url']);
+        $apiProviderDefinition->replaceArgument('$showroom', $config['showroom']);
+        $apiProviderDefinition->replaceArgument('$timeout', $config['timeout']);
+        $apiProviderDefinition->replaceArgument('$lightData', $config['light']);
+        $apiProviderDefinition->replaceArgument('$analytics', $config['analytics']);
+        $loginSuccessHandlerDefinition = $container->getDefinition(LoginSuccessHandler::class);
+        $loginSuccessHandlerDefinition->replaceArgument('$authorizationUrl', $config['authorization_url']);
+        $loginSuccessHandlerDefinition->replaceArgument('$cookieDomain', $config['cookie_domain']);
     }
 
     /**
