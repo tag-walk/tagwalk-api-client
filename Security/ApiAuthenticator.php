@@ -109,10 +109,9 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
                     ],
                 ]);
                 $this->loginResponseToSessionCookie($response);
-                $json = $response->getBody()->getContents();
-                $decoded = json_decode($json, true);
+                $decoded = json_decode($response->getBody(), true);
                 $this->session->set(self::USER_TOKEN, $decoded['api_token']);
-                $user = $this->serializer->deserialize($json, User::class, 'json');
+                $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
             } catch (GuzzleException $exception) {
             }
         }
@@ -134,6 +133,10 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         $sessid = explode('=', current(explode(';', $headers['Set-Cookie'][0])));
         $this->session->set(self::USER_COOKIE_SESSID_NAME, $sessid[0]);
         $this->session->set(self::USER_COOKIE_SESSID, $sessid[1]);
+        $decoded = json_decode($response->getBody(), true);
+        if (isset($decoded['api_token'])) {
+            $this->session->set(self::USER_TOKEN, $decoded['api_token']);
+        }
     }
 
     /**
