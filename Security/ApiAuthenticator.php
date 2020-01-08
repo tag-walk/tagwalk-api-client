@@ -120,7 +120,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * Save sessid cookie from api login response
+     * Save sessid cookie from api login response.
      *
      * @param ResponseInterface $response
      */

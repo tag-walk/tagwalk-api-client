@@ -311,7 +311,7 @@ class ApiProvider
             'state'         => $state,
             'client_id'     => $this->clientId,
             'redirect_uri'  => $this->redirectUri,
-            'x-auth-token'  => $this->session->get(ApiAuthenticator::USER_TOKEN)
+            'x-auth-token'  => $this->session->get(ApiAuthenticator::USER_TOKEN),
         ];
     }
 
