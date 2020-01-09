@@ -13,14 +13,12 @@ namespace Tagwalk\ApiClientBundle\Event;
 
 use LogicException;
 use RuntimeException;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Security\ApiAuthenticator;
 
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
@@ -35,23 +33,13 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     private $authorizationUrl;
 
     /**
-     * @var string|null
-     */
-    private $cookieDomain;
-
-    /**
      * @param ApiProvider $apiProvider
      * @param string      $authorizationUrl
-     * @param string      $cookieDomain
      */
-    public function __construct(
-        ApiProvider $apiProvider,
-        ?string $authorizationUrl = null,
-        ?string $cookieDomain = null
-    ) {
+    public function __construct(ApiProvider $apiProvider, ?string $authorizationUrl = null)
+    {
         $this->apiProvider = $apiProvider;
         $this->authorizationUrl = $authorizationUrl;
-        $this->cookieDomain = $cookieDomain;
     }
 
     /**
@@ -74,15 +62,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             throw new RuntimeException('Missing session');
         }
         $queryString = http_build_query($this->apiProvider->getAuthorizationQueryParameters());
-        $response = new RedirectResponse(sprintf('%s?%s', $this->authorizationUrl, $queryString));
-        $response->headers->setCookie(new Cookie(
-            $session->get(ApiAuthenticator::USER_COOKIE_SESSID_NAME),
-            $session->get(ApiAuthenticator::USER_COOKIE_SESSID),
-            strtotime('+2 minutes'),
-            '/',
-            $this->cookieDomain
-        ));
 
-        return $response;
+        return new RedirectResponse(sprintf('%s?%s', $this->authorizationUrl, $queryString));
     }
 }
