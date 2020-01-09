@@ -48,7 +48,6 @@ class TagwalkApiClientExtension extends Extension
         $apiProviderDefinition->replaceArgument('$analytics', $config['analytics']);
         $loginSuccessHandlerDefinition = $container->getDefinition(LoginSuccessHandler::class);
         $loginSuccessHandlerDefinition->replaceArgument('$authorizationUrl', $config['authorization_url']);
-        $loginSuccessHandlerDefinition->replaceArgument('$cookieDomain', $config['cookie_domain']);
     }
 
     /**

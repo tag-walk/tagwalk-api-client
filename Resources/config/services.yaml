@@ -456,4 +456,3 @@ services:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $authorizationUrl: null
-      $cookieDomain: null
