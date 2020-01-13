@@ -36,14 +36,18 @@ class ModelManager extends IndividualManager
     }
 
     /**
+     * @param int $size
+     *
      * @return array
      */
-    public function modelsTrends(): array
+    public function modelsTrends(int $size = 10): array
     {
         $data = [];
         $this->lastCount = 0;
+        $query = ['size' => $size];
         $apiResponse = $this->apiProvider->request('GET', '/api/models/trends', [
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
