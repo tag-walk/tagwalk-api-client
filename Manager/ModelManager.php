@@ -42,7 +42,7 @@ class ModelManager extends IndividualManager
     {
         $data = [];
         $this->lastCount = 0;
-        $apiResponse = $this->apiProvider->request('GET', '/api/models/index', [
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/trends', [
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
