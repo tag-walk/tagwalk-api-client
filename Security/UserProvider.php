@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Security;
 
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
@@ -51,20 +50,15 @@ class UserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        try {
-            $response = $this->provider->request('GET', '/api/users/'.strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
-            if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
-                throw new UsernameNotFoundException();
-            }
-            if ($response->getStatusCode() !== Response::HTTP_OK) {
-                throw new RequestException();
-            }
-            $json = $response->getBody()->getContents();
-
-            return $this->serializer->deserialize($json, User::class, JsonEncoder::FORMAT);
-        } catch (RequestException $e) {
+        $response = $this->provider->request('GET', '/api/users/'.strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
+        if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
+            throw new UsernameNotFoundException();
+        }
+        if ($response->getStatusCode() !== Response::HTTP_OK) {
             throw new ServiceUnavailableHttpException('Unable to connect');
         }
+
+        return $this->serializer->deserialize($response->getBody(), User::class, JsonEncoder::FORMAT);
     }
 
     /**
