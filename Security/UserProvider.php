@@ -56,6 +56,9 @@ class UserProvider implements UserProviderInterface
             if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
                 throw new UsernameNotFoundException();
             }
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                throw new RequestException();
+            }
             $json = $response->getBody()->getContents();
 
             return $this->serializer->deserialize($json, User::class, JsonEncoder::FORMAT);

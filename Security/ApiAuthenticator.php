@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Security;
 
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
@@ -99,16 +98,15 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         $password = $credentials['password'];
         $email = $credentials['username'];
         if (isset($password, $email)) {
-            try {
-                $response = $this->provider->request('POST', '/api/users/login', [
-                    RequestOptions::JSON => [
-                        'email'    => $email,
-                        'password' => $password,
-                    ],
-                ]);
+            $response = $this->provider->request('POST', '/api/users/login', [
+                RequestOptions::JSON => [
+                    'email'    => $email,
+                    'password' => $password,
+                ],
+            ]);
+            if ($response->getStatusCode() === Response::HTTP_OK) {
                 $this->loginResponseToSession($response);
                 $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
-            } catch (GuzzleException $exception) {
             }
         }
 
