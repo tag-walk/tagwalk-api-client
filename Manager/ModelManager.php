@@ -36,6 +36,43 @@ class ModelManager extends IndividualManager
     }
 
     /**
+     * @return array
+     */
+    public function modelsTrends(): array
+    {
+        $data = [];
+        $this->lastCount = 0;
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/index', [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+            $contents = json_decode($apiResponse->getBody()->getContents(), true);
+            $newfaces = json_decode($contents['newfaces']['content'], true);
+            $womanData = json_decode($contents['womenswear']['content'], true);
+            $manData = json_decode($contents['menswear']['content'], true);
+            $data = [
+                'newFaces'      => $newfaces,
+                'womanData'     => $womanData,
+                'manData'       => $manData,
+                'globalWoman'   => $womanData['global'] ?? null,
+                'globalMan'     => $manData['global'] ?? null,
+                'season'        => $contents['season'],
+                'countNewFaces' => $this->lastCount,
+            ];
+            unset($womanData['global']);
+            $data = array_merge($data, ['cities' => $womanData]);
+        } else {
+            $this->logger->error('ModelManager::index unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
      * @param string $type
      * @param string $season
      * @param string $city
