@@ -51,21 +51,16 @@ class ModelManager extends IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-            $contents = json_decode($apiResponse->getBody()->getContents(), true);
-            $newfaces = json_decode($contents['newfaces']['content'], true);
-            $womanData = json_decode($contents['womenswear']['content'], true);
-            $manData = json_decode($contents['menswear']['content'], true);
+            $contents = json_decode($apiResponse->getBody(), true);
             $data = [
-                'newFaces'      => $newfaces,
-                'womanData'     => $womanData,
-                'manData'       => $manData,
-                'globalWoman'   => $womanData['global'] ?? null,
-                'globalMan'     => $manData['global'] ?? null,
+                'newFaces'      => $contents['newFaces'],
+                'globalWoman'   => $contents['womenswear']['global'] ?? null,
+                'globalMan'     => $contents['menswear']['global'] ?? null,
                 'season'        => $contents['season'],
                 'countNewFaces' => $this->lastCount,
             ];
-            unset($womanData['global']);
-            $data = array_merge($data, ['cities' => $womanData]);
+            unset($contents['womenswear']['global']);
+            $data = array_merge($data, ['cities' => $contents['womenswear']]);
         } else {
             $this->logger->error('ModelManager::index unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
