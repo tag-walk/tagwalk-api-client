@@ -205,7 +205,7 @@ class ApiProvider
                 'Accept-Language'       => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en',
-                'X-AUTH-TOKEN'          => $this->session->get('user-token'),
+                'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
                 'Tagwalk-Showroom-Name' => $this->showroom,
             ]),
             RequestOptions::QUERY       => [
@@ -306,13 +306,14 @@ class ApiProvider
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
 
-        return [
-            'response_type' => 'code',
-            'state'         => $state,
-            'client_id'     => $this->clientId,
-            'redirect_uri'  => $this->redirectUri,
-            'x-auth-token'  => $this->session->get(ApiAuthenticator::USER_TOKEN),
-        ];
+        return array_filter([
+            'response_type'         => 'code',
+            'state'                 => $state,
+            'client_id'             => $this->clientId,
+            'redirect_uri'          => $this->redirectUri,
+            'x-auth-token'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+            'tagwalk-showroom-name' => $this->showroom,
+        ]);
     }
 
     /**
