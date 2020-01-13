@@ -187,6 +187,8 @@ class ApiProvider
         $response = $this->client->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
             $this->session->remove(self::ACCESS_TOKEN);
+            $this->session->remove(self::REFRESH_TOKEN);
+            $this->session->remove(self::TOKEN_EXPIRATION);
         }
 
         return $response;
@@ -226,8 +228,12 @@ class ApiProvider
             $now = new DateTime();
             $refreshToken = $this->session->get(self::REFRESH_TOKEN);
             $tokenExpiration = $this->session->get(self::TOKEN_EXPIRATION);
-            if ($refreshToken && $tokenExpiration && $now->modify('+ 5 seconds') > $tokenExpiration) {
-                $this->refreshToken($refreshToken);
+            if ($tokenExpiration && $now->modify('+ 1 minutes') >= $tokenExpiration) {
+                if ($refreshToken) {
+                    $this->refreshToken($refreshToken);
+                } else {
+                    $this->authenticate();
+                }
             }
         }
 
