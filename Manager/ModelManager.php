@@ -43,24 +43,21 @@ class ModelManager extends IndividualManager
     public function modelsTrends(int $size = 10): array
     {
         $data = [];
-        $this->lastCount = 0;
         $query = ['size' => $size];
         $apiResponse = $this->apiProvider->request('GET', '/api/models/trends', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $contents = json_decode($apiResponse->getBody(), true);
             $data = [
                 'newFaces'      => $contents['newFaces'],
                 'globalWoman'   => $contents['womenswear']['global'] ?? null,
                 'globalMan'     => $contents['menswear']['global'] ?? null,
+                'cities'        => $contents['womenswear']['cities'],
                 'season'        => $contents['season'],
-                'countNewFaces' => $this->lastCount,
+                'countNewFaces' => (int) $apiResponse->getHeaderLine('X-Total-Count'),
             ];
-            unset($contents['womenswear']['global']);
-            $data = array_merge($data, ['cities' => $contents['womenswear']]);
         } else {
             $this->logger->error('ModelManager::index unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
