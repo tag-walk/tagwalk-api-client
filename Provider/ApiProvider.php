@@ -200,7 +200,7 @@ class ApiProvider
     private function getDefaultOptions(): array
     {
         return [
-            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::HTTP_ERRORS => false,
             RequestOptions::HEADERS     => array_filter([
                 'Authorization'         => $this->getBearer(),
                 'Accept'                => 'application/json',
