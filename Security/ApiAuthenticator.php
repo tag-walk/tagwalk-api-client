@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Security;
 
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
@@ -32,8 +31,6 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
 {
     /** @var string user token key name in session */
     public const USER_TOKEN = 'user-token';
-    public const USER_COOKIE_SESSID = 'user-cookie-sessid';
-    public const USER_COOKIE_SESSID_NAME = 'user-cookie-sessid-name';
 
     /**
      * @var ApiProvider
@@ -101,18 +98,15 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         $password = $credentials['password'];
         $email = $credentials['username'];
         if (isset($password, $email)) {
-            try {
-                $response = $this->provider->request('POST', '/api/users/login', [
-                    RequestOptions::JSON => [
-                        'email'    => $email,
-                        'password' => $password,
-                    ],
-                ]);
-                $this->loginResponseToSessionCookie($response);
-                $decoded = json_decode($response->getBody(), true);
-                $this->session->set(self::USER_TOKEN, $decoded['api_token']);
+            $response = $this->provider->request('POST', '/api/users/login', [
+                RequestOptions::JSON => [
+                    'email'    => $email,
+                    'password' => $password,
+                ],
+            ]);
+            if ($response->getStatusCode() === Response::HTTP_OK) {
+                $this->loginResponseToSession($response);
                 $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
-            } catch (GuzzleException $exception) {
             }
         }
 
@@ -124,19 +118,13 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      *
      * @param ResponseInterface $response
      */
-    public function loginResponseToSessionCookie(ResponseInterface $response): void
+    public function loginResponseToSession(ResponseInterface $response): void
     {
-        $headers = $response->getHeaders();
-        if (empty($headers['Set-Cookie'][0])) {
-            throw new InvalidArgumentException('No cookie in the response');
-        }
-        $sessid = explode('=', current(explode(';', $headers['Set-Cookie'][0])));
-        $this->session->set(self::USER_COOKIE_SESSID_NAME, $sessid[0]);
-        $this->session->set(self::USER_COOKIE_SESSID, $sessid[1]);
         $decoded = json_decode($response->getBody(), true);
-        if (isset($decoded['api_token'])) {
-            $this->session->set(self::USER_TOKEN, $decoded['api_token']);
+        if (empty($decoded) || empty($decoded['api_token'])) {
+            throw new InvalidArgumentException('Missing user api_token');
         }
+        $this->session->set(self::USER_TOKEN, $decoded['api_token']);
     }
 
     /**

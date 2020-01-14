@@ -14,7 +14,9 @@ namespace Tagwalk\ApiClientBundle\Serializer\Normalizer;
 use DateTime;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
+use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Model\File;
+use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Model\News;
 
 /**
@@ -50,6 +52,16 @@ class NewsNormalizer extends DocumentNormalizer implements NormalizerInterface
         }
         if (false === empty($data['date'])) {
             $data['date'] = DateTime::createFromFormat(DATE_ATOM, $data['date']);
+        }
+        if (!empty($data['designers'])) {
+            foreach ($data['designers'] as &$designer) {
+                $designer = $this->serializer->denormalize($designer, Designer::class);
+            }
+        }
+        if (!empty($data['individuals'])) {
+            foreach ($data['individuals'] as &$individual) {
+                $individual = $this->serializer->denormalize($individual, Individual::class);
+            }
         }
 
         return parent::denormalize($data, $class, $format, $context);

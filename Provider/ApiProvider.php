@@ -187,6 +187,8 @@ class ApiProvider
         $response = $this->client->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
             $this->session->remove(self::ACCESS_TOKEN);
+            $this->session->remove(self::REFRESH_TOKEN);
+            $this->session->remove(self::TOKEN_EXPIRATION);
         }
 
         return $response;
@@ -198,14 +200,14 @@ class ApiProvider
     private function getDefaultOptions(): array
     {
         return [
-            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::HTTP_ERRORS => false,
             RequestOptions::HEADERS     => array_filter([
                 'Authorization'         => $this->getBearer(),
                 'Accept'                => 'application/json',
                 'Accept-Language'       => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en',
-                'X-AUTH-TOKEN'          => $this->session->get('user-token'),
+                'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
                 'Tagwalk-Showroom-Name' => $this->showroom,
             ]),
             RequestOptions::QUERY       => [
@@ -226,8 +228,12 @@ class ApiProvider
             $now = new DateTime();
             $refreshToken = $this->session->get(self::REFRESH_TOKEN);
             $tokenExpiration = $this->session->get(self::TOKEN_EXPIRATION);
-            if ($refreshToken && $tokenExpiration && $now->modify('+ 5 seconds') > $tokenExpiration) {
-                $this->refreshToken($refreshToken);
+            if ($tokenExpiration && $now->modify('+ 1 minutes') >= $tokenExpiration) {
+                if ($refreshToken) {
+                    $this->refreshToken($refreshToken);
+                } else {
+                    $this->authenticate();
+                }
             }
         }
 
@@ -306,13 +312,14 @@ class ApiProvider
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
 
-        return [
-            'response_type' => 'code',
-            'state'         => $state,
-            'client_id'     => $this->clientId,
-            'redirect_uri'  => $this->redirectUri,
-            'x-auth-token'  => $this->session->get(ApiAuthenticator::USER_TOKEN),
-        ];
+        return array_filter([
+            'response_type'         => 'code',
+            'state'                 => $state,
+            'client_id'             => $this->clientId,
+            'redirect_uri'          => $this->redirectUri,
+            'x-auth-token'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+            'tagwalk-showroom-name' => $this->showroom,
+        ]);
     }
 
     /**

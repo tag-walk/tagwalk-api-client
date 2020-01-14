@@ -57,6 +57,20 @@ class News extends AbstractDocument
     private $categoriesI18n;
 
     /**
+     * @var Designer[]|null
+     * @Assert\Valid()
+     * @Assert\Type("array")
+     */
+    private $designers;
+
+    /**
+     * @var Individual[]|null
+     * @Assert\Valid()
+     * @Assert\Type("array")
+     */
+    private $individuals;
+
+    /**
      * @return \DateTime|null
      */
     public function getDate(): ?\DateTime
@@ -112,6 +126,46 @@ class News extends AbstractDocument
     public function setCategoriesI18n($categoriesI18n): self
     {
         $this->categoriesI18n = $categoriesI18n;
+
+        return $this;
+    }
+
+    /**
+     * @return null|Designer[]
+     */
+    public function getDesigners(): ?array
+    {
+        return $this->designers;
+    }
+
+    /**
+     * @param null|Designer[] $designers
+     *
+     * @return self
+     */
+    public function setDesigners(?array $designers): self
+    {
+        $this->designers = $designers;
+
+        return $this;
+    }
+
+    /**
+     * @return null|Individual[]
+     */
+    public function getIndividuals(): ?array
+    {
+        return $this->individuals;
+    }
+
+    /**
+     * @param null|Individual[] $individuals
+     *
+     * @return self
+     */
+    public function setIndividuals(?array $individuals): self
+    {
+        $this->individuals = $individuals;
 
         return $this;
     }
