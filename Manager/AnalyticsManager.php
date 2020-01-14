@@ -155,7 +155,7 @@ class AnalyticsManager
         $response = $this->apiProvider->request('POST', "/api/analytics/photos/$route/$event", [
             RequestOptions::QUERY   => $query,
             RequestOptions::HEADERS => [
-                'X-Client-IP'     => $clientIp ?? $request->getClientIp(),
+                'X-Client-IP'       => $clientIp ?? $request->getClientIp(),
                 'X-User-Agent'      => $request->headers->get('User-Agent'),
                 'X-accept-language' => $request->headers->get('accept-language'),
             ],
