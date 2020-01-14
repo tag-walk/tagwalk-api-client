@@ -205,13 +205,16 @@ class MediaManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            if (!empty($data)) {
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
+            $medias = json_decode($apiResponse->getBody(), true);
+            $data['medias'] = [];
+            if (!empty($medias)) {
+                foreach ($medias as $media) {
+                    $data['medias'][] = $this->mediaNormalizer->denormalize($media, Media::class);
                 }
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+            $data['streetstyles_count'] = (int) $apiResponse->getHeaderLine('X-Streetstyles-Count');
+            $data['news_count'] = (int) $apiResponse->getHeaderLine('X-News-Count');
         } else {
             $this->logger->error('MediaManager::listByModel unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),

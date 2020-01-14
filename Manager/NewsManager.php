@@ -26,6 +26,7 @@ class NewsManager
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'date:desc';
     public const DEFAULT_SIZE = 12;
+
     /**
      * @var int
      */
@@ -134,6 +135,39 @@ class NewsManager
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param string $slug
+     * @param array  $query
+     *
+     * @return array
+     */
+    public function listByIndividual(string $slug, array $query = []): array
+    {
+        $query = array_merge($query, ['sort' => self::DEFAULT_SORT]);
+        $data = [];
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/'.$slug.'/news', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            if (!empty($data)) {
+                foreach ($data as $i => $datum) {
+                    $data[$i] = $this->serializer->denormalize($datum, News::class);
+                }
+            }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } else {
+            $this->logger->error('NewsManager::listByIndividual unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+            $this->lastCount = 0;
         }
 
         return $data;
