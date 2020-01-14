@@ -19,8 +19,13 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ApiProviderTest extends WebTestCase
 {
-    private function getNewApiProvider($baseUri = '', $clientId = '', $clientSecret = '', $timeout = 0)
-    {
+    private function getNewApiProvider(
+        $baseUri = '',
+        $clientId = '',
+        $clientSecret = '',
+        $redirectUri = null,
+        $timeout = 0
+    ) {
         $request = $this->createMock(Request::class);
         $session = $this->createMock(SessionInterface::class);
         $request->method('getLocale')->willReturn('en');
@@ -28,7 +33,7 @@ class ApiProviderTest extends WebTestCase
         $requestStack->method('getCurrentRequest')->willReturn($request);
         /* @var RequestStack $requestStack */
         /* @var SessionInterface $session */
-        return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, 'dev', $timeout);
+        return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, $redirectUri, 'dev', $timeout);
     }
 
     public function testConstructor()
@@ -48,7 +53,7 @@ class ApiProviderTest extends WebTestCase
 
     public function testInitTimeout()
     {
-        $provider = $this->getNewApiProvider('', '', '', 42);
+        $provider = $this->getNewApiProvider('', '', '', null, 42);
         $timeout = $provider->getClient()->getConfig('timeout');
         $this->assertEquals(42, $timeout);
     }
