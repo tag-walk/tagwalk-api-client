@@ -49,15 +49,7 @@ class ModelManager extends IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $contents = json_decode($apiResponse->getBody(), true);
-            $data = [
-                'newFaces'      => $contents['newFaces'],
-                'globalWoman'   => $contents['womenswear']['global'] ?? null,
-                'globalMan'     => $contents['menswear']['global'] ?? null,
-                'cities'        => $contents['womenswear']['cities'],
-                'season'        => $contents['season'],
-                'countNewFaces' => (int) $apiResponse->getHeaderLine('X-Total-Count'),
-            ];
+            $data = json_decode($apiResponse->getBody(), true);
         } else {
             $this->logger->error('ModelManager::index unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
