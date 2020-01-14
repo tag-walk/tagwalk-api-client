@@ -11,6 +11,8 @@
 
 namespace Tagwalk\ApiClientBundle\Provider;
 
+use DateInterval;
+use DateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -23,14 +25,20 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Tagwalk\ApiClientBundle\Security\ApiAuthenticator;
 
 class ApiProvider
 {
-    /**
-     * @var string cache key for access token bearer
-     */
-    private const CACHE_KEY_TOKEN = 'access_token';
+    /** @var string session key for access token bearer */
+    private const ACCESS_TOKEN = 'access_token';
+    /** @var string session key for refresh token bearer */
+    private const REFRESH_TOKEN = 'refresh_token';
+    /** @var string session key for token expiration date */
+    private const TOKEN_EXPIRATION = 'token_expiration';
+    /** @var string session key for authorization state value */
+    private const AUTHORIZATION_STATE = 'auth_state';
+    /** @var float api request default timeout */
     private const DEFAULT_TIMEOUT = 30.0;
 
     /**
@@ -42,6 +50,11 @@ class ApiProvider
      * @var string
      */
     private $clientSecret;
+
+    /**
+     * @var string
+     */
+    private $redirectUri;
 
     /**
      * @var Client
@@ -57,16 +70,6 @@ class ApiProvider
      * @var SessionInterface
      */
     private $session;
-
-    /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
-
-    /**
-     * @var string
-     */
-    private $token;
 
     /**
      * @var bool
@@ -89,6 +92,7 @@ class ApiProvider
      * @param string           $baseUri
      * @param string           $clientId
      * @param string           $clientSecret
+     * @param string           $redirectUri
      * @param string           $environment
      * @param float            $timeout
      * @param bool             $lightData do not resolve files path property
@@ -102,7 +106,8 @@ class ApiProvider
         string $baseUri,
         string $clientId,
         string $clientSecret,
-        string $environment,
+        string $redirectUri = null,
+        string $environment = 'prod',
         float $timeout = self::DEFAULT_TIMEOUT,
         bool $lightData = true,
         bool $analytics = false,
@@ -113,10 +118,10 @@ class ApiProvider
         $this->session = $session;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
+        $this->redirectUri = $redirectUri;
         $this->lightData = $lightData;
         $this->analytics = $analytics;
         $this->showroom = $showroom;
-        $this->cache = new FilesystemAdapter('api-client-token', 3600, $cacheDirectory);
         $this->client = $this->createClient($baseUri, $environment, $timeout, $cacheDirectory);
     }
 
@@ -181,7 +186,9 @@ class ApiProvider
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
         $response = $this->client->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
-            $this->cache->deleteItem(self::CACHE_KEY_TOKEN);
+            $this->session->remove(self::ACCESS_TOKEN);
+            $this->session->remove(self::REFRESH_TOKEN);
+            $this->session->remove(self::TOKEN_EXPIRATION);
         }
 
         return $response;
@@ -193,14 +200,14 @@ class ApiProvider
     private function getDefaultOptions(): array
     {
         return [
-            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::HTTP_ERRORS => false,
             RequestOptions::HEADERS     => array_filter([
                 'Authorization'         => $this->getBearer(),
                 'Accept'                => 'application/json',
                 'Accept-Language'       => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en',
-                'X-AUTH-TOKEN'          => $this->session->get('user-token'),
+                'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
                 'Tagwalk-Showroom-Name' => $this->showroom,
             ]),
             RequestOptions::QUERY       => [
@@ -215,35 +222,45 @@ class ApiProvider
      */
     private function getBearer(): string
     {
-        $token = $this->getToken();
-
-        return "Bearer {$token}";
-    }
-
-    /**
-     * @return string
-     */
-    private function getToken(): string
-    {
-        if (null === $this->token) {
-            return $this->cache->get(
-                self::CACHE_KEY_TOKEN,
-                function (ItemInterface $item) {
-                    $auth = $this->authenticate();
-                    $item->expiresAfter((int) $auth['expires_in'] - 5);
-
-                    return $this->token = $auth['access_token'];
+        if (false === $this->session->has(self::ACCESS_TOKEN)) {
+            $this->authenticate();
+        } else {
+            $now = new DateTime();
+            $refreshToken = $this->session->get(self::REFRESH_TOKEN);
+            $tokenExpiration = $this->session->get(self::TOKEN_EXPIRATION);
+            if ($tokenExpiration && $now->modify('+ 1 minutes') >= $tokenExpiration) {
+                if ($refreshToken) {
+                    $this->refreshToken($refreshToken);
+                } else {
+                    $this->authenticate();
                 }
-            );
+            }
         }
 
-        return $this->token;
+        return "Bearer {$this->session->get(self::ACCESS_TOKEN)}";
     }
 
     /**
-     * @return array
+     * @param ResponseInterface $response
+     *
+     * @throws BadRequestHttpException thrown if state value sent by the api is not the same as the state sent in previous request
      */
-    private function authenticate(): array
+    private function tokenResponseToSession(ResponseInterface $response): void
+    {
+        $auth = json_decode($response->getBody(), true);
+        if (isset($auth['state']) && $auth['state'] !== $this->session->get(self::AUTHORIZATION_STATE)) {
+            throw new BadRequestHttpException('Incorrect state value.');
+        }
+        $this->session->set(self::ACCESS_TOKEN, $auth['access_token']);
+        $this->session->set(self::TOKEN_EXPIRATION, (new DateTime())->add(new DateInterval(sprintf('PT%dS', $auth['expires_in']))));
+        if (isset($auth['refresh_token'])) {
+            $this->session->set(self::REFRESH_TOKEN, $auth['refresh_token']);
+        } else {
+            $this->session->remove(self::REFRESH_TOKEN);
+        }
+    }
+
+    private function authenticate(): void
     {
         $response = $this->client->request(
             'POST',
@@ -257,8 +274,73 @@ class ApiProvider
                 RequestOptions::HTTP_ERRORS => true,
             ]
         );
+        $this->tokenResponseToSession($response);
+    }
 
-        return json_decode($response->getBody(), true);
+    /**
+     * @param string $code
+     */
+    public function authorize(string $code): void
+    {
+        $response = $this->client->request(
+            'POST',
+            '/oauth/v2/token',
+            [
+                RequestOptions::FORM_PARAMS => [
+                    'grant_type'    => 'authorization_code',
+                    'client_id'     => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'redirect_uri'  => $this->redirectUri,
+                    'code'          => $code,
+                ],
+                RequestOptions::HEADERS     => array_filter([
+                    'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+                    'Tagwalk-Showroom-Name' => $this->showroom,
+                ]),
+                RequestOptions::HTTP_ERRORS => true,
+            ]
+        );
+
+        $this->tokenResponseToSession($response);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAuthorizationQueryParameters(): array
+    {
+        $state = hash('sha512', random_bytes(32));
+        $this->session->set(self::AUTHORIZATION_STATE, $state);
+
+        return array_filter([
+            'response_type'         => 'code',
+            'state'                 => $state,
+            'client_id'             => $this->clientId,
+            'redirect_uri'          => $this->redirectUri,
+            'x-auth-token'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+            'tagwalk-showroom-name' => $this->showroom,
+        ]);
+    }
+
+    /**
+     * @param string $token
+     */
+    private function refreshToken(string $token): void
+    {
+        $response = $this->client->request(
+            'POST',
+            '/oauth/v2/token',
+            [
+                RequestOptions::FORM_PARAMS => [
+                    'grant_type'    => 'refresh_token',
+                    'client_id'     => $this->clientId,
+                    'client_secret' => $this->clientSecret,
+                    'refresh_token' => $token,
+                ],
+                RequestOptions::HTTP_ERRORS => true,
+            ]
+        );
+        $this->tokenResponseToSession($response);
     }
 
     /**

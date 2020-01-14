@@ -36,6 +36,31 @@ class ModelManager extends IndividualManager
     }
 
     /**
+     * @param int $size
+     *
+     * @return array
+     */
+    public function modelsTrends(int $size = 10): array
+    {
+        $data = [];
+        $query = ['size' => $size];
+        $apiResponse = $this->apiProvider->request('GET', '/api/models/trends', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+        } else {
+            $this->logger->error('ModelManager::index unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
      * @param string $type
      * @param string $season
      * @param string $city
