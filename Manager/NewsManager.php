@@ -69,29 +69,28 @@ class NewsManager
     }
 
     /**
-     * @param null|string       $text
-     * @param null|string|array $categories
-     * @param null|string       $language
-     * @param int               $from
-     * @param int               $size
-     * @param string            $sort
-     * @param string            $status
+     * @param array  $params
+     * @param int    $from
+     * @param int    $size
+     * @param string $sort
+     * @param string $status
      *
      * @return News[]
      */
     public function list(
-        ?string $text = null,
-        $categories = null,
-        ?string $language = null,
-        $from = 0,
-        $size = 10,
-        $sort = self::DEFAULT_SORT,
-        $status = self::DEFAULT_STATUS
+        array $params = [],
+        int $from = 0,
+        int $size = 10,
+        string $sort = self::DEFAULT_SORT,
+        string $status = self::DEFAULT_STATUS
     ): array {
         $data = [];
         $this->lastCount = 0;
-        $categories = is_array($categories) ? implode(',', $categories) : $categories;
-        $query = array_filter(compact('text', 'categories', 'language', 'from', 'size', 'sort', 'status'));
+        if (isset($params['categories'])) {
+            $params['categories'] = is_array($params['categories']) ? implode(',', $params['categories']) : $params['categories'];
+        }
+        $query = compact('from', 'size', 'sort', 'status');
+        $query = array_filter(array_merge($query, $params));
         $apiResponse = $this->apiProvider->request('GET', '/api/news', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
