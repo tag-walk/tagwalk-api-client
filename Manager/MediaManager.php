@@ -215,6 +215,7 @@ class MediaManager
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $data['streetstyles_count'] = (int) $apiResponse->getHeaderLine('X-Streetstyles-Count');
             $data['news_count'] = (int) $apiResponse->getHeaderLine('X-News-Count');
+            $data['talks_count'] = (int) $apiResponse->getHeaderLine('X-Talks-Count');
         } else {
             $this->logger->error('MediaManager::listByModel unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),

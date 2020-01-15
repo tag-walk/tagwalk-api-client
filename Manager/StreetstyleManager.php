@@ -124,37 +124,4 @@ class StreetstyleManager
 
         return $data;
     }
-
-    /**
-     * @param string $slug
-     * @param array  $query
-     *
-     * @return array
-     */
-    public function listByIndividual(string $slug, array $query = []): array
-    {
-        $query = array_merge($query, ['sort' => self::DEFAULT_STREETSTYLES_INDIVIDUAL_SORT]);
-        $data = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/'.$slug.'/streetstyles', [
-            RequestOptions::QUERY       => $query,
-            RequestOptions::HTTP_ERRORS => false,
-        ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            if (!empty($data)) {
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
-                }
-            }
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } else {
-            $this->logger->error('StreetstyleManager::listByIndividual unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-            $this->lastCount = 0;
-        }
-
-        return $data;
-    }
 }
