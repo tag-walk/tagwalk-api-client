@@ -26,9 +26,6 @@ class StreetstyleManager
     /** @var int default listing size */
     public const DEFAULT_SIZE = 24;
 
-    /** @var string default list streetstyles sort for an individual */
-    public const DEFAULT_STREETSTYLES_INDIVIDUAL_SORT = 'created_at:desc';
-
     /**
      * @var int last list count
      */
