@@ -16,6 +16,8 @@ use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
+use Tagwalk\ApiClientBundle\Model\Designer;
+use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer;
@@ -115,6 +117,42 @@ class StreetstyleManager
         } else {
             $this->logger->error('StreetstyleManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param string|null $city
+     * @param string|null $season
+     * @param string|null $designer
+     * @param string|null $individual
+     * @param string|null $tags
+     * @param string|null $language
+     *
+     * @return array
+     */
+    public function listFilters(
+        ?string $city,
+        ?string $season,
+        ?string $designer,
+        ?string $individual,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $data = [];
+        $query = array_filter(compact('city', 'season', 'designer', 'individual', 'tags', 'language'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/filters/yo', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+        } else {
+            $this->logger->error('StreetstyleManager::listFilterStreet unexpected status code', [
+                'code' => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
         }

@@ -232,6 +232,7 @@ class DesignerManager
     /**
      * @param null|string $city
      * @param null|string $season
+     * @param string|null $individuals
      * @param null|string $tags
      * @param string|null $language
      *
@@ -240,11 +241,12 @@ class DesignerManager
     public function listFiltersStreet(
         ?string $city,
         ?string $season,
+        ?string $individuals,
         ?string $tags,
         ?string $language = null
     ): array {
         $results = [];
-        $query = array_filter(compact('city', 'season', 'tags', 'language'));
+        $query = array_filter(compact('city', 'season', 'individuals', 'tags', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter-streetstyle', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
