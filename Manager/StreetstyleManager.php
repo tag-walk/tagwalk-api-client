@@ -16,8 +16,6 @@ use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
-use Tagwalk\ApiClientBundle\Model\Designer;
-use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer;
