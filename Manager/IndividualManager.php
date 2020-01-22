@@ -214,7 +214,7 @@ class IndividualManager
         $query = array_filter(compact('city', 'season', 'designers', 'tags', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals/filter/streetstyle', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY => $query,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
@@ -223,7 +223,7 @@ class IndividualManager
             }
         } else {
             $this->logger->error('IndividualManager::listFilterStreet unexpected status code', [
-                'code' => $apiResponse->getStatusCode(),
+                'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
         }

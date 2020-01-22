@@ -146,13 +146,13 @@ class StreetstyleManager
         $query = array_filter(compact('city', 'season', 'designers', 'individual', 'tags', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/adaptive-filters', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY => $query,
+            RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
         } else {
             $this->logger->error('StreetstyleManager::adaptiveFiltersList unexpected status code', [
-                'code' => $apiResponse->getStatusCode(),
+                'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
         }
