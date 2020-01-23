@@ -54,7 +54,7 @@ class FilterManager
     public function getStreetFilter(array $params): array
     {
         $data = [];
-        $query = array_combine(array_keys($params), array_map(static function($v) { return $v;}, $params));
+        $query = array_combine(array_keys($params), array_map(static function($v) { return $v; }, $params));
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/adaptive-filters', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
