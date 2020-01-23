@@ -72,7 +72,7 @@ class NewsManager
      * $param['text']       = (string) The search text to return matching news
      * $param['categories'] = (string|array) The categories to filter news
      * $param['individual'] = (string) The individual slug to filter news attached to her/him
-     * $param['locale']     = (string) The application locale
+     * $param['locale']     = (string) The application locale.
      *
      * @param array  $params
      * @param int    $from
