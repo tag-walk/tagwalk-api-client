@@ -30,24 +30,24 @@ class FilterManager
     private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider          $apiProvider
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider)
+    public function __construct(ApiProvider $apiProvider, LoggerInterface $logger = null)
     {
         $this->apiProvider = $apiProvider;
-        $this->logger = new NullLogger();
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @param array $params Params can contains "city, season, designers, individual, tags, locale"
+     * $params['city']          = (string) The city selected to restrict the results (Required false)
+     * $params['season']        = (string) The season selected to restrict the results (Required false)
+     * $params['designers']     = (string) The designers seleted to restrict the results (Required false)
+     * $params['individual']    = (string) The individual selected to restrict the results (Required false)
+     * $params['tags']          = (list)   A comma-seperated list of tags to restrict the results (Required false)
+     * $params['language']      = (string) locale language
+     *
+     * @param array $params
      *
      * @return array
      */

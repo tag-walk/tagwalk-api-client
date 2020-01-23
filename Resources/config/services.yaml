@@ -294,10 +294,7 @@ services:
   Tagwalk\ApiClientBundle\Manager\FilterManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-    calls:
-      - method: setLogger
-        arguments:
-          - '@logger'
+      $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:
