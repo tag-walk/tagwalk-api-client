@@ -45,7 +45,7 @@ class FilterManager
      * $params['designers']     = (string) The designers seleted to restrict the results (Required false)
      * $params['individual']    = (string) The individual selected to restrict the results (Required false)
      * $params['tags']          = (list)   A comma-seperated list of tags to restrict the results (Required false)
-     * $params['language']      = (string) locale language
+     * $params['language']      = (string) locale language.
      *
      * @param array $params
      *
@@ -54,7 +54,9 @@ class FilterManager
     public function getStreetFilter(array $params): array
     {
         $data = [];
-        $query = array_combine(array_keys($params), array_map(static function($v) { return $v; }, $params));
+        $query = array_combine(array_keys($params), array_map(static function ($v) {
+            return $v;
+        }, $params));
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/adaptive-filters', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
