@@ -47,25 +47,14 @@ class FilterManager
     }
 
     /**
-     * @param string|null $city
-     * @param string|null $season
-     * @param string|null $designers
-     * @param string|null $individual
-     * @param string|null $tags
-     * @param string|null $language
+     * @param array $params Params can contains "city, season, designers, individual, tags, locale"
      *
      * @return array
      */
-    public function getStreetFilter(
-        ?string $city,
-        ?string $season,
-        ?string $designers,
-        ?string $individual,
-        ?string $tags,
-        ?string $language = null
-    ): array {
+    public function getStreetFilter(array $params): array
+    {
         $data = [];
-        $query = array_filter(compact('city', 'season', 'designers', 'individual', 'tags', 'language'));
+        $query = array_combine(array_keys($params), array_map(static function($v) { return $v;}, $params));
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/adaptive-filters', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
