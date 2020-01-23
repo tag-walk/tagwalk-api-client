@@ -136,10 +136,10 @@ class CityManager
     }
 
     /**
-     * @param null|string $season
-     * @param null|string $designers
+     * @param string|null $season
+     * @param string|null $designers
      * @param string|null $individuals
-     * @param null|string $tags
+     * @param string|null $tags
      * @param string|null $language
      *
      * @return City[]

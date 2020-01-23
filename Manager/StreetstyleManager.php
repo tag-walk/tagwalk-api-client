@@ -121,40 +121,4 @@ class StreetstyleManager
 
         return $data;
     }
-
-    /**
-     * @param string|null $city
-     * @param string|null $season
-     * @param string|null $designers
-     * @param string|null $individual
-     * @param string|null $tags
-     * @param string|null $language
-     *
-     * @return array
-     */
-    public function adaptiveFiltersList(
-        ?string $city,
-        ?string $season,
-        ?string $designers,
-        ?string $individual,
-        ?string $tags,
-        ?string $language = null
-    ): array {
-        $data = [];
-        $query = array_filter(compact('city', 'season', 'designers', 'individual', 'tags', 'language'));
-        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/adaptive-filters', [
-            RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => $query,
-        ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->error('StreetstyleManager::adaptiveFiltersList unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
-
-        return $data;
-    }
 }

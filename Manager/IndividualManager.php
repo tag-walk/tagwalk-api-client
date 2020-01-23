@@ -201,7 +201,7 @@ class IndividualManager
      * @param string|null $tags
      * @param string|null $language
      *
-     * @return array
+     * @return Individual[]
      */
     public function listFiltersStreet(
         ?string $city,

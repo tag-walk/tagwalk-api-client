@@ -140,10 +140,10 @@ class SeasonManager
     }
 
     /**
-     * @param null|string $city
-     * @param null|string $designers
+     * @param string|null $city
+     * @param string|null $designers
      * @param string|null $individuals
-     * @param null|string $tags
+     * @param string|null $tags
      * @param string|null $language
      *
      * @return Season[]

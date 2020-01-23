@@ -230,10 +230,10 @@ class DesignerManager
     }
 
     /**
-     * @param null|string $city
-     * @param null|string $season
+     * @param string|null $city
+     * @param string|null $season
      * @param string|null $individuals
-     * @param null|string $tags
+     * @param string|null $tags
      * @param string|null $language
      *
      * @return Designer[]
