@@ -44,8 +44,8 @@ class FilterManager
      * $params['season']        = (string) The season selected to restrict the results (Required false)
      * $params['designers']     = (string) The designers seleted to restrict the results (Required false)
      * $params['individual']    = (string) The individual selected to restrict the results (Required false)
-     * $params['tags']          = (string)   A comma-seperated string of tags to restrict the results (Required false)
-     * $params['language']      = (string) locale language.
+     * $params['tags']          = (string) A comma-seperated string of tags to restrict the results (Required false)
+     * $params['language']      = (string) Locale language.
      *
      * @param array $params
      *
