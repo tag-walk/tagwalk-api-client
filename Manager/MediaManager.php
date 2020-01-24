@@ -16,9 +16,9 @@ use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Serializer\Normalizer\MediaNormalizer;
 use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 
 class MediaManager
@@ -40,9 +40,9 @@ class MediaManager
     private $apiProvider;
 
     /**
-     * @var MediaNormalizer
+     * @var SerializerInterface
      */
-    private $mediaNormalizer;
+    private $serializer;
 
     /**
      * @var LoggerInterface
@@ -50,22 +50,18 @@ class MediaManager
     private $logger;
 
     /**
-     * @param ApiProvider     $apiProvider
-     * @param MediaNormalizer $mediaNormalizer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, MediaNormalizer $mediaNormalizer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
-        $this->mediaNormalizer = $mediaNormalizer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->serializer = $serializer;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -79,7 +75,8 @@ class MediaManager
         $apiResponse = $this->apiProvider->request('GET', '/api/medias/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-            $data = $this->mediaNormalizer->denormalize($data, Media::class);
+            /** @var Media $data */
+            $data = $this->serializer->denormalize($data, Media::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('MediaManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
@@ -109,7 +106,7 @@ class MediaManager
             );
             if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
                 $data = json_decode($apiResponse->getBody(), true);
-                $media = $this->mediaNormalizer->denormalize($data, Media::class);
+                $media = $this->serializer->denormalize($data, Media::class);
             } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
                 $this->logger->error('MediaManager::findByTypeSeasonDesignerLook unexpected status code', [
                     'code'    => $apiResponse->getStatusCode(),
@@ -173,7 +170,7 @@ class MediaManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             foreach ($data as $i => $datum) {
-                $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
+                $data[$i] = $this->serializer->denormalize($datum, Media::class);
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
@@ -208,7 +205,7 @@ class MediaManager
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
                 foreach ($data as $i => $datum) {
-                    $data[$i] = $this->mediaNormalizer->denormalize($datum, Media::class);
+                    $data[$i] = $this->serializer->denormalize($datum, Media::class);
                 }
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');

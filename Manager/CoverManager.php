@@ -39,24 +39,18 @@ class CoverManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -71,6 +65,7 @@ class CoverManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
+            /** @var Cover $cover */
             $cover = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('CoverManager::get unexpected status code', [
@@ -95,6 +90,7 @@ class CoverManager
             RequestOptions::JSON        => $this->serializer->normalize($cover, null, ['write' => true]),
         ]);
         if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
+            /** @var Cover $updated */
             $updated = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('CoverManager::get unexpected status code', [

@@ -40,18 +40,10 @@ class AnalyticsManager
     /**
      * @param ApiProvider $apiProvider
      */
-    public function __construct(ApiProvider $apiProvider)
+    public function __construct(ApiProvider $apiProvider, ?LoggerInterface $logger = null)
     {
         $this->apiProvider = $apiProvider;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
