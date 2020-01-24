@@ -35,6 +35,21 @@ class MediaManager
     public $lastCount;
 
     /**
+     * @var int news result count of an individual
+     */
+    public $individualNewsCount;
+
+    /**
+     * @var int streetstyles result count of an individual
+     */
+    public $individualStreetstylesCount;
+
+    /**
+     * @var int talks result count of an individual
+     */
+    public $individualTalksCount;
+
+    /**
      * @var ApiProvider
      */
     private $apiProvider;
@@ -202,13 +217,16 @@ class MediaManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            if (!empty($data)) {
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->serializer->denormalize($datum, Media::class);
+            $medias = json_decode($apiResponse->getBody(), true);
+            if (!empty($medias)) {
+                foreach ($medias as $media) {
+                    $data[] = $this->serializer->denormalize($media, Media::class);
                 }
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+            $this->individualStreetstylesCount = (int) $apiResponse->getHeaderLine('X-Streetstyles-Count');
+            $this->individualNewsCount = (int) $apiResponse->getHeaderLine('X-News-Count');
+            $this->individualTalksCount = (int) $apiResponse->getHeaderLine('X-Talks-Count');
         } else {
             $this->logger->error('MediaManager::listByModel unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
