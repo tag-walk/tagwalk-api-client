@@ -50,7 +50,7 @@ class OfferManager
     public function __construct(
         ApiProvider $apiProvider,
         SerializerInterface $serializer,
-        LoggerInterface $logger = null
+        ?LoggerInterface $logger = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
