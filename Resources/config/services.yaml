@@ -291,6 +291,11 @@ services:
         arguments:
           - '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\FilterManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $logger: '@logger'
+
   Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
     arguments:
       - '%kernel.default_locale%'
