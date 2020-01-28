@@ -23,7 +23,7 @@ trait Positionable
     /**
      * @var int|null
      * @Assert\Type("int")
-     * @Assert\GreaterThanOrEqual(value="0", message="Position must be positive")
+     * @Assert\GreaterThanOrEqual(value="0", message="Position cannot be negative")
      */
     protected $position;
 

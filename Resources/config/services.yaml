@@ -258,3 +258,8 @@ services:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $serializer: '@serializer'
       $logger: '@logger'
+
+  Tagwalk\ApiClientBundle\Manager\FilterManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $logger: '@logger'

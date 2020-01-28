@@ -38,7 +38,8 @@ class AnalyticsManager
     private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
+     * @param ApiProvider          $apiProvider
+     * @param LoggerInterface|null $logger
      */
     public function __construct(ApiProvider $apiProvider, ?LoggerInterface $logger = null)
     {

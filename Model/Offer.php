@@ -23,6 +23,13 @@ class Offer extends AbstractDocument
 
     /**
      * @var int|null
+     * @Assert\Type("int")
+     * @Assert\GreaterThanOrEqual(value="1", message="Position must be positive")
+     */
+    protected $position;
+
+    /**
+     * @var int|null
      */
     private $price;
 
