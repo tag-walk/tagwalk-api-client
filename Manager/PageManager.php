@@ -77,6 +77,7 @@ class PageManager
     ): array {
         $pages = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
+        $query['excludes'] = 'text,text_fr,text_it,text_zh,text_es';
         $apiResponse = $this->apiProvider->request('GET', '/api/page', [RequestOptions::QUERY => $query]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
