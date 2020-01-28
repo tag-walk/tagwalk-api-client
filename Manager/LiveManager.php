@@ -42,24 +42,18 @@ class LiveManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -72,6 +66,7 @@ class LiveManager
         $live = null;
         $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Live $live */
             $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('LiveManager::get unexpected status code', [
@@ -85,7 +80,7 @@ class LiveManager
 
     /**
      * @param null|string $type
-     * @param null|string $season      slug
+     * @param null|string $season slug
      * @param null|string $city
      * @param int         $from
      * @param int         $size

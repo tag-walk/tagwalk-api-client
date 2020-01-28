@@ -12,8 +12,9 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -25,14 +26,16 @@ class ModelManager extends IndividualManager
     public $lastCount;
 
     /**
-     * @param ApiProvider $apiProvider
-     * @param Serializer  $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        Serializer $serializer
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
     ) {
-        parent::__construct($apiProvider, $serializer);
+        parent::__construct($apiProvider, $serializer, $logger);
     }
 
     /**
