@@ -188,4 +188,41 @@ class IndividualManager
 
         return $individuals;
     }
+
+    /**
+     * @param string|null $city
+     * @param string|null $season
+     * @param string|null $designers
+     * @param string|null $tags
+     * @param string|null $language
+     *
+     * @return Individual[]
+     */
+    public function listFiltersStreet(
+        ?string $city,
+        ?string $season,
+        ?string $designers,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $results = [];
+        $query = array_filter(compact('city', 'season', 'designers', 'tags', 'language'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/filter/streetstyle', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, Individual::class);
+            }
+        } else {
+            $this->logger->error('IndividualManager::listFilterStreet unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $results;
+    }
 }
