@@ -185,7 +185,7 @@ class IndividualManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $individuals = json_decode($apiResponse->getBody()->getContents(), true);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('IndividualManager::suggest unexpected status code', [
+            $this->logger->warning('IndividualManager::suggest unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
