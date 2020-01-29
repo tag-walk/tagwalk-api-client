@@ -177,7 +177,7 @@ class DesignerManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $designers = json_decode($apiResponse->getBody()->getContents(), true);
         } else {
-            $this->logger->error('DesignerManager::suggest unexpected status code', [
+            $this->logger->warning('DesignerManager::suggest unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);

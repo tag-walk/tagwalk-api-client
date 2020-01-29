@@ -179,7 +179,7 @@ class TagManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $tags = json_decode($apiResponse->getBody()->getContents(), true);
         } else {
-            $this->logger->error('TagManager::suggest unexpected status code', [
+            $this->logger->warning('TagManager::suggest unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
