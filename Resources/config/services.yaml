@@ -59,10 +59,10 @@ services:
       $clientId: ''
       $clientSecret: ''
       $redirectUri: ''
-      $environment: '%kernel.environment%'
       $timeout: 30.0
       $lightData: false
       $analytics: false
+      $httpCache: true
       $cacheDirectory: '%env(CACHE_DIRECTORY)%'
       $showroom: null
 

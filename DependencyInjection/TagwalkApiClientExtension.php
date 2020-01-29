@@ -46,6 +46,7 @@ class TagwalkApiClientExtension extends Extension
         $apiProviderDefinition->replaceArgument('$timeout', $config['timeout']);
         $apiProviderDefinition->replaceArgument('$lightData', $config['light']);
         $apiProviderDefinition->replaceArgument('$analytics', $config['analytics']);
+        $apiProviderDefinition->replaceArgument('$httpCache', $config['http_cache']);
         $loginSuccessHandlerDefinition = $container->getDefinition(LoginSuccessHandler::class);
         $loginSuccessHandlerDefinition->replaceArgument('$authorizationUrl', $config['authorization_url']);
     }

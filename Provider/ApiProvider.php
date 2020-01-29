@@ -93,7 +93,7 @@ class ApiProvider
      * @param string           $clientId
      * @param string           $clientSecret
      * @param string           $redirectUri
-     * @param string           $environment
+     * @param bool             $httpCache
      * @param float            $timeout
      * @param bool             $lightData do not resolve files path property
      * @param bool             $analytics
@@ -107,10 +107,10 @@ class ApiProvider
         string $clientId,
         string $clientSecret,
         string $redirectUri = null,
-        string $environment = 'prod',
         float $timeout = self::DEFAULT_TIMEOUT,
         bool $lightData = true,
         bool $analytics = false,
+        bool $httpCache = true,
         ?string $cacheDirectory = null,
         ?string $showroom = null
     ) {
@@ -122,28 +122,28 @@ class ApiProvider
         $this->lightData = $lightData;
         $this->analytics = $analytics;
         $this->showroom = $showroom;
-        $this->client = $this->createClient($baseUri, $environment, $timeout, $cacheDirectory);
+        $this->client = $this->createClient($baseUri, $timeout, $httpCache, $cacheDirectory);
     }
 
     /**
      * @param string $baseUri
      * @param int    $timeout
+     * @param bool   $httpCache
      * @param string $cacheDirectory
-     * @param string $environment
      *
      * @return Client
      */
     private function createClient(
         string $baseUri,
-        string $environment,
         int $timeout = self::DEFAULT_TIMEOUT,
+        bool $httpCache = true,
         ?string $cacheDirectory = null
     ): Client {
         $params = [
             'base_uri' => $baseUri,
             'timeout'  => $timeout,
         ];
-        if ($environment === 'prod') {
+        if ($httpCache) {
             $params['handler'] = $this->getClientCacheHandler($cacheDirectory);
         }
 
