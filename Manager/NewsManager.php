@@ -26,6 +26,7 @@ class NewsManager
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'date:desc';
     public const DEFAULT_SIZE = 12;
+
     /**
      * @var int
      */
@@ -47,50 +48,48 @@ class NewsManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     * @param null|string       $text
-     * @param null|string|array $categories
-     * @param null|string       $language
-     * @param int               $from
-     * @param int               $size
-     * @param string            $sort
-     * @param string            $status
+     * $param['text']       = (string) The search text to return matching news
+     * $param['categories'] = (string|array) The categories to filter news
+     * $param['individual'] = (string) The individual slug to filter news attached to her/him
+     * $param['locale']     = (string) The application locale.
+     *
+     * @param array  $params
+     * @param int    $from
+     * @param int    $size
+     * @param string $sort
+     * @param string $status
      *
      * @return News[]
      */
     public function list(
-        ?string $text = null,
-        $categories = null,
-        ?string $language = null,
-        $from = 0,
-        $size = 10,
-        $sort = self::DEFAULT_SORT,
-        $status = self::DEFAULT_STATUS
+        array $params = [],
+        int $from = 0,
+        int $size = 10,
+        string $sort = self::DEFAULT_SORT,
+        string $status = self::DEFAULT_STATUS
     ): array {
         $data = [];
         $this->lastCount = 0;
-        $categories = is_array($categories) ? implode(',', $categories) : $categories;
-        $query = array_filter(compact('text', 'categories', 'language', 'from', 'size', 'sort', 'status'));
+        if (isset($params['categories'])) {
+            $params['categories'] = is_array($params['categories']) ? implode(',', $params['categories']) : $params['categories'];
+        }
+        $query = compact('from', 'size', 'sort', 'status');
+        $query = array_filter(array_merge($query, $params));
         $apiResponse = $this->apiProvider->request('GET', '/api/news', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
@@ -128,6 +127,7 @@ class NewsManager
             ]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var News $data */
             $data = $this->serializer->deserialize($apiResponse->getBody(), News::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('NewsManager::get unexpected status code', [

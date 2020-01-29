@@ -16,9 +16,9 @@ use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Serializer\Normalizer\StreetstyleNormalizer;
 use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 
 class StreetstyleManager
@@ -37,9 +37,9 @@ class StreetstyleManager
     private $apiProvider;
 
     /**
-     * @var StreetstyleNormalizer
+     * @var SerializerInterface
      */
-    private $streetstyleNormalizer;
+    private $serializer;
 
     /**
      * @var LoggerInterface
@@ -47,22 +47,18 @@ class StreetstyleManager
     private $logger;
 
     /**
-     * @param ApiProvider           $apiProvider
-     * @param StreetstyleNormalizer $streetstyleNormalizer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, StreetstyleNormalizer $streetstyleNormalizer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
-        $this->streetstyleNormalizer = $streetstyleNormalizer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->serializer = $serializer;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -76,7 +72,8 @@ class StreetstyleManager
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-            $data = $this->streetstyleNormalizer->denormalize($data, Streetstyle::class);
+            /** @var Streetstyle $data */
+            $data = $this->serializer->denormalize($data, Streetstyle::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('StreetstyleManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
@@ -107,7 +104,7 @@ class StreetstyleManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             foreach ($data as $i => $datum) {
-                $data[$i] = $this->streetstyleNormalizer->denormalize($datum, Streetstyle::class);
+                $data[$i] = $this->serializer->denormalize($datum, Streetstyle::class);
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {

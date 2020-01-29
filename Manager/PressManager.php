@@ -17,9 +17,9 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Press;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Serializer\Normalizer\PressNormalizer;
 
 class PressManager
 {
@@ -34,9 +34,9 @@ class PressManager
     private $apiProvider;
 
     /**
-     * @var PressNormalizer
+     * @var SerializerInterface
      */
-    private $pressNormalizer;
+    private $serializer;
 
     /**
      * @var LoggerInterface
@@ -44,22 +44,18 @@ class PressManager
     private $logger;
 
     /**
-     * @param ApiProvider     $apiProvider
-     * @param PressNormalizer $pressNormalizer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, PressNormalizer $pressNormalizer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
-        $this->pressNormalizer = $pressNormalizer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->serializer = $serializer;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -78,7 +74,7 @@ class PressManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
             foreach ($data as $datum) {
-                $results[] = $this->pressNormalizer->denormalize($datum, Press::class);
+                $results[] = $this->serializer->denormalize($datum, Press::class);
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {

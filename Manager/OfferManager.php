@@ -12,31 +12,31 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Tagwalk\ApiClientBundle\Model\Page;
+use Tagwalk\ApiClientBundle\Model\Offer;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
-class PageManager
+class OfferManager
 {
     public const DEFAULT_STATUS = 'enabled';
-    public const DEFAULT_SORT = 'created_at:desc';
+    public const DEFAULT_SORT = 'position:asc';
     public const DEFAULT_SIZE = 10;
-
+    /**
+     * @var int|null
+     */
+    public $lastCount;
     /**
      * @var ApiProvider
      */
     private $apiProvider;
-
     /**
      * @var Serializer
      */
     private $serializer;
-
     /**
      * @var LoggerInterface
      */
@@ -65,7 +65,7 @@ class PageManager
      * @param null|string $name
      * @param null|string $text
      *
-     * @return Page[]
+     * @return Offer[]
      */
     public function list(
         int $from = 0,
@@ -75,81 +75,56 @@ class PageManager
         ?string $name = null,
         ?string $text = null
     ): array {
-        $pages = [];
+        $this->lastCount = null;
+        $offers = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
-        $query['excludes'] = 'text,text_fr,text_it,text_zh,text_es';
-        $apiResponse = $this->apiProvider->request('GET', '/api/page', [RequestOptions::QUERY => $query]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/offers', [RequestOptions::QUERY => $query]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $data = json_decode($apiResponse->getBody(), true);
-            $pages = [];
+            $offers = [];
             foreach ($data as $datum) {
-                $pages[] = $this->serializer->denormalize($datum, Page::class);
+                $offers[] = $this->serializer->denormalize($datum, Offer::class);
             }
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageManager::get unexpected status code', [
+            $this->logger->error('OfferManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
         }
 
-        return $pages;
-    }
-
-    /**
-     * @param string      $status
-     * @param null|string $name
-     * @param null|string $text
-     *
-     * @return int
-     */
-    public function count(
-        string $status = self::DEFAULT_STATUS,
-        ?string $name = null,
-        ?string $text = null
-    ): int {
-        $query = array_filter(compact('status', 'name', 'text'));
-        $apiResponse = $this->apiProvider->request('GET', '/api/page', [
-            RequestOptions::QUERY       => $query,
-            RequestOptions::HTTP_ERRORS => false,
-        ]);
-        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
-            $this->logger->error('PageManager::count unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
-
-        return (int) $apiResponse->getHeaderLine('X-Total-Count');
+        return $offers;
     }
 
     /**
      * @param string      $slug
      * @param null|string $language
      *
-     * @return Page|null
+     * @return Offer|null
      */
-    public function get(string $slug, ?string $language = null): ?Page
+    public function get(string $slug, ?string $language = null): ?Offer
     {
-        $page = null;
+        $offer = null;
         $query = compact('language');
         $apiResponse = $this->apiProvider->request(
             'GET',
-            '/api/page/'.$slug,
+            '/api/offers/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::QUERY       => $query,
             ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            /** @var Page $page */
-            $page = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Page::class);
+            $data = json_decode($apiResponse->getBody(), true);
+            /** @var Offer $offer */
+            $offer = $this->serializer->denormalize($data, Offer::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageManager::get unexpected status code', [
+            $this->logger->error('OfferManager::get unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
         }
 
-        return $page;
+        return $offer;
     }
 
     /**
@@ -160,13 +135,13 @@ class PageManager
     public function delete(string $slug): bool
     {
         $apiResponse = $this->apiProvider->request('DELETE',
-            '/api/page/'.$slug,
+            '/api/offers/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,
             ]
         );
         if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
-            $this->logger->error('PageManager::delete unexpected status code', [
+            $this->logger->error('OfferManager::delete unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
@@ -178,42 +153,51 @@ class PageManager
     }
 
     /**
-     * @param Page $record
+     * @param Offer $record
      *
-     * @return Page
+     * @return Offer|null
      */
-    public function create(Page $record): Page
+    public function create(Offer $record): ?Offer
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request('POST', '/api/page', $params);
+        $apiResponse = $this->apiProvider->request('POST', '/api/offers', $params);
+        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
+            $this->logger->error('OfferManager::create unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
 
-        return $this->denormalizeResponse($apiResponse);
+            return null;
+        }
+        $data = json_decode($apiResponse->getBody(), true);
+        /** @var Offer $created */
+        $created = $this->serializer->denormalize($data, Offer::class);
+
+        return $created;
     }
 
     /**
      * @param string $slug
-     * @param Page   $record
+     * @param Offer  $record
      *
-     * @return Page
+     * @return Offer
      */
-    public function update(string $slug, Page $record): Page
+    public function update(string $slug, Offer $record): Offer
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request('PUT', '/api/page/'.$slug, $params);
+        $apiResponse = $this->apiProvider->request('PUT', '/api/offers/'.$slug, $params);
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            $this->logger->error('OfferManager::update unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
 
-        return $this->denormalizeResponse($apiResponse);
-    }
+            return null;
+        }
+        $data = json_decode($apiResponse->getBody(), true);
+        /** @var Offer $updated */
+        $updated = $this->serializer->denormalize($data, Offer::class);
 
-    /**
-     * @param ResponseInterface $response
-     *
-     * @return Page
-     */
-    private function denormalizeResponse(ResponseInterface $response): Page
-    {
-        /** @var Page $page */
-        $page = $this->serializer->denormalize(json_decode($response->getBody(), true), Page::class);
-
-        return $page;
+        return $updated;
     }
 }

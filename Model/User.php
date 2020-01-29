@@ -147,21 +147,21 @@ class User implements UserInterface, EquatableInterface
     private $apiToken;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
     private $company;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      * @Assert\NotBlank(groups={"ShowroomUser"})
      */
     private $address;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
      */
     private $note;

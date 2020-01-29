@@ -47,22 +47,18 @@ class TagManager
     public $lastCount;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -80,6 +76,7 @@ class TagManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Tag $tag */
             $tag = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Tag::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('TagManager::get unexpected status code', [

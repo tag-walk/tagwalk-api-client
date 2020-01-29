@@ -41,22 +41,18 @@ class UserManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -87,11 +83,14 @@ class UserManager
      */
     private function deserialize($response): User
     {
-        return $this->serializer->deserialize(
+        /** @var User $user */
+        $user = $this->serializer->deserialize(
             $response->getBody()->getContents(),
             User::class,
             JsonEncoder::FORMAT
         );
+
+        return $user;
     }
 
     /**
@@ -101,7 +100,7 @@ class UserManager
      */
     public function create(User $user): ?User
     {
-        $data = $this->serializer->normalize($user, null, ['registration' => true]);
+        $data = $this->serializer->normalize($user, null, ['write' => true]);
         $apiResponse = $this->apiProvider->request('POST', '/api/users/register', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON        => $data,
@@ -133,7 +132,7 @@ class UserManager
      */
     public function update(string $email, User $user, ?string $appContext = null): ?User
     {
-        $data = $this->serializer->normalize($user, null, ['account' => true]);
+        $data = $this->serializer->normalize($user, null, ['write' => true]);
         $data = array_filter($data, static function ($v) {
             return $v !== null;
         });

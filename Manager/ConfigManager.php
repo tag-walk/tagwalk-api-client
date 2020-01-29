@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Config;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -37,22 +38,18 @@ class ConfigManager
     private $logger;
 
     /**
-     * @param ApiProvider $apiProvider
-     * @param Serializer  $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, Serializer $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -66,6 +63,7 @@ class ConfigManager
         $apiResponse = $this->apiProvider->request('GET', '/api/config/'.$id, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
+            /** @var Config $config */
             $config = $this->serializer->denormalize($data, Config::class);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('ConfigManager::get unexpected status code', [

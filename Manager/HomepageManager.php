@@ -42,22 +42,18 @@ class HomepageManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -81,6 +77,7 @@ class HomepageManager
             ]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Homepage $record */
             $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('HomepageManager::getBySection unexpected status code', [
@@ -110,6 +107,7 @@ class HomepageManager
             ]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Homepage $record */
             $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('HomepageManager::get unexpected status code', [

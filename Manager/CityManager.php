@@ -41,22 +41,18 @@ class CityManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -136,9 +132,10 @@ class CityManager
     }
 
     /**
-     * @param null|string $season
-     * @param null|string $designers
-     * @param null|string $tags
+     * @param string|null $season
+     * @param string|null $designers
+     * @param string|null $individuals
+     * @param string|null $tags
      * @param string|null $language
      *
      * @return City[]
@@ -146,11 +143,12 @@ class CityManager
     public function listFiltersStreet(
         ?string $season,
         ?string $designers,
+        ?string $individuals,
         ?string $tags,
         ?string $language = null
     ): array {
         $results = [];
-        $query = array_filter(compact('season', 'designers', 'tags', 'language'));
+        $query = array_filter(compact('season', 'designers', 'individuals', 'tags', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/cities/filter-streetstyle', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,

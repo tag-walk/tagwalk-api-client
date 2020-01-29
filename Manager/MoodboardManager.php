@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -50,22 +51,18 @@ class MoodboardManager
     private $logger;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
+    ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -122,8 +119,7 @@ class MoodboardManager
             case Response::HTTP_FORBIDDEN:
                 throw new ApiAccessDeniedException();
             case Response::HTTP_OK:
-                $data = json_decode($apiResponse->getBody(), true);
-                $moodboard = $this->serializer->denormalize($data, Moodboard::class);
+                $moodboard = $this->denormalizeResponse($apiResponse);
                 break;
             case Response::HTTP_NOT_FOUND:
                 break;
@@ -139,6 +135,20 @@ class MoodboardManager
     }
 
     /**
+     * @param ResponseInterface $response
+     *
+     * @return Moodboard
+     */
+    private function denormalizeResponse(ResponseInterface $response): Moodboard
+    {
+        $data = json_decode($response->getBody(), true);
+        /** @var Moodboard $moodboard */
+        $moodboard = $this->serializer->denormalize($data, Moodboard::class);
+
+        return $moodboard;
+    }
+
+    /**
      * @param string $token
      *
      * @return null|Moodboard
@@ -148,8 +158,7 @@ class MoodboardManager
         $moodboard = null;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/shared/'.$token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
+            $moodboard = $this->denormalizeResponse($apiResponse);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('MoodboardManager::getByToken unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
@@ -204,9 +213,8 @@ class MoodboardManager
 
             throw new BadRequestHttpException();
         }
-        $data = json_decode($apiResponse->getBody(), true);
 
-        return $this->serializer->denormalize($data, Moodboard::class);
+        return $this->denormalizeResponse($apiResponse);
     }
 
     /**
@@ -256,9 +264,7 @@ class MoodboardManager
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
-
-            return $this->serializer->denormalize($data, Moodboard::class);
+            return $this->denormalizeResponse($apiResponse);
         }
         if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new NotFoundHttpException();

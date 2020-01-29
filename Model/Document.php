@@ -72,26 +72,26 @@ interface Document
     public function isEnabled();
 
     /**
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getCreatedAt(): ?\DateTime;
+    public function getCreatedAt(): ?\DateTimeInterface;
 
     /**
-     * @param \DateTime|null $createdAt
+     * @param \DateTimeInterface|null $createdAt
      *
      * @return Document
      */
-    public function setCreatedAt(?\DateTime $createdAt);
+    public function setCreatedAt(?\DateTimeInterface $createdAt);
 
     /**
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getUpdatedAt(): ?\DateTime;
+    public function getUpdatedAt(): ?\DateTimeInterface;
 
     /**
-     * @param \DateTime|null $updatedAt
+     * @param \DateTimeInterface|null $updatedAt
      *
      * @return Document
      */
-    public function setUpdatedAt(?\DateTime $updatedAt);
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt);
 }

@@ -47,24 +47,18 @@ class DesignerManager
     public $lastQueryCount;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -82,6 +76,7 @@ class DesignerManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Designer $data */
             $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('DesignerManager::get unexpected status code', [
@@ -230,9 +225,10 @@ class DesignerManager
     }
 
     /**
-     * @param null|string $city
-     * @param null|string $season
-     * @param null|string $tags
+     * @param string|null $city
+     * @param string|null $season
+     * @param string|null $individuals
+     * @param string|null $tags
      * @param string|null $language
      *
      * @return Designer[]
@@ -240,11 +236,12 @@ class DesignerManager
     public function listFiltersStreet(
         ?string $city,
         ?string $season,
+        ?string $individuals,
         ?string $tags,
         ?string $language = null
     ): array {
         $results = [];
-        $query = array_filter(compact('city', 'season', 'tags', 'language'));
+        $query = array_filter(compact('city', 'season', 'individuals', 'tags', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter-streetstyle', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,

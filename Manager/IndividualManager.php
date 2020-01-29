@@ -48,24 +48,18 @@ class IndividualManager
     public $lastCount;
 
     /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
+     * @param ApiProvider          $apiProvider
+     * @param SerializerInterface  $serializer
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        ?LoggerInterface $logger = null
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = new NullLogger();
-    }
-
-    /**
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger): void
-    {
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -83,6 +77,7 @@ class IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Individual $individual */
             $individual = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Individual::class, JsonEncoder::FORMAT);
         } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             $this->logger->error('IndividualManager::get unexpected status code', [
@@ -192,5 +187,42 @@ class IndividualManager
         }
 
         return $individuals;
+    }
+
+    /**
+     * @param string|null $city
+     * @param string|null $season
+     * @param string|null $designers
+     * @param string|null $tags
+     * @param string|null $language
+     *
+     * @return Individual[]
+     */
+    public function listFiltersStreet(
+        ?string $city,
+        ?string $season,
+        ?string $designers,
+        ?string $tags,
+        ?string $language = null
+    ): array {
+        $results = [];
+        $query = array_filter(compact('city', 'season', 'designers', 'tags', 'language'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/individuals/filter/streetstyle', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            foreach ($data as $datum) {
+                $results[] = $this->serializer->denormalize($datum, Individual::class);
+            }
+        } else {
+            $this->logger->error('IndividualManager::listFilterStreet unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+        }
+
+        return $results;
     }
 }
