@@ -1,7 +1,5 @@
 <?php
 
-/** @noinspection ALL */
-
 /**
  * PHP version 7.
  *
@@ -33,6 +31,7 @@ class Configuration implements ConfigurationInterface
             // BC layer for symfony/config 4.1 and older
             $rootNode = $treeBuilder->root('tagwalk_api_client');
         }
+        /** @noinspection NullPointerExceptionInspection */
         $rootNode
             ->children()
             ->scalarNode('client_id')->end()
@@ -40,6 +39,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('host_url')->defaultValue('https://test.api.tag-walk.com')->end()
             ->floatNode('timeout')->defaultValue(30.0)->min(0.0)->max(60.0)->end()
             ->booleanNode('analytics')->defaultFalse()->end()
+            ->booleanNode('http_cache')->defaultTrue()->end()
             ->booleanNode('light')->defaultFalse()->end()
             ->scalarNode('showroom')->defaultNull()->end()
             ->scalarNode('redirect_url')->defaultNull()->end()

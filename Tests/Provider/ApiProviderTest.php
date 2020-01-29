@@ -33,7 +33,7 @@ class ApiProviderTest extends WebTestCase
         $requestStack->method('getCurrentRequest')->willReturn($request);
         /* @var RequestStack $requestStack */
         /* @var SessionInterface $session */
-        return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, $redirectUri, 'dev', $timeout);
+        return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, $redirectUri, $timeout);
     }
 
     public function testConstructor()
