@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait Timestampable
 {
     /**
-     * @var \DateTimeInterface
+     * @var \DateTimeInterface|null
      * @Assert\DateTime()
      */
     protected $createdAt;
@@ -33,7 +33,7 @@ trait Timestampable
     protected $updatedAt;
 
     /**
-     * @return \DateTimeInterface
+     * @return \DateTimeInterface|null
      */
     public function getCreatedAt(): ?\DateTimeInterface
     {
@@ -41,7 +41,7 @@ trait Timestampable
     }
 
     /**
-     * @param \DateTimeInterface $createdAt
+     * @param \DateTimeInterface|null $createdAt
      *
      * @return self
      */
@@ -53,7 +53,7 @@ trait Timestampable
     }
 
     /**
-     * @return \DateTimeInterface
+     * @return \DateTimeInterface|null
      */
     public function getUpdatedAt(): ?\DateTimeInterface
     {
@@ -61,7 +61,7 @@ trait Timestampable
     }
 
     /**
-     * @param \DateTimeInterface $updatedAt
+     * @param \DateTimeInterface|null $updatedAt
      *
      * @return self
      */
