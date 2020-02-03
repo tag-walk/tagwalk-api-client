@@ -35,7 +35,7 @@ class Individual extends AbstractDocument
     private $gender = 'female';
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      * @Assert\Date()
      */
     private $birthdate;
@@ -112,19 +112,19 @@ class Individual extends AbstractDocument
     }
 
     /**
-     * @return \DateTime|null
+     * @return \DateTimeInterface|null
      */
-    public function getBirthdate(): ?\DateTime
+    public function getBirthdate(): ?\DateTimeInterface
     {
         return $this->birthdate;
     }
 
     /**
-     * @param \DateTime|null $birthdate
+     * @param \DateTimeInterface|null $birthdate
      *
      * @return self
      */
-    public function setBirthdate(?\DateTime $birthdate): self
+    public function setBirthdate(?\DateTimeInterface $birthdate): self
     {
         $this->birthdate = $birthdate;
 

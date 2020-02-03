@@ -19,31 +19,31 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait Programmable
 {
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      * @Assert\DateTime()
      */
     protected $beginAt;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      * @Assert\DateTime()
      */
     protected $endAt;
 
     /**
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getBeginAt(): ?\DateTime
+    public function getBeginAt(): ?\DateTimeInterface
     {
         return $this->beginAt;
     }
 
     /**
-     * @param \DateTime $beginAt
+     * @param \DateTimeInterface $beginAt
      *
      * @return self
      */
-    public function setBeginAt(?\DateTime $beginAt)
+    public function setBeginAt(?\DateTimeInterface $beginAt)
     {
         $this->beginAt = $beginAt;
 
@@ -51,19 +51,19 @@ trait Programmable
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeInterface
      */
-    public function getEndAt(): ?\DateTime
+    public function getEndAt(): ?\DateTimeInterface
     {
         return $this->endAt;
     }
 
     /**
-     * @param \DateTime $endAt
+     * @param \DateTimeInterface $endAt
      *
      * @return self
      */
-    public function setEndAt(?\DateTime $endAt)
+    public function setEndAt(?\DateTimeInterface $endAt)
     {
         $this->endAt = $endAt;
 
