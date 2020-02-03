@@ -72,7 +72,7 @@ interface Document
     public function isEnabled();
 
     /**
-     * @return \DateTimeInterface
+     * @return \DateTimeInterface|null
      */
     public function getCreatedAt(): ?\DateTimeInterface;
 
@@ -84,7 +84,7 @@ interface Document
     public function setCreatedAt(?\DateTimeInterface $createdAt);
 
     /**
-     * @return \DateTimeInterface
+     * @return \DateTimeInterface|null
      */
     public function getUpdatedAt(): ?\DateTimeInterface;
 
