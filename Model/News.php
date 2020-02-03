@@ -29,7 +29,7 @@ class News extends AbstractDocument
     use Coverable;
 
     /**
-     * @var \DateTime|null
+     * @var \DateTimeInterface|null
      * @Assert\DateTime()
      */
     protected $date;
@@ -71,19 +71,19 @@ class News extends AbstractDocument
     private $individuals;
 
     /**
-     * @return \DateTime|null
+     * @return \DateTimeInterface|null
      */
-    public function getDate(): ?\DateTime
+    public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
     }
 
     /**
-     * @param \DateTime $date
+     * @param \DateTimeInterface $date
      *
      * @return self
      */
-    public function setDate(?\DateTime $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 
