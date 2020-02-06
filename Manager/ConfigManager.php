@@ -61,9 +61,8 @@ class ConfigManager
     {
         $config = null;
         $apiResponse = $this->apiProvider->request('GET', sprintf('/api/config/%s', $id), [
-                RequestOptions::HTTP_ERRORS => false,
-            ]
-        );
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             /** @var Config $config */
