@@ -60,7 +60,9 @@ class ConfigManager
     public function get(string $id): ?Config
     {
         $config = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/config/'.$id, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', sprintf('/api/config/%s', $id), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             /** @var Config $config */
@@ -112,9 +114,31 @@ class ConfigManager
      */
     public function set(string $key, string $value): bool
     {
-        $apiResponse = $this->apiProvider->request('PUT', '/api/config/'.$key.'/'.$value);
+        $apiResponse = $this->apiProvider->request('PUT', sprintf('/api/config/%s/%s', $key, $value));
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
             $this->logger->error('ConfigManager::set unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function delete(string $key): bool
+    {
+        $apiResponse = $this->apiProvider->request('DELETE', sprintf('/api/config/%s', $key), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
+            $this->logger->error('ConfigManager::delete unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
