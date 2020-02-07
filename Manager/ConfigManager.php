@@ -138,7 +138,7 @@ class ConfigManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
-            $this->logger->error('ConfigManager::remove unexpected status code', [
+            $this->logger->error('ConfigManager::delete unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
                 'message' => $apiResponse->getBody()->getContents(),
             ]);
