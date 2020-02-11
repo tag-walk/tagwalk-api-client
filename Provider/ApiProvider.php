@@ -316,6 +316,7 @@ class ApiProvider
             if ($exception->getResponse()) {
                 $this->logger->warning('Error authorizing token', json_decode($exception->getResponse()->getBody(), true));
             }
+
             throw $exception;
         }
 
