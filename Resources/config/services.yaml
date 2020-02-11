@@ -30,6 +30,7 @@ services:
       $httpCache: true
       $cacheDirectory: '%env(CACHE_DIRECTORY)%'
       $showroom: null
+      $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Security\UserProvider:
     arguments:

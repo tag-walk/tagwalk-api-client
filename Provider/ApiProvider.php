@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Provider;
 use DateInterval;
 use DateTime;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
@@ -21,6 +22,8 @@ use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -87,18 +90,24 @@ class ApiProvider
     private $showroom;
 
     /**
-     * @param RequestStack     $requestStack
-     * @param SessionInterface $session
-     * @param string           $baseUri
-     * @param string           $clientId
-     * @param string           $clientSecret
-     * @param string           $redirectUri
-     * @param bool             $httpCache
-     * @param float            $timeout
-     * @param bool             $lightData do not resolve files path property
-     * @param bool             $analytics
-     * @param string|null      $cacheDirectory
-     * @param string|null      $showroom
+     * @var LoggerInterface|null
+     */
+    private $logger;
+
+    /**
+     * @param RequestStack         $requestStack
+     * @param SessionInterface     $session
+     * @param string               $baseUri
+     * @param string               $clientId
+     * @param string               $clientSecret
+     * @param string               $redirectUri
+     * @param float                $timeout
+     * @param bool                 $lightData do not resolve files path property
+     * @param bool                 $analytics
+     * @param bool                 $httpCache
+     * @param string|null          $cacheDirectory
+     * @param string|null          $showroom
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         RequestStack $requestStack,
@@ -112,7 +121,8 @@ class ApiProvider
         bool $analytics = false,
         bool $httpCache = true,
         ?string $cacheDirectory = null,
-        ?string $showroom = null
+        ?string $showroom = null,
+        LoggerInterface $logger = null
     ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
@@ -123,6 +133,7 @@ class ApiProvider
         $this->analytics = $analytics;
         $this->showroom = $showroom;
         $this->client = $this->createClient($baseUri, $timeout, $httpCache, $cacheDirectory);
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -282,24 +293,31 @@ class ApiProvider
      */
     public function authorize(string $code): void
     {
-        $response = $this->client->request(
-            'POST',
-            '/oauth/v2/token',
-            [
-                RequestOptions::FORM_PARAMS => [
-                    'grant_type'    => 'authorization_code',
-                    'client_id'     => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'redirect_uri'  => $this->redirectUri,
-                    'code'          => $code,
-                ],
-                RequestOptions::HEADERS     => array_filter([
-                    'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
-                    'Tagwalk-Showroom-Name' => $this->showroom,
-                ]),
-                RequestOptions::HTTP_ERRORS => true,
-            ]
-        );
+        try {
+            $response = $this->client->request(
+                'POST',
+                '/oauth/v2/token',
+                [
+                    RequestOptions::FORM_PARAMS => [
+                        'grant_type'    => 'authorization_code',
+                        'client_id'     => $this->clientId,
+                        'client_secret' => $this->clientSecret,
+                        'redirect_uri'  => $this->redirectUri,
+                        'code'          => $code,
+                    ],
+                    RequestOptions::HEADERS     => array_filter([
+                        'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+                        'Tagwalk-Showroom-Name' => $this->showroom,
+                    ]),
+                    RequestOptions::HTTP_ERRORS => true,
+                ]
+            );
+        } catch (ClientException $exception) {
+            if ($exception->getResponse()) {
+                $this->logger->warning('Error authorizing token', json_decode($exception->getResponse()->getBody(), true));
+            }
+            throw $exception;
+        }
 
         $this->tokenResponseToSession($response);
     }
