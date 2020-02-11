@@ -75,6 +75,12 @@ class File extends AbstractDocument
     private $courtesy;
 
     /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $caption;
+
+    /**
      * @return string|null
      */
     public function getPath(): ?string
@@ -250,5 +256,25 @@ class File extends AbstractDocument
     public function getVariant(string $variant): ?string
     {
         return $this->variants[$variant] ?? null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCaption(): ?string
+    {
+        return $this->caption;
+    }
+
+    /**
+     * @param string|null $caption
+     *
+     * @return self
+     */
+    public function setCaption(?string $caption): self
+    {
+        $this->caption = $caption;
+
+        return $this;
     }
 }
