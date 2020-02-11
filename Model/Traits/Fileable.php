@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model\Traits;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\File;
 
 /**
@@ -24,7 +25,6 @@ trait Fileable
     /**
      * @var File[]|null
      * @Assert\Valid()
-     * @Assert\Type("object")
      */
     private $files;
 
@@ -75,19 +75,31 @@ trait Fileable
     }
 
     /**
-     * @param string $slug
+     * @param string $filename
      *
      * @return self
      */
-    public function removeFile(string $slug): self
+    public function removeFile(string $filename): self
     {
         foreach ($this->files as $i => $file) {
-            if ($file->getSlug() === $slug) {
+            if ($file->getFilename() === $filename) {
                 unset($this->files[$i]);
             }
         }
         $this->reindex($this->files);
 
         return $this;
+    }
+
+    /**
+     * @param string $filename
+     *
+     * @return bool
+     */
+    public function hasFile(string $filename): bool
+    {
+        return !empty(array_filter($this->files, static function (File $file) use ($filename) {
+            return $file->getFilename() === $filename;
+        }));
     }
 }
