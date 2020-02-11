@@ -11,7 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
-use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 
 /**
  * Describe Cover document.
@@ -20,30 +20,5 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Cover extends AbstractDocument
 {
-    /**
-     * @var File
-     * @Assert\Valid()
-     * @Assert\Type("object")
-     */
-    private $file;
-
-    /**
-     * @return File
-     */
-    public function getFile(): File
-    {
-        return $this->file;
-    }
-
-    /**
-     * @param File $file
-     *
-     * @return self
-     */
-    public function setFile(File $file): self
-    {
-        $this->file = $file;
-
-        return $this;
-    }
+    use Fileable;
 }
