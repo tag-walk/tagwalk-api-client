@@ -196,6 +196,7 @@ class DesignerManager
      * @param null|string $models
      * @param bool|null   $talent
      * @param string|null $language
+     * @param string|null $country
      *
      * @return array
      */
@@ -206,10 +207,11 @@ class DesignerManager
         ?string $tags,
         ?string $models,
         ?bool $talent = false,
-        ?string $language = null
+        ?string $language = null,
+        ?string $country = null
     ): array {
         $results = [];
-        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language'));
+        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language', 'country'));
         $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
