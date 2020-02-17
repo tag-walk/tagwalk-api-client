@@ -110,7 +110,7 @@ class DesignerManager
         bool $talent = false,
         bool $tagbook = false,
         bool $denormalize = true,
-        string $country = null
+        ?string $country = null
     ): array {
         $designers = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook', 'country'));
