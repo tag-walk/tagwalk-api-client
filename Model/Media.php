@@ -241,7 +241,7 @@ class Media extends AbstractDocument
     }
 
     /**
-     * @return Affiliation[]
+     * @return Affiliation[]|null
      */
     public function getAffiliations(): ?array
     {
@@ -249,9 +249,9 @@ class Media extends AbstractDocument
     }
 
     /**
-     * @param Affiliation[] $affiliations
+     * @param Affiliation[]|null $affiliations
      */
-    public function setAffiliations(?array $affiliations)
+    public function setAffiliations(?array $affiliations = [])
     {
         if (null === $affiliations) {
             $affiliations = [];
@@ -263,7 +263,7 @@ class Media extends AbstractDocument
     /**
      * @param Affiliation $affiliation
      */
-    public function addAffiliations(Affiliation $affiliation)
+    public function addAffiliation(Affiliation $affiliation)
     {
         if (null === $this->affiliations) {
             $this->affiliations = [];
