@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP version 7.
+ * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -57,8 +57,10 @@ class UserProvider implements UserProviderInterface
         if ($response->getStatusCode() !== Response::HTTP_OK) {
             throw new ServiceUnavailableHttpException('Unable to connect');
         }
+        /** @var User $user */
+        $user = $this->serializer->deserialize($response->getBody(), User::class, JsonEncoder::FORMAT);
 
-        return $this->serializer->deserialize($response->getBody(), User::class, JsonEncoder::FORMAT);
+        return $user;
     }
 
     /**
@@ -81,7 +83,7 @@ class UserProvider implements UserProviderInterface
             );
         }
 
-        return $this->loadUserByUsername($user->getUsername());
+        return $user;
     }
 
     /**

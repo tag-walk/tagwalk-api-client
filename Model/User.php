@@ -60,7 +60,7 @@ class User implements UserInterface, EquatableInterface
     private $email;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
