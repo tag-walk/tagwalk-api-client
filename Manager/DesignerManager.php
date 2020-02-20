@@ -97,6 +97,7 @@ class DesignerManager
      * @param bool        $talent
      * @param bool        $tagbook
      * @param bool        $denormalize
+     * @param string|null $country
      *
      * @return array|Designer[]
      */
@@ -108,10 +109,11 @@ class DesignerManager
         string $status = self::DEFAULT_STATUS,
         bool $talent = false,
         bool $tagbook = false,
-        bool $denormalize = true
+        bool $denormalize = true,
+        ?string $country = null
     ): array {
         $designers = [];
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook', 'country'));
         $apiResponse = $this->apiProvider->request('GET', '/api/designers', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
@@ -194,6 +196,7 @@ class DesignerManager
      * @param null|string $models
      * @param bool|null   $talent
      * @param string|null $language
+     * @param string|null $country
      *
      * @return array
      */
@@ -204,10 +207,11 @@ class DesignerManager
         ?string $tags,
         ?string $models,
         ?bool $talent = false,
-        ?string $language = null
+        ?string $language = null,
+        ?string $country = null
     ): array {
         $results = [];
-        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language'));
+        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language', 'country'));
         $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
