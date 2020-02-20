@@ -1,4 +1,6 @@
-<?php /** @noinspection TraitsPropertiesConflictsInspection */
+<?php
+
+/** @noinspection TraitsPropertiesConflictsInspection */
 
 /**
  * PHP version 7
