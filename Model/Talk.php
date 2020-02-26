@@ -19,7 +19,6 @@ use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
-use Tagwalk\ApiClientBundle\Model\Resource;
 
 /**
  * Tag Talk Document
