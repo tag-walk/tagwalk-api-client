@@ -1,12 +1,10 @@
 <?php
-
-declare(strict_types=1);
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author      Vincent Duruflé <florian@tag-walk.com>
+ * @author      Vincent Duruflé <vincent@tag-walk.com>
  * @copyright   2020 TAGWALK
  * @license     proprietary
  */
@@ -19,6 +17,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
+use Tagwalk\ApiClientBundle\Model\Resource as ExternalResource;
 
 /**
  * Tag Talk Document
@@ -92,14 +91,14 @@ class Talk extends AbstractDocument
     private $date;
 
     /**
-     * @var Resource[]|null
+     * @var ExternalResource[]|null
      * @Assert\Valid()
      * @Assert\Type("array")
      */
     private $resources;
 
     /**
-     * @return Resource[]|null
+     * @return ExternalResource[]|null
      */
     public function getResources(): ?array
     {
@@ -107,7 +106,7 @@ class Talk extends AbstractDocument
     }
 
     /**
-     * @param Resource[]|null $resources
+     * @param ExternalResource[]|null $resources
      *
      * @return self
      */

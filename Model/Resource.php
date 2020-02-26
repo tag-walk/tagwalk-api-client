@@ -1,13 +1,11 @@
 <?php
-
-declare(strict_types=1);
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2018 TAGWALK
+ * @author      Vincent Duruflé <vincent@tag-walk.com>
+ * @copyright   2020 TAGWALK
  * @license     proprietary
  */
 
@@ -35,19 +33,11 @@ class Resource
      *      min = 6,
      *      max = 255
      * )
-     * @SWG\Property(
-     *     description="The URI reference of the resource (relative reference)",
-     *     example="/resource/slug"
-     * )
      */
     private $uri;
     /**
      * @var \DateTimeInterface|null
      * @Assert\DateTime()
-     * @SWG\Property(
-     *     property="date",
-     *     description="The date when the resource was added"
-     * )
      */
     private $date;
 
