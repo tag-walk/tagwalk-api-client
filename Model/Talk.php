@@ -1,10 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     App\Document
+ * @package     Tagwalk\ApiClientBundle\Model
  * @author      Vincent Duruflé <florian@tag-walk.com>
  * @copyright   2020 TAGWALK
  * @license     proprietary
@@ -12,12 +13,12 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Tag Talk Document
@@ -266,7 +267,7 @@ class Talk extends AbstractDocument
     }
 
     /**
-     * @param \DateTimeInterface $date
+     * @param \DateTimeInterface|null $date
      *
      * @return self
      */
