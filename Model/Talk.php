@@ -12,12 +12,12 @@
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Resource as ExternalResource;
 use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
-use Tagwalk\ApiClientBundle\Model\Resource as ExternalResource;
 
 /**
  * Tag Talk Document
