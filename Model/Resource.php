@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     Tagwalk\ApiClientBundle\Model
  * @author      Florian Ajir <florian@tag-walk.com>
  * @copyright   2016-2018 TAGWALK
  * @license     proprietary

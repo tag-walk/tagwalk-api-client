@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 /**
  * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
- * @package     Tagwalk\ApiClientBundle\Model
  * @author      Vincent Duruflé <florian@tag-walk.com>
  * @copyright   2020 TAGWALK
  * @license     proprietary
@@ -19,6 +19,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
+use Tagwalk\ApiClientBundle\Model\Resource;
 
 /**
  * Tag Talk Document
