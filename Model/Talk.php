@@ -91,13 +91,6 @@ class Talk extends AbstractDocument
     private $date;
 
     /**
-     * @var Link[]|null
-     * @Assert\Valid()
-     * @Assert\Type("array")
-     */
-    private $links;
-
-    /**
      * @var Resource[]|null
      * @Assert\Valid()
      * @Assert\Type("array")
@@ -280,26 +273,6 @@ class Talk extends AbstractDocument
     public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    /**
-     * @return Link[]|null
-     */
-    public function getLinks(): ?array
-    {
-        return $this->links;
-    }
-
-    /**
-     * @param Link[]|null $links
-     *
-     * @return self
-     */
-    public function setLinks(?array $links): self
-    {
-        $this->links = $links;
 
         return $this;
     }
