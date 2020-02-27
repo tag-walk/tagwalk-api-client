@@ -8,7 +8,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2016-2020 TAGWALK
  * @license     proprietary
  */
 
@@ -17,10 +17,6 @@ namespace Tagwalk\ApiClientBundle\Model;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use Tagwalk\ApiClientBundle\Model\Traits\Nameable;
-use Tagwalk\ApiClientBundle\Model\Traits\Sluggable;
-use Tagwalk\ApiClientBundle\Model\Traits\Statusable;
-use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
 
 /**
  * Describe User document.
@@ -30,13 +26,8 @@ use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
  * @see Document
  * @see UserInterface
  */
-class User implements UserInterface, EquatableInterface
+class User extends AbstractDocument implements UserInterface, EquatableInterface
 {
-    use Sluggable;
-    use Statusable;
-    use Timestampable;
-    use Nameable;
-
     /**
      * Override Sluggable property definition to reset regex assert
      *
