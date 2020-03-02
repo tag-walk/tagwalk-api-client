@@ -36,7 +36,6 @@ services:
   Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
     arguments:
       $tokenStorage: '@security.token_storage'
-      $session: '@session'
       $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:
