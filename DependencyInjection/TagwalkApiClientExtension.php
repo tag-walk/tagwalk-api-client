@@ -17,8 +17,8 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Tagwalk\ApiClientBundle\Event\LoginSuccessHandler;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Security\AuthorizationHelper;
 
 class TagwalkApiClientExtension extends Extension
 {
@@ -47,8 +47,8 @@ class TagwalkApiClientExtension extends Extension
         $apiProviderDefinition->replaceArgument('$lightData', $config['light']);
         $apiProviderDefinition->replaceArgument('$analytics', $config['analytics']);
         $apiProviderDefinition->replaceArgument('$httpCache', $config['http_cache']);
-        $loginSuccessHandlerDefinition = $container->getDefinition(LoginSuccessHandler::class);
-        $loginSuccessHandlerDefinition->replaceArgument('$authorizationUrl', $config['authorization_url']);
+        $authorizationHelperDefinition = $container->getDefinition(AuthorizationHelper::class);
+        $authorizationHelperDefinition->replaceArgument('$authorizationUrl', $config['authorization_url']);
     }
 
     /**

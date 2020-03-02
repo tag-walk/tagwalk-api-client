@@ -7,11 +7,11 @@ services:
     autoconfigure: true
     public: false
 
-  Tagwalk\ApiClientBundle\Event\LocaleSubscriber:
-    arguments:
-      - '%kernel.default_locale%'
-
   Tagwalk\ApiClientBundle\Event\LoginSuccessHandler:
+    arguments:
+      - '@Tagwalk\ApiClientBundle\Security\AuthorizationHelper'
+
+  Tagwalk\ApiClientBundle\Security\AuthorizationHelper:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
       $authorizationUrl: null
@@ -20,6 +20,7 @@ services:
     arguments:
       $requestStack: '@request_stack'
       $session: '@session'
+      $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
       $baseUri:  ''
       $clientId: ''
       $clientSecret: ''
@@ -31,6 +32,17 @@ services:
       $cacheDirectory: '%env(CACHE_DIRECTORY)%'
       $showroom: null
       $logger: '@logger'
+
+  Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
+    arguments:
+      $tokenStorage: '@security.token_storage'
+      $session: '@session'
+      $logger: '@logger'
+
+  Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:
+    arguments:
+      - '@session'
+      - '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
 
   Tagwalk\ApiClientBundle\Security\UserProvider:
     arguments:

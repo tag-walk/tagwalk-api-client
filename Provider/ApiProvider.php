@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Provider;
 
-use DateInterval;
 use DateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
@@ -29,16 +28,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Tagwalk\ApiClientBundle\Security\ApiAuthenticator;
+use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 class ApiProvider
 {
-    /** @var string session key for access token bearer */
-    private const ACCESS_TOKEN = 'access_token';
-    /** @var string session key for refresh token bearer */
-    private const REFRESH_TOKEN = 'refresh_token';
-    /** @var string session key for token expiration date */
-    private const TOKEN_EXPIRATION = 'token_expiration';
     /** @var string session key for authorization state value */
     private const AUTHORIZATION_STATE = 'auth_state';
     /** @var float api request default timeout */
@@ -95,8 +88,14 @@ class ApiProvider
     private $logger;
 
     /**
+     * @var ApiTokenStorage
+     */
+    private $apiTokenStorage;
+
+    /**
      * @param RequestStack         $requestStack
      * @param SessionInterface     $session
+     * @param ApiTokenStorage      $apiTokenStorage
      * @param string               $baseUri
      * @param string               $clientId
      * @param string               $clientSecret
@@ -112,6 +111,7 @@ class ApiProvider
     public function __construct(
         RequestStack $requestStack,
         SessionInterface $session,
+        ApiTokenStorage $apiTokenStorage,
         string $baseUri,
         string $clientId,
         string $clientSecret,
@@ -126,6 +126,7 @@ class ApiProvider
     ) {
         $this->requestStack = $requestStack;
         $this->session = $session;
+        $this->apiTokenStorage = $apiTokenStorage;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->redirectUri = $redirectUri;
@@ -155,7 +156,7 @@ class ApiProvider
             'timeout'  => $timeout,
         ];
         if ($httpCache) {
-            $params['handler'] = $this->getClientCacheHandler($cacheDirectory);
+            $params['handler'] = $this->getClientHandlerStack($cacheDirectory);
         }
 
         return new Client($params);
@@ -166,7 +167,7 @@ class ApiProvider
      *
      * @return HandlerStack
      */
-    private function getClientCacheHandler(?string $cacheDirectory): HandlerStack
+    private function getClientHandlerStack(?string $cacheDirectory): HandlerStack
     {
         // Create a HandlerStack
         $stack = HandlerStack::create();
@@ -195,11 +196,11 @@ class ApiProvider
     public function request($method, $uri, $options = []): ResponseInterface
     {
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
+        $this->logger->debug('requesting api', compact('method', 'uri', 'options'));
         $response = $this->client->request($method, $uri, $options);
-        if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED) {
-            $this->session->remove(self::ACCESS_TOKEN);
-            $this->session->remove(self::REFRESH_TOKEN);
-            $this->session->remove(self::TOKEN_EXPIRATION);
+        if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED && strpos($uri, 'login') === false) {
+            $this->logger->error('Unauthorized connection to API. Clearing token storage.');
+            $this->apiTokenStorage->clear();
         }
 
         return $response;
@@ -210,6 +211,8 @@ class ApiProvider
      */
     private function getDefaultOptions(): array
     {
+        $token = $this->apiTokenStorage->get();
+
         return [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::HEADERS     => array_filter([
@@ -218,7 +221,7 @@ class ApiProvider
                 'Accept-Language'       => $this->requestStack->getCurrentRequest()
                     ? $this->requestStack->getCurrentRequest()->getLocale()
                     : 'en',
-                'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+                'X-AUTH-TOKEN'          => $token ? $token->getUserToken() : null,
                 'Tagwalk-Showroom-Name' => $this->showroom,
             ]),
             RequestOptions::QUERY       => [
@@ -233,13 +236,14 @@ class ApiProvider
      */
     private function getBearer(): string
     {
-        if (false === $this->session->has(self::ACCESS_TOKEN)) {
+        $token = $this->apiTokenStorage->get();
+        if (null === $token) {
             $this->authenticate();
         } else {
             $now = new DateTime();
-            $refreshToken = $this->session->get(self::REFRESH_TOKEN);
-            $tokenExpiration = $this->session->get(self::TOKEN_EXPIRATION);
-            if ($tokenExpiration && $now->modify('+ 1 minutes') >= $tokenExpiration) {
+            $refreshToken = $token->getRefreshToken();
+            $tokenExpiration = $token->getExpiration();
+            if ($tokenExpiration && $now->modify('+ 30 seconds') >= $tokenExpiration) {
                 if ($refreshToken) {
                     $this->refreshToken($refreshToken);
                 } else {
@@ -247,8 +251,10 @@ class ApiProvider
                 }
             }
         }
+        // reload token
+        $token = $this->apiTokenStorage->get();
 
-        return "Bearer {$this->session->get(self::ACCESS_TOKEN)}";
+        return "Bearer {$token->getAccessToken()}";
     }
 
     /**
@@ -256,23 +262,18 @@ class ApiProvider
      *
      * @throws BadRequestHttpException thrown if state value sent by the api is not the same as the state sent in previous request
      */
-    private function tokenResponseToSession(ResponseInterface $response): void
+    private function cacheTokenResponse(ResponseInterface $response): void
     {
         $auth = json_decode($response->getBody(), true);
         if (isset($auth['state']) && $auth['state'] !== $this->session->get(self::AUTHORIZATION_STATE)) {
             throw new BadRequestHttpException('Incorrect state value.');
         }
-        $this->session->set(self::ACCESS_TOKEN, $auth['access_token']);
-        $this->session->set(self::TOKEN_EXPIRATION, (new DateTime())->add(new DateInterval(sprintf('PT%dS', $auth['expires_in']))));
-        if (isset($auth['refresh_token'])) {
-            $this->session->set(self::REFRESH_TOKEN, $auth['refresh_token']);
-        } else {
-            $this->session->remove(self::REFRESH_TOKEN);
-        }
+        $this->apiTokenStorage->save($auth);
     }
 
     private function authenticate(): void
     {
+        $this->logger->debug('Getting API token from client_credentials.');
         $response = $this->client->request(
             'POST',
             '/oauth/v2/token',
@@ -285,7 +286,7 @@ class ApiProvider
                 RequestOptions::HTTP_ERRORS => true,
             ]
         );
-        $this->tokenResponseToSession($response);
+        $this->cacheTokenResponse($response);
     }
 
     /**
@@ -294,6 +295,11 @@ class ApiProvider
     public function authorize(string $code): void
     {
         try {
+            $this->logger->debug('Getting API token from authorization_code.');
+            $token = $this->apiTokenStorage->get();
+            if ($token === null) {
+                throw new InvalidArgumentException('Unable to ask api for authorization code with empty token storage');
+            }
             $response = $this->client->request(
                 'POST',
                 '/oauth/v2/token',
@@ -306,7 +312,7 @@ class ApiProvider
                         'code'          => $code,
                     ],
                     RequestOptions::HEADERS     => array_filter([
-                        'X-AUTH-TOKEN'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+                        'X-AUTH-TOKEN'          => $token->getUserToken(),
                         'Tagwalk-Showroom-Name' => $this->showroom,
                     ]),
                     RequestOptions::HTTP_ERRORS => true,
@@ -320,13 +326,15 @@ class ApiProvider
             throw $exception;
         }
 
-        $this->tokenResponseToSession($response);
+        $this->cacheTokenResponse($response);
     }
 
     /**
+     * @param string|null $userToken
+     *
      * @return array
      */
-    public function getAuthorizationQueryParameters(): array
+    public function getAuthorizationQueryParameters(?string $userToken): array
     {
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
@@ -336,7 +344,7 @@ class ApiProvider
             'state'                 => $state,
             'client_id'             => $this->clientId,
             'redirect_uri'          => $this->redirectUri,
-            'x-auth-token'          => $this->session->get(ApiAuthenticator::USER_TOKEN),
+            'x-auth-token'          => $userToken,
             'tagwalk-showroom-name' => $this->showroom,
         ]);
     }
@@ -346,6 +354,7 @@ class ApiProvider
      */
     private function refreshToken(string $token): void
     {
+        $this->logger->debug('Refreshing API token.');
         $response = $this->client->request(
             'POST',
             '/oauth/v2/token',
@@ -359,7 +368,7 @@ class ApiProvider
                 RequestOptions::HTTP_ERRORS => true,
             ]
         );
-        $this->tokenResponseToSession($response);
+        $this->cacheTokenResponse($response);
     }
 
     /**

@@ -18,28 +18,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
-use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Model\User;
+use Tagwalk\ApiClientBundle\Security\ApiAuthenticator;
+use Tagwalk\ApiClientBundle\Security\AuthorizationHelper;
 
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
     /**
-     * @var ApiProvider
+     * @var AuthorizationHelper
      */
-    private $apiProvider;
+    private $authorizationHelper;
 
     /**
-     * @var string
+     * @param AuthorizationHelper $authorizationHelper
      */
-    private $authorizationUrl;
-
-    /**
-     * @param ApiProvider $apiProvider
-     * @param string      $authorizationUrl
-     */
-    public function __construct(ApiProvider $apiProvider, ?string $authorizationUrl = null)
+    public function __construct(AuthorizationHelper $authorizationHelper)
     {
-        $this->apiProvider = $apiProvider;
-        $this->authorizationUrl = $authorizationUrl;
+        $this->authorizationHelper = $authorizationHelper;
     }
 
     /**
@@ -54,15 +49,16 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
      */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): Response
     {
-        if ($this->authorizationUrl === null) {
-            throw new LogicException('Authentication without setting authorization_url config is not permitted');
-        }
         $session = $request->getSession();
         if ($session === null) {
             throw new RuntimeException('Missing session');
         }
-        $queryString = http_build_query($this->apiProvider->getAuthorizationQueryParameters());
+        /** @var User $user */
+        $user = $token->getUser();
+        if (null === $user) {
+            throw new RuntimeException('Missing user in token');
+        }
 
-        return new RedirectResponse(sprintf('%s?%s', $this->authorizationUrl, $queryString));
+        return $this->authorizationHelper->getRedirect($user->getApiToken());
     }
 }
