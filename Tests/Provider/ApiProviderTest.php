@@ -1,4 +1,5 @@
-<?php
+<?php /** @noinspection PhpParamsInspection */
+
 /**
  * PHP version 7.
  *
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 class ApiProviderTest extends WebTestCase
 {
@@ -31,9 +33,9 @@ class ApiProviderTest extends WebTestCase
         $request->method('getLocale')->willReturn('en');
         $requestStack = $this->createMock(RequestStack::class);
         $requestStack->method('getCurrentRequest')->willReturn($request);
-        /* @var RequestStack $requestStack */
-        /* @var SessionInterface $session */
-        return new ApiProvider($requestStack, $session, $baseUri, $clientId, $clientSecret, $redirectUri, $timeout);
+        $apiTokenStorage = $this->createMock(ApiTokenStorage::class);
+
+        return new ApiProvider($requestStack, $session, $apiTokenStorage, $baseUri, $clientId, $clientSecret, $redirectUri, $timeout);
     }
 
     public function testConstructor()
