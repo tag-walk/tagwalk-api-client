@@ -11,8 +11,8 @@
 
 namespace Tagwalk\ApiClientBundle\Security;
 
-use \DateInterval;
-use \DateTime;
+use DateInterval;
+use DateTime;
 
 class ApiCredentials
 {

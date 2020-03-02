@@ -11,15 +11,12 @@
 
 namespace Tagwalk\ApiClientBundle\Event;
 
-use LogicException;
 use RuntimeException;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Tagwalk\ApiClientBundle\Model\User;
-use Tagwalk\ApiClientBundle\Security\ApiAuthenticator;
 use Tagwalk\ApiClientBundle\Security\AuthorizationHelper;
 
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface

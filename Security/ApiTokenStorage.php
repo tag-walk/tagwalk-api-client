@@ -14,7 +14,6 @@ namespace Tagwalk\ApiClientBundle\Security;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Tagwalk\ApiClientBundle\Model\User;
 
@@ -36,31 +35,22 @@ class ApiTokenStorage
     private $tokenId;
 
     /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
      * @var LoggerInterface|null
      */
     private $logger;
 
     /**
      * @param TokenStorageInterface $tokenStorage
-     * @param SessionInterface      $session
      * @param LoggerInterface|null  $logger
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
-        SessionInterface $session,
         LoggerInterface $logger = null
     ) {
         $this->tokenStorage = $tokenStorage;
-        $this->session = $session;
         $this->cache = new FilesystemAdapter('api-client-token-storage');
         $this->logger = $logger ?? new NullLogger();
     }
-
 
     /**
      * Initilization
@@ -95,11 +85,6 @@ class ApiTokenStorage
         }
 
         return $this->cache->hasItem($this->tokenId) ? $this->cache->getItem($this->tokenId)->get() : null;
-    }
-
-    public function reload(): ApiCredentials
-    {
-        return $this->cache->getItem($this->tokenId)->get();
     }
 
     /**
