@@ -12,12 +12,9 @@
 namespace Tagwalk\ApiClientBundle\Security;
 
 use GuzzleHttp\RequestOptions;
-use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -29,9 +26,6 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ApiAuthenticator extends AbstractGuardAuthenticator
 {
-    /** @var string user token key name in session */
-    public const USER_TOKEN = 'user-token';
-
     /**
      * @var ApiProvider
      */
@@ -43,20 +37,13 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     private $serializer;
 
     /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
      * @param ApiProvider         $provider
      * @param SerializerInterface $serializer
-     * @param SessionInterface    $session
      */
-    public function __construct(ApiProvider $provider, SerializerInterface $serializer, SessionInterface $session)
+    public function __construct(ApiProvider $provider, SerializerInterface $serializer)
     {
         $this->provider = $provider;
         $this->serializer = $serializer;
-        $this->session = $session;
     }
 
     /**
@@ -105,26 +92,11 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
                 ],
             ]);
             if ($response->getStatusCode() === Response::HTTP_OK) {
-                $this->loginResponseToSession($response);
                 $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
             }
         }
 
         return $user;
-    }
-
-    /**
-     * Save sessid cookie from api login response.
-     *
-     * @param ResponseInterface $response
-     */
-    public function loginResponseToSession(ResponseInterface $response): void
-    {
-        $decoded = json_decode($response->getBody(), true);
-        if (empty($decoded) || empty($decoded['api_token'])) {
-            throw new InvalidArgumentException('Missing user api_token');
-        }
-        $this->session->set(self::USER_TOKEN, $decoded['api_token']);
     }
 
     /**
