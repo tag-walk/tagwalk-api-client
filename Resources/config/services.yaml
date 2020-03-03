@@ -20,6 +20,7 @@ services:
     arguments:
       $requestStack: '@request_stack'
       $session: '@session'
+      $tokenStorage: '@security.token_storage'
       $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
       $baseUri:  ''
       $clientId: ''
