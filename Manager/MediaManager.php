@@ -113,21 +113,19 @@ class MediaManager
     public function findByTypeSeasonDesignerLook(string $type, string $season, string $designer, string $look): ?Media
     {
         $media = null;
-        if ($type && $season && $designer && $look) {
-            $apiResponse = $this->apiProvider->request(
-                'GET',
-                sprintf('/api/medias/%s/%s/%s/%s', $type, $season, $designer, $look),
-                [RequestOptions::HTTP_ERRORS => false]
-            );
-            if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-                $data = json_decode($apiResponse->getBody(), true);
-                $media = $this->serializer->denormalize($data, Media::class);
-            } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-                $this->logger->error('MediaManager::findByTypeSeasonDesignerLook unexpected status code', [
-                    'code'    => $apiResponse->getStatusCode(),
-                    'message' => $apiResponse->getBody()->getContents(),
-                ]);
-            }
+        $apiResponse = $this->apiProvider->request(
+            'GET',
+            sprintf('/api/medias/%s/%s/%s/%s', $type, $season, $designer, $look),
+            [RequestOptions::HTTP_ERRORS => false]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            $media = $this->serializer->denormalize($data, Media::class);
+        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
+            $this->logger->error('MediaManager::findByTypeSeasonDesignerLook unexpected status code', [
+                'code'    => $apiResponse->getStatusCode(),
+                'message' => $apiResponse->getBody()->getContents(),
+            ]);
         }
 
         return $media;

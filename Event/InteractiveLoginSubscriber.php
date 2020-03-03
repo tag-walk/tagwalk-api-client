@@ -15,12 +15,13 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
+use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 /**
  * Stores the locale of the user in the session after the
  * login. This can be used by the LocaleSubscriber afterwards.
  */
-class UserLocaleSubscriber implements EventSubscriberInterface
+class InteractiveLoginSubscriber implements EventSubscriberInterface
 {
     /**
      * @var SessionInterface
@@ -28,32 +29,54 @@ class UserLocaleSubscriber implements EventSubscriberInterface
     private $session;
 
     /**
-     * @param SessionInterface $session
+     * @var ApiTokenStorage
      */
-    public function __construct(SessionInterface $session)
+    private $apiTokenStorage;
+
+    /**
+     * @param SessionInterface $session
+     * @param ApiTokenStorage  $apiTokenStorage
+     */
+    public function __construct(SessionInterface $session, ApiTokenStorage $apiTokenStorage)
     {
         $this->session = $session;
+        $this->apiTokenStorage = $apiTokenStorage;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @uses setUserLocale
+     * @uses initTokenStorage
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
-            SecurityEvents::INTERACTIVE_LOGIN => [['onInteractiveLogin', 15]],
+            SecurityEvents::INTERACTIVE_LOGIN => [
+                ['setUserLocale', 0],
+                ['initTokenStorage', 0],
+            ],
         ];
     }
 
     /**
+     * Set user locale in session to be used by JMS\I18nRoutingBundle\Router::DefaultLocaleResolver
+     *
      * @param InteractiveLoginEvent $event
      */
-    public function onInteractiveLogin(InteractiveLoginEvent $event)
+    public function setUserLocale(InteractiveLoginEvent $event): void
     {
         $user = $event->getAuthenticationToken()->getUser();
-
         if (null !== $user->getLocale()) {
             $this->session->set('_locale', $user->getLocale());
         }
+    }
+
+    /**
+     * Init api token storage with token username
+     */
+    public function initTokenStorage(): void
+    {
+        $this->apiTokenStorage->init();
     }
 }

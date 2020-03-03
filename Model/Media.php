@@ -73,6 +73,13 @@ class Media extends AbstractDocument
     private $designer;
 
     /**
+     * @var Member[]|null
+     * @Assert\Valid()
+     * @Assert\Type("array")
+     */
+    private $members;
+
+    /**
      * @var string
      * @Assert\Type("string")
      * @Assert\Choice(MediaType::VALUES)
@@ -241,7 +248,7 @@ class Media extends AbstractDocument
     }
 
     /**
-     * @return Affiliation[]
+     * @return Affiliation[]|null
      */
     public function getAffiliations(): ?array
     {
@@ -249,9 +256,9 @@ class Media extends AbstractDocument
     }
 
     /**
-     * @param Affiliation[] $affiliations
+     * @param Affiliation[]|null $affiliations
      */
-    public function setAffiliations(?array $affiliations)
+    public function setAffiliations(?array $affiliations = [])
     {
         if (null === $affiliations) {
             $affiliations = [];
@@ -263,7 +270,7 @@ class Media extends AbstractDocument
     /**
      * @param Affiliation $affiliation
      */
-    public function addAffiliations(Affiliation $affiliation)
+    public function addAffiliation(Affiliation $affiliation)
     {
         if (null === $this->affiliations) {
             $this->affiliations = [];
@@ -364,5 +371,32 @@ class Media extends AbstractDocument
     public function setAccessoryCategories(?array $accessoryCategories)
     {
         $this->accessoryCategories = $accessoryCategories;
+    }
+
+    /**
+     * @return Member[]|null
+     */
+    public function getMembers(): ?array
+    {
+        if (null === $this->members) {
+            $this->members = [];
+        }
+
+        return $this->members;
+    }
+
+    /**
+     * @param Member[]|null $members
+     *
+     * @return self
+     */
+    public function setMembers(?array $members): self
+    {
+        if (null === $members) {
+            $members = [];
+        }
+        $this->members = $members;
+
+        return $this;
     }
 }

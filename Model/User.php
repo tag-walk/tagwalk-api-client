@@ -1,6 +1,9 @@
 <?php
+
+/** @noinspection TraitsPropertiesConflictsInspection */
+
 /**
- * PHP version 7.
+ * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
@@ -35,19 +38,21 @@ class User implements UserInterface, EquatableInterface
     use Nameable;
 
     /**
+     * Override Sluggable property definition to reset regex assert
+     *
      * @var string
      */
     protected $slug;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
     private $firstname;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
@@ -60,7 +65,7 @@ class User implements UserInterface, EquatableInterface
     private $email;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
@@ -79,7 +84,7 @@ class User implements UserInterface, EquatableInterface
     private $jobTitle;
 
     /**
-     * @var bool
+     * @var bool|null
      * @Assert\Type("bool")
      */
     private $newsletter;
@@ -109,7 +114,7 @@ class User implements UserInterface, EquatableInterface
     private $country;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      */
     private $locale;
