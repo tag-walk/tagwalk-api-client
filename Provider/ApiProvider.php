@@ -17,6 +17,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
+use InvalidArgumentException;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
@@ -28,6 +29,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 class ApiProvider
@@ -68,6 +71,11 @@ class ApiProvider
     private $session;
 
     /**
+     * @var TokenStorageInterface
+     */
+    private $tokenStorage;
+
+    /**
      * @var bool
      */
     private $lightData;
@@ -93,24 +101,26 @@ class ApiProvider
     private $apiTokenStorage;
 
     /**
-     * @param RequestStack         $requestStack
-     * @param SessionInterface     $session
-     * @param ApiTokenStorage      $apiTokenStorage
-     * @param string               $baseUri
-     * @param string               $clientId
-     * @param string               $clientSecret
-     * @param string               $redirectUri
-     * @param float                $timeout
-     * @param bool                 $lightData do not resolve files path property
-     * @param bool                 $analytics
-     * @param bool                 $httpCache
-     * @param string|null          $cacheDirectory
-     * @param string|null          $showroom
-     * @param LoggerInterface|null $logger
+     * @param RequestStack          $requestStack
+     * @param SessionInterface      $session
+     * @param TokenStorageInterface $tokenStorage
+     * @param ApiTokenStorage       $apiTokenStorage
+     * @param string                $baseUri
+     * @param string                $clientId
+     * @param string                $clientSecret
+     * @param string                $redirectUri
+     * @param float                 $timeout
+     * @param bool                  $lightData do not resolve files path property
+     * @param bool                  $analytics
+     * @param bool                  $httpCache
+     * @param string|null           $cacheDirectory
+     * @param string|null           $showroom
+     * @param LoggerInterface|null  $logger
      */
     public function __construct(
         RequestStack $requestStack,
         SessionInterface $session,
+        TokenStorageInterface $tokenStorage,
         ApiTokenStorage $apiTokenStorage,
         string $baseUri,
         string $clientId,
@@ -135,6 +145,7 @@ class ApiProvider
         $this->showroom = $showroom;
         $this->client = $this->createClient($baseUri, $timeout, $httpCache, $cacheDirectory);
         $this->logger = $logger ?? new NullLogger();
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -297,8 +308,17 @@ class ApiProvider
         try {
             $this->logger->debug('Getting API token from authorization_code.');
             $token = $this->apiTokenStorage->get();
-            if ($token === null) {
-                throw new InvalidArgumentException('Unable to ask api for authorization code with empty token storage');
+            if ($token !== null && $token->getUserToken()) {
+                $apiToken = $token->getUserToken();
+            } else {
+                $token = $this->tokenStorage->getToken();
+                $user = $token->getUser();
+                if ($user !== null && is_object($user) && $user instanceof User) {
+                    $apiToken = $user->getApiToken();
+                }
+            }
+            if (empty($apiToken)) {
+                throw new InvalidArgumentException('Unable to ask api for authorization code without user api token');
             }
             $response = $this->client->request(
                 'POST',
@@ -312,7 +332,7 @@ class ApiProvider
                         'code'          => $code,
                     ],
                     RequestOptions::HEADERS     => array_filter([
-                        'X-AUTH-TOKEN'          => $token->getUserToken(),
+                        'X-AUTH-TOKEN'          => $apiToken,
                         'Tagwalk-Showroom-Name' => $this->showroom,
                     ]),
                     RequestOptions::HTTP_ERRORS => true,
