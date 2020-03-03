@@ -73,6 +73,13 @@ class Media extends AbstractDocument
     private $designer;
 
     /**
+     * @var Member[]|null
+     * @Assert\Valid()
+     * @Assert\Type("array")
+     */
+    private $members;
+
+    /**
      * @var string
      * @Assert\Type("string")
      * @Assert\Choice(MediaType::VALUES)
@@ -364,5 +371,32 @@ class Media extends AbstractDocument
     public function setAccessoryCategories(?array $accessoryCategories)
     {
         $this->accessoryCategories = $accessoryCategories;
+    }
+
+    /**
+     * @return Member[]|null
+     */
+    public function getMembers(): ?array
+    {
+        if (null === $this->members) {
+            $this->members = [];
+        }
+
+        return $this->members;
+    }
+
+    /**
+     * @param Member[]|null $members
+     *
+     * @return self
+     */
+    public function setMembers(?array $members): self
+    {
+        if (null === $members) {
+            $members = [];
+        }
+        $this->members = $members;
+
+        return $this;
     }
 }
