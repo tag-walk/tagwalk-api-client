@@ -22,7 +22,7 @@ class ApiCredentials
     private $userToken;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $accessToken;
 
@@ -32,7 +32,7 @@ class ApiCredentials
     private $refreshToken;
 
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     private $expiration;
 
@@ -53,17 +53,17 @@ class ApiCredentials
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAccessToken(): string
+    public function getAccessToken(): ?string
     {
         return $this->accessToken;
     }
 
     /**
-     * @param string $accessToken
+     * @param string|null $accessToken
      */
-    public function setAccessToken(string $accessToken): void
+    public function setAccessToken(?string $accessToken): void
     {
         $this->accessToken = $accessToken;
     }
