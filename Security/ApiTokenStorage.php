@@ -107,20 +107,20 @@ class ApiTokenStorage
     {
         $credentials = $this->get() ?? new ApiCredentials();
         $credentials = $credentials->denormalize($response);
-        $this->logger->debug('save api credentials', [
-            'response' => $response,
-            'actual_user_token',
-        ]);
         if ($credentials->getUserToken() === null) {
             $token = $this->tokenStorage->getToken();
             $user = $token !== null ? $token->getUser() : null;
-            if ($user !== null && is_object($user) && $user instanceof User) {
+            if (is_object($user) && $user instanceof User) {
                 $this->logger->debug('setting user token from session', [
                     'user_token' => $user->getApiToken(),
                 ]);
                 $credentials->setUserToken($user->getApiToken());
             }
         }
+        $this->logger->debug('save api credentials', [
+            'response' => $response,
+            'user_token' =>  $credentials->getUserToken()
+        ]);
         $cacheItem = $this->cache->getItem($this->tokenId);
         $cacheItem->set($credentials);
         $this->cache->save($cacheItem);

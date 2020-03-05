@@ -248,14 +248,14 @@ class ApiProvider
     private function getBearer(): string
     {
         $token = $this->apiTokenStorage->get();
-        if (null === $token) {
+        if (null === $token || null === $token->getAccessToken()) {
             $this->authenticate();
         } else {
             $now = new DateTime();
             $refreshToken = $token->getRefreshToken();
             $tokenExpiration = $token->getExpiration();
-            if ($tokenExpiration && $now->modify('+ 30 seconds') >= $tokenExpiration) {
-                if ($refreshToken) {
+            if (null !== $tokenExpiration && $now->modify('+ 30 seconds') >= $tokenExpiration) {
+                if ($refreshToken !== null) {
                     $this->refreshToken($refreshToken);
                 } else {
                     $this->authenticate();

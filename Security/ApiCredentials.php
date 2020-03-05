@@ -85,17 +85,17 @@ class ApiCredentials
     }
 
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
-    public function getExpiration(): DateTime
+    public function getExpiration(): ?DateTime
     {
         return $this->expiration;
     }
 
     /**
-     * @param DateTime $expiration
+     * @param DateTime|null $expiration
      */
-    public function setExpiration(DateTime $expiration): void
+    public function setExpiration(?DateTime $expiration): void
     {
         $this->expiration = $expiration;
     }
