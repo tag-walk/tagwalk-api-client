@@ -80,11 +80,20 @@ class ApiTokenStorage
      */
     public function get(): ?ApiCredentials
     {
+        $credentials = null;
         if (null === $this->tokenId) {
             $this->init();
         }
+        if ($this->cache->hasItem($this->tokenId)) {
+            $credentials = $this->cache->getItem($this->tokenId)->get();
+            $this->logger->debug('getting api credentials from cache', [
+               'credentials' => serialize($credentials)
+            ]);
+        }else {
+            $this->logger->debug('could not get api credentials from cache');
+        }
 
-        return $this->cache->hasItem($this->tokenId) ? $this->cache->getItem($this->tokenId)->get() : null;
+        return $credentials;
     }
 
     /**
@@ -98,10 +107,17 @@ class ApiTokenStorage
     {
         $credentials = $this->get() ?? new ApiCredentials();
         $credentials = $credentials->denormalize($response);
+        $this->logger->debug('save api credentials', [
+            'response' => $response,
+            'actual_user_token'
+        ]);
         if ($credentials->getUserToken() === null) {
             $token = $this->tokenStorage->getToken();
             $user = $token !== null ? $token->getUser() : null;
             if ($user !== null && is_object($user) && $user instanceof User) {
+                $this->logger->debug('setting user token from session', [
+                    'user_token' => $user->getApiToken()
+                ]);
                 $credentials->setUserToken($user->getApiToken());
             }
         }
@@ -110,5 +126,19 @@ class ApiTokenStorage
         $this->cache->save($cacheItem);
 
         return $credentials;
+    }
+
+    /**
+     * update user token
+     *
+     * @param string $userToken
+     */
+    public function setUserToken(string $userToken): void
+    {
+        $credentials = $this->get() ?? new ApiCredentials();
+        $credentials->setUserToken($userToken);
+        $cacheItem = $this->cache->getItem($this->tokenId);
+        $cacheItem->set($credentials);
+        $this->cache->save($cacheItem);
     }
 }

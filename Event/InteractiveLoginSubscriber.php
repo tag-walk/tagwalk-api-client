@@ -15,6 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
+use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 /**
@@ -74,9 +75,16 @@ class InteractiveLoginSubscriber implements EventSubscriberInterface
 
     /**
      * Init api token storage with token username
+     *
+     * @param InteractiveLoginEvent $event
      */
-    public function initTokenStorage(): void
+    public function initTokenStorage(InteractiveLoginEvent $event): void
     {
         $this->apiTokenStorage->init();
+        /** @var User $user */
+        $user = $event->getAuthenticationToken()->getUser();
+        if (is_object($user) && $user instanceof User) {
+            $this->apiTokenStorage->setUserToken($user->getApiToken());
+        }
     }
 }
