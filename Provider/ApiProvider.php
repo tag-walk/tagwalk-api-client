@@ -305,21 +305,21 @@ class ApiProvider
      */
     public function authorize(string $code): void
     {
+        $this->logger->debug('Getting API token from authorization_code.');
+        $token = $this->apiTokenStorage->get();
+        if ($token !== null && $token->getUserToken()) {
+            $apiToken = $token->getUserToken();
+        } else {
+            $token = $this->tokenStorage->getToken();
+            $user = $token->getUser();
+            if ($user !== null && is_object($user) && $user instanceof User) {
+                $apiToken = $user->getApiToken();
+            }
+        }
+        if (empty($apiToken)) {
+            throw new InvalidArgumentException('Unable to ask api for authorization code without user api token');
+        }
         try {
-            $this->logger->debug('Getting API token from authorization_code.');
-            $token = $this->apiTokenStorage->get();
-            if ($token !== null && $token->getUserToken()) {
-                $apiToken = $token->getUserToken();
-            } else {
-                $token = $this->tokenStorage->getToken();
-                $user = $token->getUser();
-                if ($user !== null && is_object($user) && $user instanceof User) {
-                    $apiToken = $user->getApiToken();
-                }
-            }
-            if (empty($apiToken)) {
-                throw new InvalidArgumentException('Unable to ask api for authorization code without user api token');
-            }
             $response = $this->client->request(
                 'POST',
                 '/oauth/v2/token',
@@ -339,9 +339,10 @@ class ApiProvider
                 ]
             );
         } catch (ClientException $exception) {
-            if ($exception->getResponse()) {
-                $this->logger->warning('Error authorizing token', json_decode($exception->getResponse()->getBody(), true));
-            }
+            $this->logger->error('Error authorizing token', [
+                'user_token' => $apiToken,
+                'response' => $exception->getResponse() ? json_decode($exception->getResponse()->getBody(), true) : null
+            ]);
 
             throw $exception;
         }
