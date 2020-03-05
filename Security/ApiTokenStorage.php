@@ -118,8 +118,8 @@ class ApiTokenStorage
             }
         }
         $this->logger->debug('save api credentials', [
-            'response' => $response,
-            'user_token' =>  $credentials->getUserToken()
+            'response'   => $response,
+            'user_token' => $credentials->getUserToken(),
         ]);
         $cacheItem = $this->cache->getItem($this->tokenId);
         $cacheItem->set($credentials);
