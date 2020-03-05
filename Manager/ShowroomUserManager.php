@@ -104,14 +104,17 @@ class ShowroomUserManager
                 $created = $this->deserialize($apiResponse);
                 break;
             case Response::HTTP_CONFLICT:
-                $this->logger->notice('ShowroomUser already exists',
+                $this->logger->notice(
+                    'ShowroomUser already exists',
                     [
                         'code'    => $apiResponse->getStatusCode(),
                         'message' => $apiResponse->getBody()->getContents(),
-                    ]);
+                    ]
+                );
                 break;
             default:
-                $this->logger->error('ShowroomUserManager::create unexpected status code',
+                $this->logger->error(
+                    'ShowroomUserManager::create unexpected status code',
                     [
                         'code'    => $apiResponse->getStatusCode(),
                         'message' => $apiResponse->getBody()->getContents(),
@@ -141,14 +144,17 @@ class ShowroomUserManager
                 $created = $this->deserialize($apiResponse);
                 break;
             case Response::HTTP_CONFLICT:
-                $this->logger->notice('Super manager already exists',
+                $this->logger->notice(
+                    'Super manager already exists',
                     [
                         'code'    => $apiResponse->getStatusCode(),
                         'message' => $apiResponse->getBody()->getContents(),
-                    ]);
+                    ]
+                );
                 break;
             default:
-                $this->logger->error('ShowroomUserManager::createSuperManager unexpected status code',
+                $this->logger->error(
+                    'ShowroomUserManager::createSuperManager unexpected status code',
                     [
                         'code'    => $apiResponse->getStatusCode(),
                         'message' => $apiResponse->getBody()->getContents(),

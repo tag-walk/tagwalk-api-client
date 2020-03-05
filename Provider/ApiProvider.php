@@ -319,6 +319,7 @@ class ApiProvider
         if (empty($apiToken)) {
             throw new InvalidArgumentException('Unable to ask api for authorization code without user api token');
         }
+
         try {
             $response = $this->client->request(
                 'POST',
@@ -341,7 +342,7 @@ class ApiProvider
         } catch (ClientException $exception) {
             $this->logger->error('Error authorizing token', [
                 'user_token' => $apiToken,
-                'response' => $exception->getResponse() ? json_decode($exception->getResponse()->getBody(), true) : null
+                'response'   => $exception->getResponse() ? json_decode($exception->getResponse()->getBody(), true) : null,
             ]);
 
             throw $exception;

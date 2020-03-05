@@ -138,7 +138,8 @@ class PageManager
             [
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::QUERY       => $query,
-            ]);
+            ]
+        );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Page $page */
             $page = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Page::class);
@@ -159,7 +160,8 @@ class PageManager
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE',
+        $apiResponse = $this->apiProvider->request(
+            'DELETE',
             '/api/page/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,

@@ -56,7 +56,8 @@ class CollectionManager
         $data = null;
         $apiResponse = $this->apiProvider->request(
             'GET',
-            sprintf('/api/collections/%s/%s/%s', $type, $designer, $season), [
+            sprintf('/api/collections/%s/%s/%s', $type, $designer, $season),
+            [
                 RequestOptions::QUERY       => $query,
                 RequestOptions::HTTP_ERRORS => false,
             ]

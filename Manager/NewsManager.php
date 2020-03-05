@@ -119,7 +119,8 @@ class NewsManager
     public function get(string $slug, ?string $language = null): ?News
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET',
+        $apiResponse = $this->apiProvider->request(
+            'GET',
             '/api/news/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,

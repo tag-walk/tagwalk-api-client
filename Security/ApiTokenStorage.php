@@ -87,9 +87,9 @@ class ApiTokenStorage
         if ($this->cache->hasItem($this->tokenId)) {
             $credentials = $this->cache->getItem($this->tokenId)->get();
             $this->logger->debug('getting api credentials from cache', [
-               'credentials' => serialize($credentials)
+                'credentials' => serialize($credentials),
             ]);
-        }else {
+        } else {
             $this->logger->debug('could not get api credentials from cache');
         }
 
@@ -109,14 +109,14 @@ class ApiTokenStorage
         $credentials = $credentials->denormalize($response);
         $this->logger->debug('save api credentials', [
             'response' => $response,
-            'actual_user_token'
+            'actual_user_token',
         ]);
         if ($credentials->getUserToken() === null) {
             $token = $this->tokenStorage->getToken();
             $user = $token !== null ? $token->getUser() : null;
             if ($user !== null && is_object($user) && $user instanceof User) {
                 $this->logger->debug('setting user token from session', [
-                    'user_token' => $user->getApiToken()
+                    'user_token' => $user->getApiToken(),
                 ]);
                 $credentials->setUserToken($user->getApiToken());
             }

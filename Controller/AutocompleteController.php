@@ -73,7 +73,8 @@ class AutocompleteController extends AbstractController
             $page = $request->query->get('page', 1);
             $results = $this->designerManager->list(
                 $request->getLocale(),
-                ($page - 1) * 20, 20,
+                ($page - 1) * 20,
+                20,
                 $this->designerManager::DEFAULT_SORT,
                 $this->designerManager::DEFAULT_STATUS,
                 false,
@@ -113,7 +114,8 @@ class AutocompleteController extends AbstractController
             $page = $request->query->get('page', 1);
             $results = $this->tagManager->list(
                 $request->getLocale(),
-                ($page - 1) * 20, 20,
+                ($page - 1) * 20,
+                20,
                 $request->getLocale() === 'en' ? 'name:asc' : 'name_'.$request->getLocale().':asc',
                 $this->tagManager::DEFAULT_STATUS,
                 false
@@ -151,7 +153,8 @@ class AutocompleteController extends AbstractController
             $page = $request->query->get('page', 1);
             $results = $this->individualManager->list(
                 $request->getLocale(),
-                ($page - 1) * 20, 20,
+                ($page - 1) * 20,
+                20,
                 $this->individualManager::DEFAULT_SORT,
                 $this->individualManager::DEFAULT_STATUS,
                 false
