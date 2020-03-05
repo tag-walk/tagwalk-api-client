@@ -112,7 +112,8 @@ class OfferManager
             [
                 RequestOptions::HTTP_ERRORS => false,
                 RequestOptions::QUERY       => $query,
-            ]);
+            ]
+        );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             /** @var Offer $offer */
@@ -134,7 +135,8 @@ class OfferManager
      */
     public function delete(string $slug): bool
     {
-        $apiResponse = $this->apiProvider->request('DELETE',
+        $apiResponse = $this->apiProvider->request(
+            'DELETE',
             '/api/offers/'.$slug,
             [
                 RequestOptions::HTTP_ERRORS => false,
