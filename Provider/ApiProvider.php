@@ -307,14 +307,13 @@ class ApiProvider
     {
         try {
             $this->logger->debug('Getting API token from authorization_code.');
-            $token = $this->apiTokenStorage->get();
-            if ($token !== null && $token->getUserToken()) {
-                $apiToken = $token->getUserToken();
+            $token = $this->tokenStorage->getToken();
+            if ($token !== null && (null !== $user = $token->getUser()) && is_object($user) && $user instanceof User) {
+                $apiToken = $user->getApiToken();
             } else {
-                $token = $this->tokenStorage->getToken();
-                $user = $token->getUser();
-                if ($user !== null && is_object($user) && $user instanceof User) {
-                    $apiToken = $user->getApiToken();
+                $token = $this->apiTokenStorage->get();
+                if ($token) {
+                    $apiToken = $token->getUserToken();
                 }
             }
             if (empty($apiToken)) {
