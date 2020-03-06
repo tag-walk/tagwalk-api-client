@@ -126,6 +126,42 @@ class ShowroomUserManager
     }
 
     /**
+    * @param string $email
+    * @param string $password
+    *
+    * @return User|null
+    */
+    public function createPassword(string $email, string $password):?User
+    {
+        $params = [
+            'email'    => $email,
+            'password' => $password
+        ];
+        $apiResponse = $this->apiProvider->request(
+            'PATCH',
+            '/api/showroom/users/password',
+            [
+                RequestOptions::QUERY       => $params,
+                RequestOptions::HTTP_ERRORS => false,
+            ]
+        );
+        $updated = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $updated = $this->deserialize($apiResponse);
+        } else {
+            $this->logger->error(
+                'UserManager::update unexpected status code',
+                [
+                    'code'    => $apiResponse->getStatusCode(),
+                    'message' => $apiResponse->getBody()->getContents(),
+                ]
+            );
+        }
+
+        return $updated;
+    }
+
+    /**
      * @param string $email
      *
      * @return User|null
