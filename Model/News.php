@@ -71,6 +71,13 @@ class News extends AbstractDocument
     private $individuals;
 
     /**
+     * @var File|null
+     * @Assert\Valid()
+     * @Assert\Type("object")
+     */
+    private $banner;
+
+    /**
      * @return \DateTimeInterface|null
      */
     public function getDate(): ?\DateTimeInterface
@@ -166,6 +173,26 @@ class News extends AbstractDocument
     public function setIndividuals(?array $individuals): self
     {
         $this->individuals = $individuals;
+
+        return $this;
+    }
+
+    /**
+     * @return File|null
+     */
+    public function getBanner(): ?File
+    {
+        return $this->banner;
+    }
+
+    /**
+     * @param File|null $banner
+     *
+     * @return News
+     */
+    public function setBanner(?File $banner): News
+    {
+        $this->banner = $banner;
 
         return $this;
     }
