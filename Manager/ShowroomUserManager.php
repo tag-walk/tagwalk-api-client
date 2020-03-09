@@ -126,16 +126,16 @@ class ShowroomUserManager
     }
 
     /**
-    * @param string $email
-    * @param string $password
-    *
-    * @return User|null
-    */
-    public function createPassword(string $email, string $password):?User
+     * @param string $email
+     * @param string $password
+     *
+     * @return User|null
+     */
+    public function createPassword(string $email, string $password): ?User
     {
         $params = [
             'email'    => $email,
-            'password' => $password
+            'password' => $password,
         ];
         $apiResponse = $this->apiProvider->request(
             'PUT',
