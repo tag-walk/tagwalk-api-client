@@ -136,7 +136,7 @@ class ShowroomUserManager
         $params = ['password' => $password];
         $apiResponse = $this->apiProvider->request(
             'POST',
-            '/api/showroom/users/'.$email.'/password',
+            sprintf('/api/showroom/users/%s/password', $email),
             [
                 RequestOptions::QUERY       => $params,
                 RequestOptions::HTTP_ERRORS => false,
