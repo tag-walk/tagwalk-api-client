@@ -138,7 +138,7 @@ class ShowroomUserManager
             'password' => $password
         ];
         $apiResponse = $this->apiProvider->request(
-            'PATCH',
+            'PUT',
             '/api/showroom/users/password',
             [
                 RequestOptions::QUERY       => $params,
