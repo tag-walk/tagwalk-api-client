@@ -133,13 +133,10 @@ class ShowroomUserManager
      */
     public function createPassword(string $email, string $password): ?User
     {
-        $params = [
-            'email'    => $email,
-            'password' => $password,
-        ];
+        $params = ['password' => $password];
         $apiResponse = $this->apiProvider->request(
-            'PUT',
-            '/api/showroom/users/password',
+            'POST',
+            '/api/showroom/users/'.$email.'/password',
             [
                 RequestOptions::QUERY       => $params,
                 RequestOptions::HTTP_ERRORS => false,
@@ -150,7 +147,7 @@ class ShowroomUserManager
             $updated = $this->deserialize($apiResponse);
         } else {
             $this->logger->error(
-                'UserManager::update unexpected status code',
+                'UserManager::createPassword unexpected status code',
                 [
                     'code'    => $apiResponse->getStatusCode(),
                     'message' => $apiResponse->getBody()->getContents(),
