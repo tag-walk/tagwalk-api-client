@@ -188,9 +188,9 @@ class News extends AbstractDocument
     /**
      * @param File|null $banner
      *
-     * @return News
+     * @return self
      */
-    public function setBanner(?File $banner): News
+    public function setBanner(?File $banner): self
     {
         $this->banner = $banner;
 
