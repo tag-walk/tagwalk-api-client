@@ -225,4 +225,29 @@ class UserManager
 
         return $data;
     }
+
+    /**
+     * @param string $email
+     *
+     * @return bool
+     */
+    public function delete(string $email): bool
+    {
+        $apiResponse = $this->apiProvider->request('DELETE', sprintf('/api/users/%s', $email), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+        switch ($apiResponse->getStatusCode()) {
+            case Response::HTTP_NO_CONTENT:
+                return true;
+            case Response::HTTP_NOT_FOUND:
+                return false;
+            default:
+                $this->logger->error('UserManager::delete unexpected status code', [
+                    'code'    => $apiResponse->getStatusCode(),
+                    'message' => $apiResponse->getBody()->getContents(),
+                ]);
+
+                return false;
+        }
+    }
 }
