@@ -55,7 +55,7 @@ class ClientFactory
      * @param string|null $cacheDirectory
      */
     public function __construct(
-        string $baseUri,
+        string $baseUri = '',
         float $timeout = self::DEFAULT_TIMEOUT,
         bool $httpCache = true,
         ?string $cacheDirectory = null

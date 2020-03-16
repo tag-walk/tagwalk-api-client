@@ -39,7 +39,6 @@ class InteractiveLoginSubscriber implements EventSubscriberInterface
      * {@inheritdoc}
      *
      * @uses setUserLocale
-     * @uses initTokenStorage
      */
     public static function getSubscribedEvents(): array
     {

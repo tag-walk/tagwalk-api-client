@@ -100,7 +100,12 @@ class ApiProvider
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED && strpos($uri, 'login') === false) {
             $this->logger->error('Tagwalk API unauthorized error');
+            // invalidate token
             $this->apiTokenStorage->clearAccessToken();
+            // recreate a fresh one
+            $this->apiTokenStorage->getAccessToken();
+            // Retry the request
+            $response = $this->clientFactory->get()->request($method, $uri, $options);
         }
 
         return $response;
@@ -121,7 +126,6 @@ class ApiProvider
         $token = $this->apiTokenStorage->getAccessToken();
         if ($token !== null) {
             $headers['Authorization'] = sprintf('Bearer %s', $token);
-//            $headers['X-AUTH-TOKEN'] = $token->getUserToken();
         }
         // Showroom clients specific headers
         if ($this->showroom !== null) {

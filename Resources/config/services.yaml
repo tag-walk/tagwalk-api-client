@@ -47,6 +47,7 @@ services:
     arguments:
       $tokenStorage: '@security.token_storage'
       $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
+      $cacheDirectory: '%env(CACHE_DIRECTORY)%'
       $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:
