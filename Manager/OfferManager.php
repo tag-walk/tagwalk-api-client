@@ -184,7 +184,7 @@ class OfferManager
      *
      * @return Offer
      */
-    public function update(string $slug, Offer $record): Offer
+    public function update(string $slug, Offer $record): ?Offer
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('PUT', '/api/offers/'.$slug, $params);

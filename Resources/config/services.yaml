@@ -13,30 +13,40 @@ services:
 
   Tagwalk\ApiClientBundle\Security\AuthorizationHelper:
     arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
       $authorizationUrl: null
+
+  Tagwalk\ApiClientBundle\Factory\ClientFactory:
+    arguments:
+      $baseUri: ''
+      $timeout: 30.0
+      $httpCache: true
+      $cacheDirectory: '%env(CACHE_DIRECTORY)%'
+
+  Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator:
+    arguments:
+      $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
+      $session: '@session'
+      $clientId: ''
+      $clientSecret: ''
+      $redirectUri: null
+      $showroom: null
+      $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Provider\ApiProvider:
     arguments:
+      $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
       $requestStack: '@request_stack'
-      $session: '@session'
-      $tokenStorage: '@security.token_storage'
       $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
-      $baseUri:  ''
-      $clientId: ''
-      $clientSecret: ''
-      $redirectUri: ''
-      $timeout: 30.0
       $lightData: false
       $analytics: false
-      $httpCache: true
-      $cacheDirectory: '%env(CACHE_DIRECTORY)%'
       $showroom: null
       $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
     arguments:
       $tokenStorage: '@security.token_storage'
+      $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
       $logger: '@logger'
 
   Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:
@@ -122,6 +132,11 @@ services:
   Tagwalk\ApiClientBundle\Controller\AnalyticsController:
     arguments:
       $manager: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+
+  Tagwalk\ApiClientBundle\Controller\OAuthController:
+    arguments:
+      $apiTokenAuthenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
+      $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
 
   # MANAGERS
   Tagwalk\ApiClientBundle\Manager\OfferManager:
