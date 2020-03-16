@@ -69,7 +69,10 @@ class OAuthController extends AbstractController
         $escaped = urldecode($code);
         try {
             $authentication = $this->apiTokenAuthenticator->authorize($escaped, $userToken);
-            $this->apiTokenStorage->setAccessToken($authentication['access_token'] ?? null);
+            $this->apiTokenStorage->setAccessToken(
+                $authentication['access_token'] ?? null,
+                $authentication['expires_in'] ?? ApiTokenStorage::DEFAULT_ACCESS_TOKEN_TTL
+            );
             $this->apiTokenStorage->setRefreshToken($authentication['refresh_token'] ?? null);
         } catch (ClientException $exception) {
             throw new BadRequestHttpException($exception->getMessage());
