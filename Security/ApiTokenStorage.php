@@ -109,7 +109,7 @@ class ApiTokenStorage
      *
      * Fetch a new access_token or use a refresh_token to restore an old session
      *
-     * @return ApiCredentials
+     * @return string
      */
     public function getAccessToken(): string
     {
@@ -126,7 +126,6 @@ class ApiTokenStorage
             $tokenToRefreshCacheItem = $this->refreshTokenCache->getItem($cacheKey);
             if ($tokenToRefreshCacheItem->isHit()) {
                 // Use refresh token to authenticate
-                /** @var ApiCredentials $tokenToRefresh */
                 $tokenToRefresh = $tokenToRefreshCacheItem->get();
                 $authentication = $this->authenticator->refreshToken($tokenToRefresh);
             } else {
