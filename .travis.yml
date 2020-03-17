@@ -1,33 +1,53 @@
 language: php
+
 sudo: false
+
 cache:
   directories:
     - $HOME/.composer/cache/files
+    - ./vendor/bin/.phpunit
+
 env:
   global:
     - COMPOSER_FLAGS="--no-interaction --no-suggest --dev"
-    - PHPUNIT_FLAGS="--coverage-clover=coverage.xml --coverage-text --verbose"
+    - PHPUNIT_FLAGS="-v"
+
 matrix:
   fast_finish: true
   include:
     - php: 7.2
+      env: SYMFONY_VERSION="4.*" dependencies=lowest
     - php: 7.2
-      env: depedencies=lowest
+      env: SYMFONY_VERSION="4.*" COVERAGE=true PHPUNIT_FLAGS="-v --coverage-clover=coverage.xml --coverage-text"
     - php: 7.2
-      env: depedencies=unstable
+      env: SYMFONY_VERSION="5.*"
+    - php: 7.3
+      env: SYMFONY_VERSION="4.*"
+    - php: 7.3
+      env: SYMFONY_VERSION="5.*"
     - php: 7.4
+      env: SYMFONY_VERSION="4.*"
     - php: 7.4
-      env: depedencies=lowest
+      env: SYMFONY_VERSION="5.*"
     - php: 7.4
-      env: depedencies=unstable
+      env: SYMFONY_VERSION="5.*" dependencies=unstable
+  allow_failures:
+    - php: 7.3
+    - env: SYMFONY_VERSION="5.*" dependencies=unstable
+
 before_install:
-  - 'if [[ "$dependencies" == "unstable" ]] || composer config minimum-stability dev'
+  - if [ "$dependencies" == "unstable" ]; then composer config minimum-stability dev; fi
+
 install:
   - composer install ${COMPOSER_FLAGS}
-  - 'if [[ "$dependencies" == "lowest" ]] || composer update --prefer-lowest ${COMPOSER_FLAGS}'
+  - composer require symfony/framework-bundle:${SYMFONY_VERSION}
+  - if [ "$dependencies" == "lowest" ]; then composer update --prefer-lowest ${COMPOSER_FLAGS}; fi
+
 before_script:
   - composer validate --strict --no-check-lock
+
 script:
   - ./vendor/bin/phpunit ${PHPUNIT_FLAGS}
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - if [[ $COVERAGE = true ]]; then bash <(curl -s https://codecov.io/bash); fi
