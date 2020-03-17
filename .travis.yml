@@ -13,13 +13,20 @@ matrix:
     - php: 7.2
     - php: 7.2
       env: depedencies=lowest
+    - php: 7.2
+      env: depedencies=unstable
     - php: 7.4
     - php: 7.4
       env: depedencies=lowest
+    - php: 7.4
+      env: depedencies=unstable
 before_install:
-  - if [ "$dependencies" = "lowest" ]; then composer config minimum-stability dev; fi;
+  - composer self-update
+  - if [ "$dependencies" = "unstable" ]; then composer config minimum-stability dev; fi;
 install:
-  - composer install ${COMPOSER_FLAGS} if [ "$dependencies" = "lowest" ]; --prefer-source; fi;
+  - composer install ${COMPOSER_FLAGS}
+  - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest ${COMPOSER_FLAGS}; fi;
+before_script:
   - composer validate --strict --no-check-lock
 script:
   - ./vendor/bin/phpunit ${PHPUNIT_FLAGS}
