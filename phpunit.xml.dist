@@ -17,13 +17,13 @@
 
     <filter>
         <whitelist>
-            <directory suffix=".php">Event</directory>
-            <directory suffix=".php">Manager</directory>
-            <directory suffix=".php">Provider</directory>
             <directory suffix=".php">Factory</directory>
             <directory suffix=".php">Security</directory>
-            <directory suffix=".php">Serializer</directory>
-            <directory suffix=".php">Utils</directory>
+            <!--<directory suffix=".php">Event</directory>-->
+            <!--<directory suffix=".php">Manager</directory>-->
+            <!--<directory suffix=".php">Provider</directory>-->
+            <!--<directory suffix=".php">Serializer</directory>-->
+            <!--<directory suffix=".php">Utils</directory>-->
         </whitelist>
     </filter>
 </phpunit>

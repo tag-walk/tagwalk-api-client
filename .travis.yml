@@ -3,35 +3,23 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache/files
-
-env:
-  global:
-    - PHPUNIT_FLAGS="-v"
-
 matrix:
   fast_finish: true
   include:
-    # Minimum supported dependencies with the latest and oldest PHP version
     - php: 7.2
-      env: STABILITY="dev"
+      env: STABILITY=dev COMPOSER_FLAGS="--prefer-source"
     - php: 7.2
-      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" SYMFONY_DEPRECATIONS_HELPER="weak_vendors"
+      env: COMPOSER_FLAGS="--prefer-dist"
     - php: 7.4
-      env: STABILITY="dev"
+      env: STABILITY=dev COMPOSER_FLAGS="--prefer-source"
     - php: 7.4
-      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
-
+      env: COMPOSER_FLAGS="--prefer-dist"
 before_install:
-  - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
   - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
-  - if ! [ -v "$DEPENDENCIES" ]; then composer require --no-update ${DEPENDENCIES}; fi;
-
 install:
-  - composer install ${COMPOSER_FLAGS} --prefer-dist --no-interaction
-
+  - composer install ${COMPOSER_FLAGS} --no-interaction --no-suggest --dev
 script:
   - composer validate --strict --no-check-lock
-  - ./vendor/bin/phpunit $PHPUNIT_FLAGS --coverage-clover=coverage.xml
-
+  - ./vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
 after_success:
   - bash <(curl -s https://codecov.io/bash)
