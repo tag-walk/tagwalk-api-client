@@ -27,6 +27,7 @@ class ApiTokenStorage
 
     /** @var int default refresh token time to live: 1 year */
     public const DEFAULT_REFRESH_TOKEN_TTL = 31536000;
+
     /**
      * @var TokenStorageInterface
      */

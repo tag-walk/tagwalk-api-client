@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Security;
 
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -21,7 +22,7 @@ use Tagwalk\ApiClientBundle\Factory\ClientFactory;
 class ApiTokenAuthenticator
 {
     /** @var string session key for authorization state value */
-    private const AUTHORIZATION_STATE = 'auth_state';
+    public const AUTHORIZATION_STATE = 'auth_state';
 
     /**
      * @var ClientFactory
@@ -144,12 +145,11 @@ class ApiTokenAuthenticator
      */
     public function authorize(string $code, string $userToken): array
     {
-        $this->logger->info('ApiTokenAuthenticator::authorize', [
-            'code'       => $code,
-            'user_token' => $userToken,
-        ]);
-
         try {
+            $this->logger->info('ApiTokenAuthenticator::authorize', [
+                'code'       => $code,
+                'user_token' => $userToken,
+            ]);
             $response = $this->clientFactory->get()->request(
                 'POST',
                 '/oauth/v2/token',
