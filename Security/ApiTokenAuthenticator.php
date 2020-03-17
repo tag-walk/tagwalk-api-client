@@ -148,6 +148,7 @@ class ApiTokenAuthenticator
             'code'       => $code,
             'user_token' => $userToken,
         ]);
+
         try {
             $response = $this->clientFactory->get()->request(
                 'POST',

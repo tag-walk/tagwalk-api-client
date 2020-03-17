@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Tagwalk\ApiClientBundle\Model\User;
-use Tagwalk\ApiClientBundle\Security\ApiCredentials;
 use Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
