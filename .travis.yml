@@ -3,23 +3,25 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache/files
+global:
+  env:
+    - COMPOSER_FLAGS="--no-interaction --no-suggest --dev"
+    - PHPUNIT_FLAGS="--coverage-clover=coverage.xml --coverage-text --verbose"
 matrix:
   fast_finish: true
   include:
     - php: 7.2
-      env: STABILITY=dev COMPOSER_FLAGS="--prefer-source"
     - php: 7.2
-      env: COMPOSER_FLAGS="--prefer-dist"
+      env: depedencies=lowest
     - php: 7.4
-      env: STABILITY=dev COMPOSER_FLAGS="--prefer-source"
     - php: 7.4
-      env: COMPOSER_FLAGS="--prefer-dist"
+      env: depedencies=lowest
 before_install:
-  - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
+  - if [ "$dependencies" = "lowest" ]; then composer config minimum-stability dev; fi;
 install:
-  - composer install ${COMPOSER_FLAGS} --no-interaction --no-suggest --dev
-script:
+  - composer install ${COMPOSER_FLAGS} if [ "$dependencies" = "lowest" ]; --prefer-source; fi;
   - composer validate --strict --no-check-lock
-  - ./vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.xml
+script:
+  - ./vendor/bin/phpunit ${PHPUNIT_FLAGS}
 after_success:
   - bash <(curl -s https://codecov.io/bash)
