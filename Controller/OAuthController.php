@@ -66,6 +66,7 @@ class OAuthController extends AbstractController
         }
         $code = $request->query->get('code');
         $escaped = urldecode($code);
+
         try {
             $authentication = $this->apiTokenAuthenticator->authorize($escaped, $userToken);
             $this->apiTokenStorage->setAccessToken(

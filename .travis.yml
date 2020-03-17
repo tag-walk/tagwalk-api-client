@@ -18,6 +18,10 @@ matrix:
           env: STABILITY="dev"
         - php: 7.2
           env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" SYMFONY_DEPRECATIONS_HELPER="weak_vendors"
+        - php: 7.4
+          env: STABILITY="dev"
+        - php: 7.4
+          env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest"
 
 before_install:
     - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
