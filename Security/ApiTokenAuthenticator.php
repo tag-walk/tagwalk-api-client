@@ -50,12 +50,12 @@ class ApiTokenAuthenticator
     private $redirectUri;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $showroom;
 
     /**
-     * @var LoggerInterface|null
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -171,7 +171,7 @@ class ApiTokenAuthenticator
         } catch (ClientException $exception) {
             $this->logger->error('Error authorizing token', [
                 'user_token' => $userToken,
-                'response'   => $exception->getResponse() ? json_decode($exception->getResponse()->getBody(), true) : null,
+                'response'   => $exception->getResponse() !== null ? json_decode($exception->getResponse()->getBody(), true) : null,
             ]);
 
             throw $exception;

@@ -49,7 +49,7 @@ class ApiTokenStorage
     private $refreshTokenCache;
 
     /**
-     * @var LoggerInterface|null
+     * @var LoggerInterface
      */
     private $logger;
 
