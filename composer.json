@@ -1,7 +1,7 @@
 {
   "name": "tagwalk/api-client-bundle",
   "type": "symfony-bundle",
-  "description": "This bundle provides access to the Tagwalk API",
+  "description": "Tagwalk API client (symfony bundle)",
   "homepage": "https://www.tag-walk.com",
   "license": "LGPL-3.0-or-later",
   "authors": [
@@ -10,6 +10,11 @@
       "email": "florian@tag-walk.com"
     }
   ],
+  "keywords": [
+    "tagwalk",
+    "tagwalk-api",
+    "tagwalk-api-client"
+  ],
   "require": {
     "php": ">=7.2",
     "ext-json": "*",
@@ -17,19 +22,32 @@
     "guzzlehttp/guzzle": "^6.3",
     "kevinrob/guzzle-cache-middleware": "^3.2",
     "psr/cache": "^1.0",
-    "symfony/framework-bundle": "^4.2",
-    "symfony/security-bundle": "^4.2",
-    "symfony/validator": "^4.2",
-    "symfony/form": "^4.2",
-    "symfony/asset": "^4.2",
-    "symfony/translation": "^4.2",
-    "symfony/serializer": "^4.2",
-    "symfony/property-info": "^4.2",
-    "symfony/routing": "^4.2",
-    "symfony/cache": "^4.2"
+    "symfony/framework-bundle": "^4.2 || ^5.0",
+    "symfony/security-bundle": "^4.2 || ^5.0",
+    "symfony/validator": "^4.2 || ^5.0",
+    "symfony/form": "^4.2 || ^5.0",
+    "symfony/asset": "^4.2 || ^5.0",
+    "symfony/translation": "^4.2 || ^5.0",
+    "symfony/serializer": "^4.2 || ^5.0",
+    "symfony/property-info": "^4.2 || ^5.0",
+    "symfony/routing": "^4.2 || ^5.0",
+    "symfony/cache": "^4.2 || ^5.0"
   },
   "require-dev": {
-    "symfony/phpunit-bridge": "^4.2"
+    "phpunit/phpunit": "^8.5",
+    "phpstan/phpstan": "^0.12.17",
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpstan/phpstan-phpunit": "^0.12.6"
+  },
+  "scripts": {
+    "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
+    "phpstan": "phpstan analyse -l 1 -c phpstan.neon . --ansi",
+    "phpunit": "phpunit --coverage-text",
+    "test": [
+      "@phpcs",
+      "@phpstan",
+      "@phpunit"
+    ]
   },
   "autoload": {
     "psr-4": {

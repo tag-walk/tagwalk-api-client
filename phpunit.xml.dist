@@ -1,27 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/7.5/phpunit.xsd"
-        colors="true"
-        bootstrap="vendor/autoload.php"
->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/8.5/phpunit.xsd"
+         colors="true"
+         bootstrap="vendor/autoload.php">
     <php>
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+        <!--<env name="TAGWALK_API_URL" value="http://127.0.0.1:8080"/>-->
+        <!--<env name="TAGWALK_API_CLIENT_ID" value=""/>-->
+        <!--<env name="TAGWALK_API_CLIENT_SECRET" value=""/>-->
     </php>
+
     <testsuites>
-        <testsuite name="TagwalkApiClientBundle Test Suite">
+        <testsuite name="TagwalkApiClientBundle">
             <directory>Tests</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">DependencyInjection</directory>
-            <directory suffix=".php">Form</directory>
-            <directory suffix=".php">Model</directory>
-            <directory suffix=".php">Provider</directory>
+            <directory suffix=".php">Factory</directory>
             <directory suffix=".php">Security</directory>
-            <directory suffix=".php">Serializer</directory>
+            <!--<directory suffix=".php">Event</directory>-->
+            <!--<directory suffix=".php">Manager</directory>-->
+            <!--<directory suffix=".php">Provider</directory>-->
+            <!--<directory suffix=".php">Serializer</directory>-->
+            <!--<directory suffix=".php">Utils</directory>-->
         </whitelist>
     </filter>
 </phpunit>

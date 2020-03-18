@@ -13,14 +13,16 @@ namespace Tagwalk\ApiClientBundle\Security;
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
+/**
+ * Public service to get RedirectResponse to api authorization url
+ */
 class AuthorizationHelper
 {
     /**
-     * @var ApiProvider
+     * @var ApiTokenAuthenticator
      */
-    private $apiProvider;
+    private $authenticator;
 
     /**
      * @var string|null
@@ -28,12 +30,14 @@ class AuthorizationHelper
     private $authorizationUrl;
 
     /**
-     * @param ApiProvider $apiProvider
-     * @param string      $authorizationUrl
+     * @param ApiTokenAuthenticator $authenticator
+     * @param string|null           $authorizationUrl
      */
-    public function __construct(ApiProvider $apiProvider, ?string $authorizationUrl = null)
-    {
-        $this->apiProvider = $apiProvider;
+    public function __construct(
+        ApiTokenAuthenticator $authenticator,
+        ?string $authorizationUrl = null
+    ) {
+        $this->authenticator = $authenticator;
         $this->authorizationUrl = $authorizationUrl;
     }
 
@@ -49,7 +53,7 @@ class AuthorizationHelper
         if (null === $this->authorizationUrl) {
             throw new NotFoundHttpException('Missing authorization url configuration');
         }
-        $queryParams = $this->apiProvider->getAuthorizationQueryParameters($userToken);
+        $queryParams = $this->authenticator->getAuthorizationQueryParameters($userToken);
         $queryString = http_build_query($queryParams);
         $url = sprintf('%s?%s', $this->authorizationUrl, $queryString);
 

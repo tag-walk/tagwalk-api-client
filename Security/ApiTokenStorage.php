@@ -11,134 +11,196 @@
 
 namespace Tagwalk\ApiClientBundle\Security;
 
+use DateInterval;
+use DateTime;
+use Psr\Cache\CacheItemInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Tagwalk\ApiClientBundle\Model\User;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ApiTokenStorage
 {
+    /** @var int default access token time to live: 1 hour */
+    public const DEFAULT_ACCESS_TOKEN_TTL = 3600;
+
+    /** @var int default refresh token time to live: 1 year */
+    public const DEFAULT_REFRESH_TOKEN_TTL = 31536000;
+
     /**
      * @var TokenStorageInterface
      */
     private $tokenStorage;
 
     /**
+     * @var ApiTokenAuthenticator
+     */
+    private $authenticator;
+
+    /**
      * @var FilesystemAdapter
      */
-    private $cache;
+    private $accessTokenCache;
 
     /**
-     * @var string
+     * @var FilesystemAdapter
      */
-    private $tokenId;
+    private $refreshTokenCache;
 
     /**
-     * @var LoggerInterface|null
+     * @var LoggerInterface
      */
     private $logger;
 
     /**
+     * @var string
+     */
+    private $identifier;
+
+    /**
      * @param TokenStorageInterface $tokenStorage
+     * @param ApiTokenAuthenticator $authenticator
+     * @param string|null           $cacheDirectory
      * @param LoggerInterface|null  $logger
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
+        ApiTokenAuthenticator $authenticator,
+        ?string $cacheDirectory = null,
         LoggerInterface $logger = null
     ) {
         $this->tokenStorage = $tokenStorage;
-        $this->cache = new FilesystemAdapter('api-client-token-storage');
+        $this->authenticator = $authenticator;
+        $this->accessTokenCache = new FilesystemAdapter('access_token', self::DEFAULT_ACCESS_TOKEN_TTL, $cacheDirectory);
+        $this->refreshTokenCache = new FilesystemAdapter('refresh_token', self::DEFAULT_REFRESH_TOKEN_TTL, $cacheDirectory);
         $this->logger = $logger ?? new NullLogger();
     }
 
     /**
-     * Initilization
+     * Initilize storage key
+     *
+     * @param string|null $username
      */
-    public function init(): void
+    public function init(?string $username = null): void
     {
         $token = $this->tokenStorage->getToken();
-        $username = $token === null ? 'anon.' : $token->getUsername();
-        $this->tokenId = md5($username);
+        if (null === $username) {
+            $username = $token === null ? 'anon.' : $token->getUsername();
+        }
+        $this->identifier = md5($username);
         $this->logger->debug('ApiTokenStorage::Init', [
             'class'    => $token !== null ? get_class($token) : null,
             'username' => $username,
-            'token_id' => $this->tokenId,
+            'token_id' => $this->identifier,
         ]);
     }
 
     /**
      * Clear existing token
      */
-    public function clear(): void
+    public function clearAccessToken(): void
     {
-        $this->cache->delete($this->tokenId);
+        $this->logger->notice('Clearing token from ApiTokenStorage');
+        $this->accessTokenCache->delete($this->identifier);
     }
 
     /**
-     * @return ApiCredentials|null
+     * Returns a valid access token for the current user
+     *
+     * Fetch a new access_token or use a refresh_token to restore an old session
+     *
+     * @return string
      */
-    public function get(): ?ApiCredentials
+    public function getAccessToken(): string
     {
         $credentials = null;
-        if (null === $this->tokenId) {
+        if (null === $this->identifier) {
             $this->init();
         }
-        if ($this->cache->hasItem($this->tokenId)) {
-            $credentials = $this->cache->getItem($this->tokenId)->get();
-            $this->logger->debug('getting api credentials from cache', [
-                'credentials' => serialize($credentials),
-            ]);
-        } else {
-            $this->logger->debug('could not get api credentials from cache');
-        }
-
-        return $credentials;
-    }
-
-    /**
-     * Load token credentials from api response
-     *
-     * @param array $response
-     *
-     * @return ApiCredentials
-     */
-    public function save(array $response): ApiCredentials
-    {
-        $credentials = $this->get() ?? new ApiCredentials();
-        $credentials = $credentials->denormalize($response);
-        if ($credentials->getUserToken() === null) {
-            $token = $this->tokenStorage->getToken();
-            $user = $token !== null ? $token->getUser() : null;
-            if (is_object($user) && $user instanceof User) {
-                $this->logger->debug('setting user token from session', [
-                    'user_token' => $user->getApiToken(),
-                ]);
-                $credentials->setUserToken($user->getApiToken());
+        $cacheKey = $this->identifier;
+        /** @var float $beta probabilistic early expiration, disable early recompute when refresh token is available and boost early recomputation on anonymous token */
+        $beta = $this->refreshTokenCache->getItem($cacheKey)->isHit() ? 0 : 2.0;
+        $accessToken = $this->accessTokenCache->get($cacheKey, function (ItemInterface $item) use ($cacheKey) {
+            $dateTime = new DateTime();
+            // check for refresh token in cache storage
+            $tokenToRefreshCacheItem = $this->refreshTokenCache->getItem($cacheKey);
+            if ($tokenToRefreshCacheItem->isHit()) {
+                // Use refresh token to authenticate
+                $tokenToRefresh = $tokenToRefreshCacheItem->get();
+                $authentication = $this->authenticator->refreshToken($tokenToRefresh);
+            } else {
+                // create a new anonymous token
+                $authentication = $this->authenticator->authenticate();
             }
-        }
-        $this->logger->debug('save api credentials', [
-            'response' => $response,
-            'user_token' =>  $credentials->getUserToken()
-        ]);
-        $cacheItem = $this->cache->getItem($this->tokenId);
-        $cacheItem->set($credentials);
-        $this->cache->save($cacheItem);
+            $this->logger->debug('ApiTokenStorage::getAccessToken creating cache fron api response', $authentication);
+            // save the refresh token in his storage
+            if (isset($authentication['refresh_token'])) {
+                $refreshTokenExpiration = (clone $dateTime)->modify('+1 year');
+                $tokenToRefreshCacheItem->set($authentication['refresh_token']);
+                $tokenToRefreshCacheItem->expiresAt($refreshTokenExpiration);
+                $this->refreshTokenCache->save($tokenToRefreshCacheItem);
+            }
+            // set cache item expiration from response
+            if (isset($authentication['expires_in'])) {
+                $accessTokenExpiration = (clone $dateTime)->add(new DateInterval(sprintf('PT%dS', (int) $authentication['expires_in'])));
+                $this->logger->debug('access_token cache item will expires at '.$accessTokenExpiration->format(DATE_ATOM));
+                $item->expiresAt($accessTokenExpiration);
+            } else {
+                $this->logger->debug(sprintf('access_token cache item will expires in %d seconds', self::DEFAULT_ACCESS_TOKEN_TTL));
+                $item->expiresAfter(self::DEFAULT_ACCESS_TOKEN_TTL);
+            }
 
-        return $credentials;
+            return $authentication['access_token'];
+        }, $beta);
+        $this->logger->debug('ApiTokenStorage::getAccessToken', ['access_token' => $accessToken]);
+
+        return $accessToken;
     }
 
     /**
-     * update user token
+     * Save access token in cache storage
      *
-     * @param string $userToken
+     * @param string|null $accessToken
+     * @param int         $expiresIn
      */
-    public function setUserToken(string $userToken): void
+    public function setAccessToken(?string $accessToken, int $expiresIn = self::DEFAULT_ACCESS_TOKEN_TTL): void
     {
-        $credentials = $this->get() ?? new ApiCredentials();
-        $credentials->setUserToken($userToken);
-        $cacheItem = $this->cache->getItem($this->tokenId);
-        $cacheItem->set($credentials);
-        $this->cache->save($cacheItem);
+        if (null === $this->identifier) {
+            $this->init();
+        }
+        $this->logger->debug('ApiTokenStorage::setAccessToken', [
+            'identifier'   => $this->identifier,
+            'access_token' => $accessToken,
+            'expires_in'   => $expiresIn,
+        ]);
+        /** @var CacheItemInterface $cacheItem */
+        $cacheItem = $this->accessTokenCache->getItem($this->identifier);
+        $cacheItem->set($accessToken);
+        $cacheItem->expiresAfter(new DateInterval(sprintf('PT%dS', $expiresIn)));
+        $this->accessTokenCache->save($cacheItem);
+    }
+
+    /**
+     * Save refresh token in cache storage
+     *
+     * @param string|null $refreshToken
+     * @param int         $expiresIn
+     */
+    public function setRefreshToken(?string $refreshToken, int $expiresIn = self::DEFAULT_REFRESH_TOKEN_TTL): void
+    {
+        if (null === $this->identifier) {
+            $this->init();
+        }
+        $this->logger->debug('ApiTokenStorage::setRefreshToken', [
+            'identifier'    => $this->identifier,
+            'refresh_token' => $refreshToken,
+            'expires_in'    => $expiresIn,
+        ]);
+        /** @var CacheItemInterface $cacheItem */
+        $cacheItem = $this->refreshTokenCache->getItem($this->identifier);
+        $cacheItem->set($refreshToken);
+        $cacheItem->expiresAfter(new DateInterval(sprintf('PT%dS', $expiresIn)));
+        $this->refreshTokenCache->save($cacheItem);
     }
 }

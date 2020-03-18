@@ -15,8 +15,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
-use Tagwalk\ApiClientBundle\Model\User;
-use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 /**
  * Stores the locale of the user in the session after the
@@ -30,32 +28,26 @@ class InteractiveLoginSubscriber implements EventSubscriberInterface
     private $session;
 
     /**
-     * @var ApiTokenStorage
-     */
-    private $apiTokenStorage;
-
-    /**
      * @param SessionInterface $session
-     * @param ApiTokenStorage  $apiTokenStorage
      */
-    public function __construct(SessionInterface $session, ApiTokenStorage $apiTokenStorage)
+    public function __construct(SessionInterface $session)
     {
         $this->session = $session;
-        $this->apiTokenStorage = $apiTokenStorage;
     }
 
     /**
      * {@inheritdoc}
      *
      * @uses setUserLocale
-     * @uses initTokenStorage
      */
     public static function getSubscribedEvents(): array
     {
         return [
             SecurityEvents::INTERACTIVE_LOGIN => [
-                ['setUserLocale', 0],
-                ['initTokenStorage', 0],
+                [
+                    'setUserLocale',
+                    0,
+                ],
             ],
         ];
     }
@@ -70,21 +62,6 @@ class InteractiveLoginSubscriber implements EventSubscriberInterface
         $user = $event->getAuthenticationToken()->getUser();
         if (null !== $user->getLocale()) {
             $this->session->set('_locale', $user->getLocale());
-        }
-    }
-
-    /**
-     * Init api token storage with token username
-     *
-     * @param InteractiveLoginEvent $event
-     */
-    public function initTokenStorage(InteractiveLoginEvent $event): void
-    {
-        $this->apiTokenStorage->init();
-        /** @var User $user */
-        $user = $event->getAuthenticationToken()->getUser();
-        if (is_object($user) && $user instanceof User) {
-            $this->apiTokenStorage->setUserToken($user->getApiToken());
         }
     }
 }

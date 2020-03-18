@@ -79,7 +79,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     /**
      * {@inheritdoc}
      */
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         $user = null;
         $password = $credentials['password'];
@@ -92,6 +92,7 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
                 ],
             ]);
             if ($response->getStatusCode() === Response::HTTP_OK) {
+                /** @var User $user */
                 $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
             }
         }
