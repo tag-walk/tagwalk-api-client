@@ -41,7 +41,7 @@
   },
   "scripts": {
     "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
-    "phpstan": "phpstan analyse -l 1 -c phpstan.src.neon . --ansi",
+    "phpstan": "phpstan analyse -l 1 -c phpstan.neon . --ansi",
     "phpunit": "phpunit --coverage-text",
     "test": [
       "@phpcs",
