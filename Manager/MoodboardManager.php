@@ -76,7 +76,7 @@ class MoodboardManager
         $this->lastCount = 0;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/', [
             RequestOptions::QUERY       => $params,
-            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::HTTP_ERRORS => true,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
