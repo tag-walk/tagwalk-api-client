@@ -98,8 +98,6 @@ class ShowroomUserManager
         ]);
         $created = null;
         switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_FORBIDDEN:
-                throw new ApiAccessDeniedException();
             case Response::HTTP_CREATED:
                 $created = $this->deserialize($apiResponse);
                 break;
@@ -171,8 +169,6 @@ class ShowroomUserManager
         ]);
         $created = null;
         switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_FORBIDDEN:
-                throw new ApiAccessDeniedException();
             case Response::HTTP_CREATED:
                 $created = $this->deserialize($apiResponse);
                 break;

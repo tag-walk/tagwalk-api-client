@@ -52,7 +52,7 @@ class UserProvider implements UserProviderInterface
     {
         $response = $this->provider->request('GET', '/api/users/'.strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
         if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new UsernameNotFoundException();
+            throw new UsernameNotFoundException(sprintf('user not found with %s', $username));
         }
         if ($response->getStatusCode() !== Response::HTTP_OK) {
             throw new ServiceUnavailableHttpException('Unable to connect');
