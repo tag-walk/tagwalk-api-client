@@ -79,9 +79,11 @@ class OAuthController extends AbstractController
         }
         // redirection
         $session = $request->getSession();
-        $redirect = '/';
-        if ($session) {
-            $redirect = $session->get('_security.main.target_path') ?? $session->get('login_redirect');
+        if ($session === null) {
+            $redirect = '/';
+        } else {
+            $target = $session->get('_security.main.target_path');
+            $redirect = empty($target) ? $session->get('login_redirect', '/') : $target;
         }
 
         return new RedirectResponse($redirect);
