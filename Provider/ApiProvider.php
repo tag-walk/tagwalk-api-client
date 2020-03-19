@@ -155,6 +155,7 @@ class ApiProvider
      * @param array  $options
      *
      * @return PromiseInterface
+     *
      * @deprecated request logic not implemented
      */
     public function requestAsync($method, $uri, $options = []): PromiseInterface
