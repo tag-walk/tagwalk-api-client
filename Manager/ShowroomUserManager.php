@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -98,8 +97,6 @@ class ShowroomUserManager
         ]);
         $created = null;
         switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_FORBIDDEN:
-                throw new ApiAccessDeniedException();
             case Response::HTTP_CREATED:
                 $created = $this->deserialize($apiResponse);
                 break;
@@ -171,8 +168,6 @@ class ShowroomUserManager
         ]);
         $created = null;
         switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_FORBIDDEN:
-                throw new ApiAccessDeniedException();
             case Response::HTTP_CREATED:
                 $created = $this->deserialize($apiResponse);
                 break;

@@ -19,6 +19,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Factory\ClientFactory;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
@@ -98,14 +99,20 @@ class ApiProvider
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
         $this->logger->debug('requesting api', compact('method', 'uri', 'options'));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
-        if ($response->getStatusCode() === Response::HTTP_UNAUTHORIZED && strpos($uri, 'login') === false) {
-            $this->logger->error('Tagwalk API unauthorized error');
-            // invalidate token
-            $this->apiTokenStorage->clearAccessToken();
-            // recreate a fresh one
-            $this->apiTokenStorage->getAccessToken();
-            // Retry the request
-            $response = $this->clientFactory->get()->request($method, $uri, $options);
+        if (strpos($uri, 'login') === false) {
+            switch ($response->getStatusCode()) {
+                case Response::HTTP_UNAUTHORIZED:
+                    $this->logger->error('Tagwalk API unauthorized error');
+                    // invalidate token
+                    $this->apiTokenStorage->clearAccessToken();
+                    // recreate a fresh one
+                    $this->apiTokenStorage->getAccessToken();
+                    // Retry the request
+                    $response = $this->clientFactory->get()->request($method, $uri, $options);
+                    break;
+                case Response::HTTP_FORBIDDEN:
+                    throw new ApiAccessDeniedException();
+            }
         }
 
         return $response;
@@ -148,6 +155,8 @@ class ApiProvider
      * @param array  $options
      *
      * @return PromiseInterface
+     *
+     * @deprecated request logic not implemented
      */
     public function requestAsync($method, $uri, $options = []): PromiseInterface
     {

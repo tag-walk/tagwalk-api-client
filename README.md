@@ -2,6 +2,9 @@ Tagwalk API Client Bundle
 =========================
 
 [![Build Status](https://travis-ci.org/tag-walk/tagwalk-api-client.svg?branch=master)](https://travis-ci.org/tag-walk/tagwalk-api-client)
+[![codecov](https://codecov.io/gh/tag-walk/tagwalk-api-client/branch/master/graph/badge.svg)](https://codecov.io/gh/tag-walk/tagwalk-api-client)
+[![styleci](https://github.styleci.io/repos/140304197/shield)](https://github.styleci.io/repos/140304197)
+
 
 ### Step 1: Download the Bundle
 

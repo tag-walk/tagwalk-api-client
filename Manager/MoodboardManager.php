@@ -22,7 +22,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
-use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -78,9 +77,6 @@ class MoodboardManager
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
@@ -105,9 +101,6 @@ class MoodboardManager
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
 
         return (int) $apiResponse->getHeaderLine('X-Total-Count');
     }
@@ -122,8 +115,6 @@ class MoodboardManager
         $moodboard = null;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
         switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_FORBIDDEN:
-                throw new ApiAccessDeniedException();
             case Response::HTTP_OK:
                 $moodboard = $this->denormalizeResponse($apiResponse);
                 break;
@@ -208,9 +199,6 @@ class MoodboardManager
             RequestOptions::JSON        => $this->serializer->normalize($moodboard, null, ['write' => true]),
         ];
         $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/moodboards', $params);
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
         if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
             $this->logger->error('MoodboardManager::create unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
@@ -231,9 +219,6 @@ class MoodboardManager
     public function delete(string $slug): bool
     {
         $apiResponse = $this->apiProvider->request(Request::METHOD_DELETE, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
@@ -252,9 +237,6 @@ class MoodboardManager
             sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
@@ -269,9 +251,6 @@ class MoodboardManager
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             return $this->denormalizeResponse($apiResponse);
         }
@@ -300,9 +279,6 @@ class MoodboardManager
             sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
-        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
-            throw new ApiAccessDeniedException();
-        }
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
             $this->logger->error('MoodboardManager::addLook unexpected status code', [
                 'code'    => $apiResponse->getStatusCode(),
