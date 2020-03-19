@@ -78,6 +78,9 @@ class MoodboardManager
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new ApiAccessDeniedException();
+        }
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             if (!empty($data)) {
@@ -102,6 +105,9 @@ class MoodboardManager
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
         ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new ApiAccessDeniedException();
+        }
 
         return (int) $apiResponse->getHeaderLine('X-Total-Count');
     }
@@ -263,6 +269,9 @@ class MoodboardManager
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        if ($apiResponse->getStatusCode() === Response::HTTP_FORBIDDEN) {
+            throw new ApiAccessDeniedException();
+        }
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             return $this->denormalizeResponse($apiResponse);
         }
