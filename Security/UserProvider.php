@@ -55,7 +55,7 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function loadUserByUsername($username)
     {
@@ -66,8 +66,8 @@ class UserProvider implements UserProviderInterface
         if ($response->getStatusCode() !== Response::HTTP_OK) {
             $this->logger->error('UserProvider::loadUserByUsername error ', [
                 'username' => $username,
-                'message' => (string) $response->getBody(),
-                'code' => $response->getStatusCode(),
+                'message'  => (string) $response->getBody(),
+                'code'     => $response->getStatusCode(),
             ]);
 
             throw new ServiceUnavailableHttpException('Unable to connect');
@@ -79,7 +79,7 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function refreshUser(UserInterface $user): UserInterface
     {
