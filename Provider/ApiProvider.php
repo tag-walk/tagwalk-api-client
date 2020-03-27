@@ -105,6 +105,7 @@ class ApiProvider
                 case Response::HTTP_UNAUTHORIZED:
                     $this->logger->error('ApiProvider::request unauthorized error');
                     $this->apiTokenStorage->clearCachedToken();
+
                     throw new ApiAccessDeniedException();
                 case Response::HTTP_FORBIDDEN:
                     throw new ApiAccessDeniedException();
@@ -131,6 +132,7 @@ class ApiProvider
         } catch (ClientException $exception) {
             $this->logger->error('ApiTokenStorage::getAccessToken unauthorized error');
             $this->apiTokenStorage->clearCachedToken();
+
             throw new ApiAccessDeniedException();
         }
         if ($token !== null) {
