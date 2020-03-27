@@ -15,4 +15,8 @@ use Exception;
 
 class ApiAccessDeniedException extends Exception
 {
+    public function __construct($message = 'Api Access Denied')
+    {
+        parent::__construct($message);
+    }
 }

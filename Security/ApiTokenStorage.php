@@ -99,10 +99,11 @@ class ApiTokenStorage
     /**
      * Clear existing token
      */
-    public function clearAccessToken(): void
+    public function clearCachedToken(): void
     {
         $this->logger->notice('Clearing token from ApiTokenStorage');
         $this->accessTokenCache->delete($this->identifier);
+        $this->refreshTokenCache->delete($this->identifier);
     }
 
     /**
@@ -124,6 +125,7 @@ class ApiTokenStorage
         $accessToken = $this->accessTokenCache->get($cacheKey, function (ItemInterface $item) use ($cacheKey) {
             $dateTime = new DateTime();
             // check for refresh token in cache storage
+            /** @var CacheItemInterface $tokenToRefreshCacheItem */
             $tokenToRefreshCacheItem = $this->refreshTokenCache->getItem($cacheKey);
             if ($tokenToRefreshCacheItem->isHit()) {
                 // Use refresh token to authenticate

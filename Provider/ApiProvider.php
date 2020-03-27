@@ -102,14 +102,9 @@ class ApiProvider
         if (strpos($uri, 'login') === false) {
             switch ($response->getStatusCode()) {
                 case Response::HTTP_UNAUTHORIZED:
-                    $this->logger->error('Tagwalk API unauthorized error');
-                    // invalidate token
-                    $this->apiTokenStorage->clearAccessToken();
-                    // recreate a fresh one
-                    $this->apiTokenStorage->getAccessToken();
-                    // Retry the request
-                    $response = $this->clientFactory->get()->request($method, $uri, $options);
-                    break;
+                    $this->logger->error('ApiProvider::request unauthorized error');
+                    $this->apiTokenStorage->clearCachedToken();
+                    throw new ApiAccessDeniedException();
                 case Response::HTTP_FORBIDDEN:
                     throw new ApiAccessDeniedException();
             }
@@ -130,7 +125,13 @@ class ApiProvider
                 : 'en',
         ]);
         // oauth2 token specific headers
-        $token = $this->apiTokenStorage->getAccessToken();
+        try {
+            $token = $this->apiTokenStorage->getAccessToken();
+        } catch (ClientException $exception) {
+            $this->logger->error('ApiTokenStorage::getAccessToken unauthorized error');
+            $this->apiTokenStorage->clearCachedToken();
+            throw new ApiAccessDeniedException();
+        }
         if ($token !== null) {
             $headers['Authorization'] = sprintf('Bearer %s', $token);
         }
