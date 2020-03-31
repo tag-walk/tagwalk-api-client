@@ -119,7 +119,8 @@ class ApiProvider
                         'message' => (string) $response->getBody(),
                         'code'    => $response->getStatusCode(),
                     ]);
-                    throw new ApiServerErrorException();
+
+                throw new ApiServerErrorException();
             }
         }
 
