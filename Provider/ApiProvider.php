@@ -21,6 +21,7 @@ use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
+use Tagwalk\ApiClientBundle\Exception\ApiServerErrorException;
 use Tagwalk\ApiClientBundle\Factory\ClientFactory;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
@@ -103,12 +104,22 @@ class ApiProvider
         if (strpos($uri, 'login') === false) {
             switch ($response->getStatusCode()) {
                 case Response::HTTP_UNAUTHORIZED:
-                    $this->logger->error('ApiProvider::request unauthorized error');
+                    $this->logger->warning('ApiProvider::request unauthorized error', [
+                        'message' => (string) $response->getBody(),
+                        'code'    => $response->getStatusCode(),
+                    ]);
                     $this->apiTokenStorage->clearCachedToken();
 
                     throw new ApiAccessDeniedException();
                 case Response::HTTP_FORBIDDEN:
                     throw new ApiAccessDeniedException();
+                case Response::HTTP_INTERNAL_SERVER_ERROR:
+                case Response::HTTP_SERVICE_UNAVAILABLE:
+                    $this->logger->warning('ApiProvider::request server error', [
+                        'message' => (string) $response->getBody(),
+                        'code'    => $response->getStatusCode(),
+                    ]);
+                    throw new ApiServerErrorException();
             }
         }
 
@@ -130,7 +141,7 @@ class ApiProvider
         try {
             $token = $this->apiTokenStorage->getAccessToken();
         } catch (ClientException $exception) {
-            $this->logger->error('ApiTokenStorage::getAccessToken unauthorized error');
+            $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error');
             $this->apiTokenStorage->clearCachedToken();
 
             throw new ApiAccessDeniedException();
