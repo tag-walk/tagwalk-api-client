@@ -4,8 +4,8 @@
  *
  * LICENSE: This source file is subject to copyright
  *
- * @author      Steve Valette <steve@tag-walk.com>
- * @copyright   2019 TAGWALK
+ * @author      Florian Ajir <florian@tag-walk.com>
+ * @copyright   2020 TAGWALK
  * @license     proprietary
  */
 
