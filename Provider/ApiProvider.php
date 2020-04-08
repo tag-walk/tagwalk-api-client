@@ -120,7 +120,7 @@ class ApiProvider
                         'code'    => $response->getStatusCode(),
                     ]);
 
-                throw new ApiServerErrorException();
+                    throw new ApiServerErrorException();
             }
         }
 
