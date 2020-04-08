@@ -48,7 +48,7 @@ class OAuthController extends AbstractController
     }
 
     /**
-     * @Route("/authorize", name="oauth2_authorize", options={"i18n"=false})
+     * @Route("/authorize", name="oauth2_authorize")
      *
      * @param Request $request
      *

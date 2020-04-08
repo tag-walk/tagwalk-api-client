@@ -38,7 +38,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/media/{slug}", name="tts_media", methods={"POST"}, options={"expose"=true,"i18n"=false})
+     * @Route("/media/{slug}", name="tts_media", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
      * @param string  $slug
@@ -53,7 +53,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/streetstyle/{slug}", name="tts_streetstyle", methods={"POST"}, options={"expose"=true,"i18n"=false})
+     * @Route("/streetstyle/{slug}", name="tts_streetstyle", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
      * @param string  $slug
@@ -68,7 +68,7 @@ class AnalyticsController extends AbstractController
     }
 
     /**
-     * @Route("/page/{route}", name="tts_page", methods={"POST"}, options={"expose"=true, "i18n": false})
+     * @Route("/page/{route}", name="tts_page", methods={"POST"}, options={"expose"=true})
      *
      * @param Request $request
      * @param string  $route
