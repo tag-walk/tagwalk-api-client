@@ -87,6 +87,54 @@ class ApiTokenAuthenticator
     }
 
     /**
+     * @param string $clientId
+     *
+     * @return self
+     */
+    public function setClientId(string $clientId): self
+    {
+        $this->clientId = $clientId;
+
+        return $this;
+    }
+
+    /**
+     * @param string $clientSecret
+     *
+     * @return self
+     */
+    public function setClientSecret(string $clientSecret): self
+    {
+        $this->clientSecret = $clientSecret;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $redirectUri
+     *
+     * @return self
+     */
+    public function setRedirectUri(?string $redirectUri): self
+    {
+        $this->redirectUri = $redirectUri;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $showroom
+     *
+     * @return self
+     */
+    public function setShowroom(?string $showroom): self
+    {
+        $this->showroom = $showroom;
+
+        return $this;
+    }
+
+    /**
      * Authenticate to API and returns response as array
      *
      * @return array

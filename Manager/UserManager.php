@@ -159,10 +159,10 @@ class UserManager
     }
 
     /**
-     * @param string                $email
-     * @param string                $property
-     * @param string|int|float|bool $value
-     * @param string|null           $appContext
+     * @param string      $email
+     * @param string      $property
+     * @param mixed       $value
+     * @param string|null $appContext
      *
      * @return User|null
      */

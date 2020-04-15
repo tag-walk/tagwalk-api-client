@@ -90,6 +90,14 @@ class ApiProvider
     }
 
     /**
+     * @param string $showroom
+     */
+    public function setShowroom(string $showroom): void
+    {
+        $this->showroom = $showroom;
+    }
+
+    /**
      * @param string $method
      * @param string $uri
      * @param array  $options
@@ -120,7 +128,7 @@ class ApiProvider
                         'code'    => $response->getStatusCode(),
                     ]);
 
-                throw new ApiServerErrorException();
+                    throw new ApiServerErrorException();
             }
         }
 

@@ -66,7 +66,6 @@ class OAuthController extends AbstractController
         }
         $code = $request->query->get('code');
         $escaped = urldecode($code);
-
         try {
             $authentication = $this->apiTokenAuthenticator->authorize($escaped, $userToken);
             $this->apiTokenStorage->setAccessToken(
@@ -82,7 +81,7 @@ class OAuthController extends AbstractController
         if ($session === null) {
             $redirect = '/';
         } else {
-            $target = $session->get('_security.main.target_path');
+            $target = $session->get(sprintf('_security.%s.target_path', $request->get('showroom', 'main')));
             $redirect = empty($target) ? $session->get('login_redirect', '/') : $target;
         }
 

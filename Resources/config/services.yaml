@@ -228,18 +228,6 @@ services:
       $serializer: '@serializer'
       $logger: '@logger'
 
-  Tagwalk\ApiClientBundle\Manager\ShowroomUserManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
-
-  Tagwalk\ApiClientBundle\Manager\MoodboardManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
-
   Tagwalk\ApiClientBundle\Manager\MediaManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
