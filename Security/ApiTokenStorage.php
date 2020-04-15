@@ -59,6 +59,11 @@ class ApiTokenStorage
     private $identifier;
 
     /**
+     * @var string
+     */
+    private $cachePrefix = 'TW@';
+
+    /**
      * @param TokenStorageInterface $tokenStorage
      * @param ApiTokenAuthenticator $authenticator
      * @param string|null           $cacheDirectory
@@ -77,6 +82,11 @@ class ApiTokenStorage
         $this->logger = $logger ?? new NullLogger();
     }
 
+    public function setCachePrefix(string $cachePrefix): void
+    {
+        $this->cachePrefix = $cachePrefix;
+    }
+
     /**
      * Initilize storage key
      *
@@ -88,7 +98,7 @@ class ApiTokenStorage
         if (null === $username) {
             $username = $token === null ? 'anon.' : $token->getUsername();
         }
-        $this->identifier = md5($username);
+        $this->identifier = md5($this->cachePrefix.$username);
         $this->logger->debug('ApiTokenStorage::Init', [
             'class'    => $token !== null ? get_class($token) : null,
             'username' => $username,
