@@ -146,6 +146,12 @@ services:
       $serializer: '@serializer'
       $logger: '@logger'
 
+  Tagwalk\ApiClientBundle\Manager\MoodboardManager:
+    arguments:
+      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+      $serializer: '@serializer'
+      $logger: '@logger'
+
   Tagwalk\ApiClientBundle\Manager\AnalyticsManager:
     arguments:
       $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
