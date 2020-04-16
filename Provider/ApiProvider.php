@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Exception\ApiServerErrorException;
 use Tagwalk\ApiClientBundle\Factory\ClientFactory;
@@ -121,6 +122,8 @@ class ApiProvider
                     throw new ApiAccessDeniedException();
                 case Response::HTTP_FORBIDDEN:
                     throw new ApiAccessDeniedException();
+                case Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
+                    throw new NotFoundHttpException('Out of range');
                 case Response::HTTP_INTERNAL_SERVER_ERROR:
                 case Response::HTTP_SERVICE_UNAVAILABLE:
                     $this->logger->warning('ApiProvider::request server error', [
