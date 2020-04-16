@@ -13,9 +13,8 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -36,23 +35,15 @@ class UserManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -66,11 +57,6 @@ class UserManager
         $apiResponse = $this->apiProvider->request('GET', '/api/users/'.$email, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $user = $this->deserialize($apiResponse);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('UserManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $user;
@@ -109,15 +95,7 @@ class UserManager
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             $created = $this->deserialize($apiResponse);
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
-            $this->logger->notice('User already exists', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        } else {
-            $this->logger->error('UserManager::create unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
+            throw new InvalidArgumentException('User already exists');
         }
 
         return $created;
@@ -136,26 +114,8 @@ class UserManager
         $data = array_filter($data, static function ($v) {
             return $v !== null;
         });
-        $params = array_filter([
-            'email'               => $email,
-            'application_context' => $appContext,
-        ]);
-        $apiResponse = $this->apiProvider->request('PATCH', '/api/users', [
-            RequestOptions::QUERY       => $params,
-            RequestOptions::JSON        => $data,
-            RequestOptions::HTTP_ERRORS => false,
-        ]);
-        $updated = null;
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $updated = $this->deserialize($apiResponse);
-        } else {
-            $this->logger->error('UserManager::update unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
 
-        return $updated;
+        return $this->doUpdate($data, $email, $appContext);
     }
 
     /**
@@ -169,30 +129,24 @@ class UserManager
     public function patch(string $email, string $property, $value, ?string $appContext = null): ?User
     {
         $data = [$property => $value];
+
+        return $this->doUpdate($data, $email, $appContext);
+    }
+
+    private function doUpdate($data, $email, $appContext): ?User
+    {
         $params = array_filter([
             'email'               => $email,
             'application_context' => $appContext,
         ]);
-        $apiResponse = $this->apiProvider->request(
-            'PATCH',
-            '/api/users',
-            [
-                RequestOptions::QUERY       => $params,
-                RequestOptions::JSON        => $data,
-                RequestOptions::HTTP_ERRORS => false,
-            ]
-        );
+        $apiResponse = $this->apiProvider->request('PATCH', '/api/users', [
+            RequestOptions::QUERY       => $params,
+            RequestOptions::JSON        => $data,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
         $updated = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $updated = $this->deserialize($apiResponse);
-        } else {
-            $this->logger->error(
-                'UserManager::update unexpected status code',
-                [
-                    'code'    => $apiResponse->getStatusCode(),
-                    'message' => $apiResponse->getBody()->getContents(),
-                ]
-            );
         }
 
         return $updated;
@@ -216,11 +170,6 @@ class UserManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = $this->deserialize($apiResponse);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('UserManager::findBy unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -236,18 +185,7 @@ class UserManager
         $apiResponse = $this->apiProvider->request('DELETE', sprintf('/api/users/%s', $email), [
             RequestOptions::HTTP_ERRORS => false,
         ]);
-        switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_NO_CONTENT:
-                return true;
-            case Response::HTTP_NOT_FOUND:
-                return false;
-            default:
-                $this->logger->error('UserManager::delete unexpected status code', [
-                    'code'    => $apiResponse->getStatusCode(),
-                    'message' => $apiResponse->getBody()->getContents(),
-                ]);
 
-                return false;
-        }
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }

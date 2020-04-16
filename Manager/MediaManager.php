@@ -12,9 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use OutOfBoundsException;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Media;
@@ -60,23 +57,15 @@ class MediaManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -92,11 +81,6 @@ class MediaManager
             $data = json_decode($apiResponse->getBody(), true);
             /** @var Media $data */
             $data = $this->serializer->denormalize($data, Media::class);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('MediaManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -121,11 +105,6 @@ class MediaManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
             $media = $this->serializer->denormalize($data, Media::class);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('MediaManager::findByTypeSeasonDesignerLook unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $media;
@@ -153,11 +132,6 @@ class MediaManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $results = json_decode($apiResponse->getBody(), true);
-        } else {
-            $this->logger->error('MediaManager::listRelated unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;
@@ -174,7 +148,6 @@ class MediaManager
     public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
     {
         $data = [];
-        $this->lastCount = 0;
         $query = array_merge($query, compact('from', 'size', 'status'));
         $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
             RequestOptions::QUERY       => $query,
@@ -186,13 +159,6 @@ class MediaManager
                 $data[$i] = $this->serializer->denormalize($datum, Media::class);
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } elseif ($apiResponse->getStatusCode() === Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE) {
-            throw new OutOfBoundsException('Api response: Range not satisfiable');
-        } else {
-            $this->logger->error('MediaManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -225,12 +191,6 @@ class MediaManager
             $this->individualStreetstylesCount = (int) $apiResponse->getHeaderLine('X-Streetstyles-Count');
             $this->individualNewsCount = (int) $apiResponse->getHeaderLine('X-News-Count');
             $this->individualTalksCount = (int) $apiResponse->getHeaderLine('X-Talks-Count');
-        } else {
-            $this->logger->error('MediaManager::listByModel unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-            $this->lastCount = 0;
         }
 
         return $data;

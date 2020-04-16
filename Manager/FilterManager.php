@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -25,18 +23,11 @@ class FilterManager
     private $apiProvider;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
-     * @param LoggerInterface|null $logger
      */
-    public function __construct(ApiProvider $apiProvider, LoggerInterface $logger = null)
+    public function __construct(ApiProvider $apiProvider)
     {
         $this->apiProvider = $apiProvider;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -60,11 +51,6 @@ class FilterManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->error('FilterManager::getStreetFilter unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -93,11 +79,6 @@ class FilterManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->error('FilterManager::getLookFilter unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;

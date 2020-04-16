@@ -14,12 +14,8 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
@@ -45,23 +41,15 @@ class MoodboardManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -72,7 +60,6 @@ class MoodboardManager
     public function list(array $params): array
     {
         $list = [];
-        $this->lastCount = 0;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/', [
             RequestOptions::QUERY       => $params,
             RequestOptions::HTTP_ERRORS => false,
@@ -114,18 +101,8 @@ class MoodboardManager
     {
         $moodboard = null;
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
-        switch ($apiResponse->getStatusCode()) {
-            case Response::HTTP_OK:
-                $moodboard = $this->denormalizeResponse($apiResponse);
-                break;
-            case Response::HTTP_NOT_FOUND:
-                break;
-            default:
-                $this->logger->error('MoodboardManager::get unexpected status code', [
-                    'code'    => $apiResponse->getStatusCode(),
-                    'message' => $apiResponse->getBody()->getContents(),
-                ]);
-
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $moodboard = $this->denormalizeResponse($apiResponse);
         }
 
         return $moodboard;
@@ -156,11 +133,6 @@ class MoodboardManager
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/shared/'.$token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $moodboard = $this->denormalizeResponse($apiResponse);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('MoodboardManager::getByToken unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $moodboard;
@@ -177,11 +149,6 @@ class MoodboardManager
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/pdf/'.$token, [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $pdf = $apiResponse->getBody();
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('MoodboardManager::getPdfByToken unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $pdf;
@@ -198,17 +165,13 @@ class MoodboardManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON        => $this->serializer->normalize($moodboard, null, ['write' => true]),
         ];
+        $response = null;
         $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/moodboards', $params);
-        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
-            $this->logger->error('MoodboardManager::create unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-
-            throw new BadRequestHttpException();
+        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
+            $response = $this->denormalizeResponse($apiResponse);
         }
 
-        return $this->denormalizeResponse($apiResponse);
+        return $response;
     }
 
     /**
@@ -251,18 +214,12 @@ class MoodboardManager
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        $response = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            return $this->denormalizeResponse($apiResponse);
+            $response = $this->denormalizeResponse($apiResponse);
         }
-        if ($apiResponse->getStatusCode() === Response::HTTP_NOT_FOUND) {
-            throw new NotFoundHttpException();
-        }
-        $this->logger->error('MoodboardManager::update unexpected status code', [
-            'code'    => $apiResponse->getStatusCode(),
-            'message' => $apiResponse->getBody()->getContents(),
-        ]);
 
-        throw new BadRequestHttpException();
+        return $response;
     }
 
     /**
@@ -279,12 +236,6 @@ class MoodboardManager
             sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
             [RequestOptions::HTTP_ERRORS => false]
         );
-        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
-            $this->logger->error('MoodboardManager::addLook unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }

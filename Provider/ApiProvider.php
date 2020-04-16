@@ -104,35 +104,44 @@ class ApiProvider
      * @param array  $options
      *
      * @return ResponseInterface
+     *
+     * @throws ApiServerErrorException
+     * @throws ApiAccessDeniedException
+     * @throws NotFoundHttpException
      */
     public function request($method, $uri, $options = []): ResponseInterface
     {
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
-        $this->logger->debug('requesting api', compact('method', 'uri', 'options'));
+        $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
-        if (strpos($uri, 'login') === false) {
-            switch ($response->getStatusCode()) {
-                case Response::HTTP_UNAUTHORIZED:
-                    $this->logger->warning('ApiProvider::request unauthorized error', [
-                        'message' => (string) $response->getBody(),
-                        'code'    => $response->getStatusCode(),
-                    ]);
+        $this->logger->debug('ApiProvider::request::response', [
+            'message' => (string) $response->getBody(),
+            'code'    => $response->getStatusCode(),
+        ]);
+        switch ($response->getStatusCode()) {
+            case Response::HTTP_FORBIDDEN:
+                $this->logger->warning('ApiProvider request access denied');
+
+                throw new ApiAccessDeniedException();
+            case Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
+                $this->logger->warning('ApiProvider request out of range');
+
+                throw new NotFoundHttpException('Out of range');
+            case Response::HTTP_SERVICE_UNAVAILABLE:
+                $this->logger->warning('ApiProvider request service unavailable');
+
+                throw new ApiServerErrorException();
+            case Response::HTTP_UNAUTHORIZED:
+                $this->logger->warning('ApiProvider request unauthorized');
+                if (strpos($uri, 'login') === false) {
                     $this->apiTokenStorage->clearCachedToken();
+                }
 
-                    throw new ApiAccessDeniedException();
-                case Response::HTTP_FORBIDDEN:
-                    throw new ApiAccessDeniedException();
-                case Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
-                    throw new NotFoundHttpException('Out of range');
-                case Response::HTTP_INTERNAL_SERVER_ERROR:
-                case Response::HTTP_SERVICE_UNAVAILABLE:
-                    $this->logger->warning('ApiProvider::request server error', [
-                        'message' => (string) $response->getBody(),
-                        'code'    => $response->getStatusCode(),
-                    ]);
+                throw new ApiAccessDeniedException();
+            case Response::HTTP_INTERNAL_SERVER_ERROR:
+                $this->logger->error('ApiProvider request internal server error');
 
-                    throw new ApiServerErrorException();
-            }
+                throw new ApiServerErrorException();
         }
 
         return $response;
@@ -143,14 +152,8 @@ class ApiProvider
      */
     private function getDefaultOptions(): array
     {
-        $headers = array_filter([
-            'Accept'          => 'application/json',
-            'Accept-Language' => $this->requestStack->getCurrentRequest()
-                ? $this->requestStack->getCurrentRequest()->getLocale()
-                : 'en',
-        ]);
-        // oauth2 token specific headers
         try {
+            // get oauth2 token for request header
             $token = $this->apiTokenStorage->getAccessToken();
         } catch (ClientException $exception) {
             $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error');
@@ -158,9 +161,16 @@ class ApiProvider
 
             throw new ApiAccessDeniedException();
         }
-        if ($token !== null) {
-            $headers['Authorization'] = sprintf('Bearer %s', $token);
-        }
+        $locale = $this->requestStack->getCurrentRequest()
+            ? $this->requestStack->getCurrentRequest()->getLocale() ?? 'en'
+            : 'en';
+        $headers = array_filter([
+            'Accept'                => 'application/json',
+            'Accept-Language'       => $locale,
+            'Authorization'         => $token !== null ? sprintf('Bearer %s', $token) : null,
+            'Analytics'             => $this->analytics,
+            'Tagwalk-Showroom-Name' => $this->showroom,
+        ]);
         // Showroom clients specific headers
         if ($this->showroom !== null) {
             $headers['Tagwalk-Showroom-Name'] = $this->showroom;
@@ -170,8 +180,7 @@ class ApiProvider
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::HEADERS     => $headers,
             RequestOptions::QUERY       => [
-                'light'     => $this->lightData,
-                'analytics' => $this->analytics,
+                'light' => $this->lightData,
             ],
         ];
     }

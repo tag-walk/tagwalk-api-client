@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -36,10 +34,6 @@ class DesignerManager
      */
     private $serializer;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @var int
@@ -49,16 +43,13 @@ class DesignerManager
     /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -78,11 +69,6 @@ class DesignerManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Designer $data */
             $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('DesignerManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -128,11 +114,6 @@ class DesignerManager
                 $designers = $data;
             }
             $this->lastQueryCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } else {
-            $this->logger->error('DesignerManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $designers;
@@ -178,11 +159,6 @@ class DesignerManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $designers = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->warning('DesignerManager::suggest unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $designers;
@@ -218,11 +194,6 @@ class DesignerManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $results = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->error('DesignerManager::listFilters unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;
@@ -255,11 +226,6 @@ class DesignerManager
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, Designer::class);
             }
-        } else {
-            $this->logger->error('DesignerManager::listFiltersStreet unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;

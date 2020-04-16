@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -37,11 +35,6 @@ class TagManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var int
      */
     public $lastCount;
@@ -49,16 +42,13 @@ class TagManager
     /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -78,11 +68,6 @@ class TagManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Tag $tag */
             $tag = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Tag::class, JsonEncoder::FORMAT);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('TagManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $tag;
@@ -123,11 +108,6 @@ class TagManager
                 $tags = $data;
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } else {
-            $this->logger->error('TagManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $tags;
@@ -136,11 +116,11 @@ class TagManager
     /**
      * @param string $status
      *
-     * @return int
+     * @return int|null
      */
-    public function count(string $status = self::DEFAULT_STATUS): int
+    public function count(string $status = self::DEFAULT_STATUS): ?int
     {
-        $count = 0;
+        $count = null;
         $apiResponse = $this->apiProvider->request('GET', '/api/tags', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => [
@@ -150,11 +130,6 @@ class TagManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } else {
-            $this->logger->error('TagManager::count unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $count;
@@ -178,11 +153,6 @@ class TagManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $tags = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->warning('TagManager::suggest unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $tags;
