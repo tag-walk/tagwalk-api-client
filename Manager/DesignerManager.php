@@ -34,7 +34,6 @@ class DesignerManager
      */
     private $serializer;
 
-
     /**
      * @var int
      */
