@@ -104,11 +104,11 @@ class ApiProvider
      * @param string $uri
      * @param array  $options
      *
-     * @return ResponseInterface
      * @throws ApiAccessDeniedException
      * @throws NotFoundHttpException
-     *
      * @throws ApiServerErrorException
+     *
+     * @return ResponseInterface
      */
     public function request($method, $uri, $options = []): ResponseInterface
     {
