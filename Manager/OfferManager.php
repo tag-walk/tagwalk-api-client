@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -25,36 +23,32 @@ class OfferManager
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'position:asc';
     public const DEFAULT_SIZE = 10;
+
     /**
      * @var int|null
      */
     public $lastCount;
+
     /**
      * @var ApiProvider
      */
     private $apiProvider;
+
     /**
      * @var Serializer
      */
     private $serializer;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -75,7 +69,6 @@ class OfferManager
         ?string $name = null,
         ?string $text = null
     ): array {
-        $this->lastCount = null;
         $offers = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
         $apiResponse = $this->apiProvider->request('GET', '/api/offers', [RequestOptions::QUERY => $query]);
@@ -86,11 +79,6 @@ class OfferManager
             foreach ($data as $datum) {
                 $offers[] = $this->serializer->denormalize($datum, Offer::class);
             }
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('OfferManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $offers;
@@ -118,11 +106,6 @@ class OfferManager
             $data = json_decode($apiResponse->getBody(), true);
             /** @var Offer $offer */
             $offer = $this->serializer->denormalize($data, Offer::class);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('OfferManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $offer;
@@ -142,16 +125,8 @@ class OfferManager
                 RequestOptions::HTTP_ERRORS => false,
             ]
         );
-        if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
-            $this->logger->error('OfferManager::delete unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
 
-            return false;
-        }
-
-        return true;
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
@@ -163,19 +138,14 @@ class OfferManager
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('POST', '/api/offers', $params);
-        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
-            $this->logger->error('OfferManager::create unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-
-            return null;
+        $data = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
+            $json = json_decode($apiResponse->getBody(), true);
+            /** @var Offer $data */
+            $data = $this->serializer->denormalize($json, Offer::class);
         }
-        $data = json_decode($apiResponse->getBody(), true);
-        /** @var Offer $created */
-        $created = $this->serializer->denormalize($data, Offer::class);
 
-        return $created;
+        return $data;
     }
 
     /**
@@ -188,17 +158,12 @@ class OfferManager
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($record, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request('PUT', '/api/offers/'.$slug, $params);
-        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
-            $this->logger->error('OfferManager::update unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-
-            return null;
+        $updated = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode($apiResponse->getBody(), true);
+            /** @var Offer $updated */
+            $updated = $this->serializer->denormalize($data, Offer::class);
         }
-        $data = json_decode($apiResponse->getBody(), true);
-        /** @var Offer $updated */
-        $updated = $this->serializer->denormalize($data, Offer::class);
 
         return $updated;
     }

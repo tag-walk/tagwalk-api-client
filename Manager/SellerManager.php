@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -38,23 +36,15 @@ class SellerManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -76,12 +66,7 @@ class SellerManager
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Seller $record */
-            $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Seller::class, JsonEncoder::FORMAT);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('SellerManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
+            $record = $this->serializer->deserialize((string) $apiResponse->getBody(), Seller::class, JsonEncoder::FORMAT);
         }
 
         return $record;
@@ -114,15 +99,10 @@ class SellerManager
             ]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $records[] = $this->serializer->denormalize($datum, Seller::class);
             }
-        } else {
-            $this->logger->error('SellerManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $records;

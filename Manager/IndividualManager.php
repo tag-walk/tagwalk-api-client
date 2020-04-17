@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -38,11 +36,6 @@ class IndividualManager
     protected $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
      * @var int
      */
     public $lastCount;
@@ -50,16 +43,13 @@ class IndividualManager
     /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -78,12 +68,7 @@ class IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Individual $individual */
-            $individual = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Individual::class, JsonEncoder::FORMAT);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('IndividualManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
+            $individual = $this->serializer->deserialize((string) $apiResponse->getBody(), Individual::class, JsonEncoder::FORMAT);
         }
 
         return $individual;
@@ -117,7 +102,7 @@ class IndividualManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             if ($denormalize) {
                 foreach ($data as $datum) {
                     $individuals[] = $this->serializer->denormalize($datum, Individual::class);
@@ -126,11 +111,6 @@ class IndividualManager
                 $individuals = $data;
             }
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('IndividualManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $individuals;
@@ -153,11 +133,6 @@ class IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } else {
-            $this->logger->error('IndividualManager::count unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $count;
@@ -178,12 +153,7 @@ class IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $individuals = json_decode($apiResponse->getBody()->getContents(), true);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->warning('IndividualManager::suggest unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
+            $individuals = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $individuals;
@@ -212,15 +182,10 @@ class IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, Individual::class);
             }
-        } else {
-            $this->logger->error('IndividualManager::listFilterStreet unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;

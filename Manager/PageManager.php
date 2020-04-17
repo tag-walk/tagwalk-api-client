@@ -13,8 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -38,23 +36,15 @@ class PageManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -85,11 +75,6 @@ class PageManager
             foreach ($data as $datum) {
                 $pages[] = $this->serializer->denormalize($datum, Page::class);
             }
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $pages;
@@ -112,12 +97,6 @@ class PageManager
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
         ]);
-        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
-            $this->logger->error('PageManager::count unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
 
         return (int) $apiResponse->getHeaderLine('X-Total-Count');
     }
@@ -143,11 +122,6 @@ class PageManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Page $page */
             $page = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Page::class);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('PageManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $page;
@@ -167,16 +141,8 @@ class PageManager
                 RequestOptions::HTTP_ERRORS => false,
             ]
         );
-        if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
-            $this->logger->error('PageManager::delete unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
 
-            return false;
-        }
-
-        return true;
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**

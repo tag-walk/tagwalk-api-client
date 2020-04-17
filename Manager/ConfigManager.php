@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -33,23 +31,15 @@ class ConfigManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -67,11 +57,6 @@ class ConfigManager
             $data = json_decode($apiResponse->getBody(), true);
             /** @var Config $config */
             $config = $this->serializer->denormalize($data, Config::class);
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('ConfigManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $config;
@@ -96,11 +81,6 @@ class ConfigManager
                     $list[] = $this->serializer->denormalize($datum, Config::class);
                 }
             }
-        } else {
-            $this->logger->error('ConfigManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $list;
@@ -115,16 +95,8 @@ class ConfigManager
     public function set(string $key, string $value): bool
     {
         $apiResponse = $this->apiProvider->request('PUT', sprintf('/api/config/%s/%s', $key, $value));
-        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
-            $this->logger->error('ConfigManager::set unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
 
-            return false;
-        }
-
-        return true;
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
     /**
@@ -137,15 +109,7 @@ class ConfigManager
         $apiResponse = $this->apiProvider->request('DELETE', sprintf('/api/config/%s', $key), [
             RequestOptions::HTTP_ERRORS => false,
         ]);
-        if ($apiResponse->getStatusCode() !== Response::HTTP_NO_CONTENT) {
-            $this->logger->error('ConfigManager::delete unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
 
-            return false;
-        }
-
-        return true;
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }

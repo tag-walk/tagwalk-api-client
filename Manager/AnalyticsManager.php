@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -33,18 +31,11 @@ class AnalyticsManager
     private $apiProvider;
 
     /**
-     * @var LoggerInterface
+     * @param ApiProvider $apiProvider
      */
-    private $logger;
-
-    /**
-     * @param ApiProvider          $apiProvider
-     * @param LoggerInterface|null $logger
-     */
-    public function __construct(ApiProvider $apiProvider, ?LoggerInterface $logger = null)
+    public function __construct(ApiProvider $apiProvider)
     {
         $this->apiProvider = $apiProvider;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -61,16 +52,8 @@ class AnalyticsManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
-        $status = $response->getStatusCode();
-        $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
-        if (!$success) {
-            $this->logger->error('AnalyticsManager::media', [
-                'code'    => $response->getStatusCode(),
-                'message' => $response->getBody()->getContents(),
-            ]);
-        }
 
-        return $success;
+        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
@@ -87,16 +70,8 @@ class AnalyticsManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
-        $status = $response->getStatusCode();
-        $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
-        if (!$success) {
-            $this->logger->error('AnalyticsManager::streetstyle', [
-                'code'    => $response->getStatusCode(),
-                'message' => $response->getBody()->getContents(),
-            ]);
-        }
 
-        return $success;
+        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
@@ -117,16 +92,8 @@ class AnalyticsManager
                 'X-accept-language' => $request->headers->get('accept-language'),
             ],
         ]);
-        $status = $response->getStatusCode();
-        $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
-        if (!$success) {
-            $this->logger->error('AnalyticsManager::page', [
-                'code'    => $response->getStatusCode(),
-                'message' => $response->getBody()->getContents(),
-            ]);
-        }
 
-        return $success;
+        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
@@ -153,15 +120,7 @@ class AnalyticsManager
                 'X-accept-language' => $request->headers->get('accept-language'),
             ],
         ]);
-        $status = $response->getStatusCode();
-        $success = $status === Response::HTTP_CREATED || $status === Response::HTTP_NO_CONTENT;
-        if (!$success) {
-            $this->logger->error('AnalyticsManager::photos', [
-                'code'    => $response->getStatusCode(),
-                'message' => $response->getBody()->getContents(),
-            ]);
-        }
 
-        return $success;
+        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }

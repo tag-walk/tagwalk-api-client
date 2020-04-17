@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -36,23 +34,15 @@ class CityManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -78,15 +68,10 @@ class CityManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, City::class);
             }
-        } else {
-            $this->logger->error('CityManager::list unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;
@@ -117,15 +102,10 @@ class CityManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, City::class);
             }
-        } else {
-            $this->logger->error('CityManager::listFilters unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;
@@ -154,15 +134,10 @@ class CityManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, City::class);
             }
-        } else {
-            $this->logger->error('CityManager::listFiltersStreet unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $results;

@@ -12,11 +12,9 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Individual;
-use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ModelManager extends IndividualManager
 {
@@ -24,19 +22,6 @@ class ModelManager extends IndividualManager
      * @var int last list count
      */
     public $lastCount;
-
-    /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
-    ) {
-        parent::__construct($apiProvider, $serializer, $logger);
-    }
 
     /**
      * @param int $size
@@ -53,11 +38,6 @@ class ModelManager extends IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-        } else {
-            $this->logger->error('ModelManager::index unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -73,13 +53,24 @@ class ModelManager extends IndividualManager
      */
     public function whoWalkedTheMost($type = null, $season = null, $city = null, $length = 10): array
     {
-        $data = [];
         $this->lastCount = 0;
         $query = array_filter(compact('type', 'season', 'city', 'length'));
         $apiResponse = $this->apiProvider->request('GET', '/api/models/who-walked-the-most', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
         ]);
+
+        return $this->deserializeListResponse($apiResponse);
+    }
+
+    /**
+     * @param ResponseInterface $apiResponse
+     *
+     * @return Individual[]
+     */
+    private function deserializeListResponse(ResponseInterface $apiResponse): array
+    {
+        $data = [];
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             $data = json_decode($apiResponse->getBody(), true);
@@ -88,11 +79,6 @@ class ModelManager extends IndividualManager
                     $data[$i] = $this->serializer->denormalize($datum, Individual::class);
                 }
             }
-        } else {
-            $this->logger->error('ModelManager::whoWalkedTheMost unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;
@@ -105,34 +91,17 @@ class ModelManager extends IndividualManager
      *
      * @return array
      */
-    public function listMediasModels(int $size, int $page, array $query = []): array
+    public function listMediasModels(int $size, int $page = 1, array $query = []): array
     {
-        $data = [];
-        $this->lastCount = 0;
-        $query = array_merge($query, [
-            'size' => $size,
-            'page' => $page,
-        ]);
         $apiResponse = $this->apiProvider->request('GET', '/api/models', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => $query,
+            RequestOptions::QUERY       => array_merge($query, [
+                'size' => $size,
+                'page' => $page,
+            ]),
         ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-            $data = json_decode($apiResponse->getBody(), true);
-            if (!empty($data)) {
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->serializer->denormalize($datum, Individual::class);
-                }
-            }
-        } else {
-            $this->logger->error('ModelManager::listMediasModels unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
 
-        return $data;
+        return $this->deserializeListResponse($apiResponse);
     }
 
     /**
@@ -140,25 +109,9 @@ class ModelManager extends IndividualManager
      */
     public function getNewFaces(): array
     {
-        $data = [];
-        $this->lastCount = 0;
         $apiResponse = $this->apiProvider->request('GET', '/api/models/new-faces', [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-            $data = json_decode($apiResponse->getBody(), true);
-            if (!empty($data)) {
-                foreach ($data as $i => $datum) {
-                    $data[$i] = $this->serializer->denormalize($datum, Individual::class);
-                }
-            }
-        } else {
-            $this->logger->error('ModelManager::getNewFaces unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-        }
 
-        return $data;
+        return $this->deserializeListResponse($apiResponse);
     }
 
     /**
@@ -182,12 +135,7 @@ class ModelManager extends IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $models = json_decode($apiResponse->getBody()->getContents(), true);
-        } else {
-            $this->logger->error('ModelManager::listFilters unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
+            $models = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $models;
@@ -208,11 +156,6 @@ class ModelManager extends IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode($apiResponse->getBody(), true);
-        } else {
-            $this->logger->error('ModelManager::listTop error', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
         }
 
         return $data;

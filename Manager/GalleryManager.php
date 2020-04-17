@@ -12,8 +12,6 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -34,11 +32,6 @@ class GalleryManager
     private $serializer;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var int
      */
     public $lastCount;
@@ -46,16 +39,13 @@ class GalleryManager
     /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
-     * @param LoggerInterface|null $logger
      */
     public function __construct(
         ApiProvider $apiProvider,
-        SerializerInterface $serializer,
-        ?LoggerInterface $logger = null
+        SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
-        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -73,14 +63,8 @@ class GalleryManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Gallery $data */
-            $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Gallery::class, JsonEncoder::FORMAT);
+            $data = $this->serializer->deserialize((string) $apiResponse->getBody(), Gallery::class, JsonEncoder::FORMAT);
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        } elseif ($apiResponse->getStatusCode() !== Response::HTTP_NOT_FOUND) {
-            $this->logger->error('GalleryManager::get unexpected status code', [
-                'code'    => $apiResponse->getStatusCode(),
-                'message' => $apiResponse->getBody()->getContents(),
-            ]);
-            $this->lastCount = 0;
         }
 
         return $data;
