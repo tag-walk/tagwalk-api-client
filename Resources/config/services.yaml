@@ -1,288 +1,262 @@
 parameters:
-  env(CACHE_DIRECTORY): '/tmp'
+    env(CACHE_DIRECTORY): '/tmp'
 
 services:
-  _defaults:
-    autowire: false
-    autoconfigure: true
-    public: false
+    _defaults:
+        autowire: false
+        autoconfigure: true
+        public: false
 
-  Tagwalk\ApiClientBundle\Event\LoginSuccessHandler:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Security\AuthorizationHelper'
+    Tagwalk\ApiClientBundle\Event\LoginSuccessHandler:
+        arguments:
+            - '@Tagwalk\ApiClientBundle\Security\AuthorizationHelper'
 
-  Tagwalk\ApiClientBundle\Security\AuthorizationHelper:
-    arguments:
-      $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
-      $authorizationUrl: null
+    Tagwalk\ApiClientBundle\Security\AuthorizationHelper:
+        arguments:
+            $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
+            $authorizationUrl: null
 
-  Tagwalk\ApiClientBundle\Factory\ClientFactory:
-    arguments:
-      $baseUri: ''
-      $timeout: 30.0
-      $httpCache: true
-      $cacheDirectory: '%env(CACHE_DIRECTORY)%'
+    Tagwalk\ApiClientBundle\Factory\ClientFactory:
+        arguments:
+            $baseUri: ''
+            $timeout: 30.0
+            $httpCache: true
+            $cacheDirectory: '%env(CACHE_DIRECTORY)%'
 
-  Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator:
-    arguments:
-      $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
-      $session: '@session'
-      $clientId: ''
-      $clientSecret: ''
-      $redirectUri: null
-      $showroom: null
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator:
+        arguments:
+            $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
+            $session: '@session'
+            $clientId: ''
+            $clientSecret: ''
+            $redirectUri: null
+            $showroom: null
+            $logger: '@logger'
 
-  Tagwalk\ApiClientBundle\Provider\ApiProvider:
-    arguments:
-      $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
-      $requestStack: '@request_stack'
-      $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
-      $lightData: false
-      $analytics: false
-      $showroom: null
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Provider\ApiProvider:
+        arguments:
+            $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
+            $requestStack: '@request_stack'
+            $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
+            $lightData: false
+            $analytics: false
+            $showroom: null
+            $logger: '@logger'
 
-  Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
-    arguments:
-      $tokenStorage: '@security.token_storage'
-      $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
-      $cacheDirectory: '%env(CACHE_DIRECTORY)%'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
+        arguments:
+            $tokenStorage: '@security.token_storage'
+            $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
+            $cacheDirectory: '%env(CACHE_DIRECTORY)%'
+            $logger: '@logger'
 
-  Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:
-    arguments:
-      - '@session'
-      - '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
+    Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:
+        arguments:
+            - '@session'
 
-  Tagwalk\ApiClientBundle\Security\UserProvider:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
+    Tagwalk\ApiClientBundle\Security\UserProvider:
+        arguments:
+            - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            - '@serializer'
 
-  Tagwalk\ApiClientBundle\Security\ApiAuthenticator:
-    arguments:
-      - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      - '@serializer'
-      - '@session'
+    Tagwalk\ApiClientBundle\Security\ApiAuthenticator:
+        arguments:
+            - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            - '@serializer'
+            - '@session'
 
-  serializer.name_converter.camel_case_to_spinal_case:
-    class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
+    serializer.name_converter.camel_case_to_spinal_case:
+        class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
 
-  # SERIALIZERS
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\DocumentNormalizer:
-    tags: ['serializer.normalizer']
-    arguments:
-      $classMetadataFactory: '@serializer.mapping.class_metadata_factory'
-      $nameConverter: '@serializer.name_converter.camel_case_to_snake_case'
-      $propertyAccessor: '@property_accessor'
-      $propertyTypeExtractor: '@property_info'
-      $classDiscriminatorResolver: '@serializer.mapping.class_discriminator_resolver'
+    # SERIALIZERS
+    Tagwalk\ApiClientBundle\Serializer\Normalizer\DocumentNormalizer:
+        tags: ['serializer.normalizer']
+        arguments:
+            $classMetadataFactory: '@serializer.mapping.class_metadata_factory'
+            $nameConverter: '@serializer.name_converter.camel_case_to_snake_case'
+            $propertyAccessor: '@property_accessor'
+            $propertyTypeExtractor: '@property_info'
+            $classDiscriminatorResolver: '@serializer.mapping.class_discriminator_resolver'
 
-  Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
-    tags: ['serializer.normalizer']
-    arguments:
-      $classMetadataFactory: '@serializer.mapping.class_metadata_factory'
-      $nameConverter: '@serializer.name_converter.camel_case_to_spinal_case'
-      $propertyAccessor: '@property_accessor'
-      $propertyTypeExtractor: '@property_info'
-      $classDiscriminatorResolver: '@serializer.mapping.class_discriminator_resolver'
+    Tagwalk\ApiClientBundle\Serializer\Normalizer\ExportNormalizer:
+        tags: ['serializer.normalizer']
+        arguments:
+            $classMetadataFactory: '@serializer.mapping.class_metadata_factory'
+            $nameConverter: '@serializer.name_converter.camel_case_to_spinal_case'
+            $propertyAccessor: '@property_accessor'
+            $propertyTypeExtractor: '@property_info'
+            $classDiscriminatorResolver: '@serializer.mapping.class_discriminator_resolver'
 
-  # FORMS
-  Tagwalk\ApiClientBundle\Form\ExportModelsType:
-    arguments:
-      $router: '@router'
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $requestStack: '@request_stack'
-      $tokenStorage: '@security.token_storage'
+    # FORMS
+    Tagwalk\ApiClientBundle\Form\ExportModelsType:
+        arguments:
+            $router: '@router'
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $requestStack: '@request_stack'
+            $tokenStorage: '@security.token_storage'
 
-  Tagwalk\ApiClientBundle\Form\ExportTagsType:
-    arguments:
-      $router: '@router'
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $requestStack: '@request_stack'
-      $tokenStorage: '@security.token_storage'
+    Tagwalk\ApiClientBundle\Form\ExportTagsType:
+        arguments:
+            $router: '@router'
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $requestStack: '@request_stack'
+            $tokenStorage: '@security.token_storage'
 
-  Tagwalk\ApiClientBundle\Form\ExportDesignersType:
-    arguments:
-      $router: '@router'
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $requestStack: '@request_stack'
-      $tokenStorage: '@security.token_storage'
+    Tagwalk\ApiClientBundle\Form\ExportDesignersType:
+        arguments:
+            $router: '@router'
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $requestStack: '@request_stack'
+            $tokenStorage: '@security.token_storage'
 
-  Tagwalk\ApiClientBundle\Form\ExportMoodboardsType:
-    arguments:
-      $router: '@router'
-      $tokenStorage: '@security.token_storage'
+    Tagwalk\ApiClientBundle\Form\ExportMoodboardsType:
+        arguments:
+            $router: '@router'
+            $tokenStorage: '@security.token_storage'
 
-  Tagwalk\ApiClientBundle\Form\ModelsWhoWalkedTheMostType:
-    arguments:
-      $router: '@router'
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $requestStack: '@request_stack'
-      $tokenStorage: '@security.token_storage'
+    Tagwalk\ApiClientBundle\Form\ModelsWhoWalkedTheMostType:
+        arguments:
+            $router: '@router'
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $requestStack: '@request_stack'
+            $tokenStorage: '@security.token_storage'
 
-  # CONTROLLERS
-  Tagwalk\ApiClientBundle\Controller\AutocompleteController:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $designerManager: '@Tagwalk\ApiClientBundle\Manager\DesignerManager'
-      $individualManager: '@Tagwalk\ApiClientBundle\Manager\IndividualManager'
-      $tagManager: '@Tagwalk\ApiClientBundle\Manager\TagManager'
+    # CONTROLLERS
+    Tagwalk\ApiClientBundle\Controller\AutocompleteController:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $designerManager: '@Tagwalk\ApiClientBundle\Manager\DesignerManager'
+            $individualManager: '@Tagwalk\ApiClientBundle\Manager\IndividualManager'
+            $tagManager: '@Tagwalk\ApiClientBundle\Manager\TagManager'
 
-  Tagwalk\ApiClientBundle\Controller\AnalyticsController:
-    arguments:
-      $manager: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
+    Tagwalk\ApiClientBundle\Controller\AnalyticsController:
+        arguments:
+            $manager: '@Tagwalk\ApiClientBundle\Manager\AnalyticsManager'
 
-  Tagwalk\ApiClientBundle\Controller\OAuthController:
-    arguments:
-      $apiTokenAuthenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
-      $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
+    Tagwalk\ApiClientBundle\Controller\OAuthController:
+        arguments:
+            $apiTokenAuthenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
+            $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
 
-  # MANAGERS
-  Tagwalk\ApiClientBundle\Manager\OfferManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    # MANAGERS
+    Tagwalk\ApiClientBundle\Manager\OfferManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\MoodboardManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\MoodboardManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\AnalyticsManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\AnalyticsManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
-  Tagwalk\ApiClientBundle\Manager\ModelManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\ModelManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\CoverManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\CoverManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\TrendManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\TrendManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
-  Tagwalk\ApiClientBundle\Manager\NewsManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\NewsManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\PageManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\PageManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\ConfigManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\ConfigManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\CityManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\CityManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\TagManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\TagManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\DesignerManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\DesignerManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\SeasonManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\SeasonManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\IndividualManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\IndividualManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\LiveManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\LiveManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\UserManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\UserManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\MediaManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\MediaManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\HomepageManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\HomepageManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\SellerManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\SellerManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\StreetstyleManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\StreetstyleManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\GalleryManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\GalleryManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\PressManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\PressManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\AgencyManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\AgencyManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\CollectionManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $serializer: '@serializer'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\CollectionManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
 
-  Tagwalk\ApiClientBundle\Manager\FilterManager:
-    arguments:
-      $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
-      $logger: '@logger'
+    Tagwalk\ApiClientBundle\Manager\FilterManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
