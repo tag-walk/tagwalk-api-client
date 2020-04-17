@@ -143,6 +143,8 @@ class ApiProvider
                 $this->logger->error('ApiProvider request internal server error');
 
                 throw new ApiServerErrorException();
+            case Response::HTTP_CONFLICT:
+                $this->logger->warning('ApiProvider request conflict');
         }
 
         return $response;
