@@ -57,7 +57,7 @@ class LiveManager
         $apiResponse = $this->apiProvider->request('GET', "/api/live/{$slug}", [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Live $live */
-            $live = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Live::class, 'json');
+            $live = $this->serializer->deserialize((string) $apiResponse->getBody(), Live::class, 'json');
         }
 
         return $live;
@@ -93,7 +93,7 @@ class LiveManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             if ($denormalize) {
                 foreach ($data as $datum) {
                     $lives[] = $this->serializer->denormalize($datum, Live::class);

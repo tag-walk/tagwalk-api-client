@@ -59,7 +59,7 @@ class AgencyManager
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Agency $record */
-            $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Agency::class, JsonEncoder::FORMAT);
+            $record = $this->serializer->deserialize((string) $apiResponse->getBody(), Agency::class, JsonEncoder::FORMAT);
         }
 
         return $record;

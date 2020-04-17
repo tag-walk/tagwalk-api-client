@@ -56,7 +56,7 @@ class CoverManager
         ]);
         if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
             /** @var Cover $cover */
-            $cover = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
+            $cover = $this->serializer->deserialize((string) $apiResponse->getBody(), Cover::class, JsonEncoder::FORMAT);
         }
 
         return $cover;
@@ -76,7 +76,7 @@ class CoverManager
         ]);
         if (Response::HTTP_OK === $apiResponse->getStatusCode()) {
             /** @var Cover $updated */
-            $updated = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Cover::class, JsonEncoder::FORMAT);
+            $updated = $this->serializer->deserialize((string) $apiResponse->getBody(), Cover::class, JsonEncoder::FORMAT);
         }
 
         return $updated;

@@ -67,7 +67,7 @@ class TagManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Tag $tag */
-            $tag = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Tag::class, JsonEncoder::FORMAT);
+            $tag = $this->serializer->deserialize((string) $apiResponse->getBody(), Tag::class, JsonEncoder::FORMAT);
         }
 
         return $tag;
@@ -99,7 +99,7 @@ class TagManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             if ($denormalize) {
                 foreach ($data as $datum) {
                     $tags[] = $this->serializer->denormalize($datum, Tag::class);
@@ -152,7 +152,7 @@ class TagManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $tags = json_decode($apiResponse->getBody()->getContents(), true);
+            $tags = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $tags;

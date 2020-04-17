@@ -15,6 +15,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
+use OutOfBoundsException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -126,7 +127,7 @@ class ApiProvider
             case Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
                 $this->logger->warning('ApiProvider request out of range');
 
-                throw new NotFoundHttpException('Out of range');
+                throw new OutOfBoundsException('Out of bounds');
             case Response::HTTP_SERVICE_UNAVAILABLE:
                 $this->logger->warning('ApiProvider request service unavailable');
 

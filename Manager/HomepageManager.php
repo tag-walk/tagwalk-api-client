@@ -68,7 +68,7 @@ class HomepageManager
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Homepage $record */
-            $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, JsonEncoder::FORMAT);
+            $record = $this->serializer->deserialize((string) $apiResponse->getBody(), Homepage::class, JsonEncoder::FORMAT);
         }
 
         return $record;
@@ -93,7 +93,7 @@ class HomepageManager
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Homepage $record */
-            $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Homepage::class, JsonEncoder::FORMAT);
+            $record = $this->serializer->deserialize((string) $apiResponse->getBody(), Homepage::class, JsonEncoder::FORMAT);
         }
 
         return $record;

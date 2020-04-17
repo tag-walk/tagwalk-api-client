@@ -135,7 +135,7 @@ class ModelManager extends IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $models = json_decode($apiResponse->getBody()->getContents(), true);
+            $models = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $models;

@@ -66,7 +66,7 @@ class SellerManager
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Seller $record */
-            $record = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Seller::class, JsonEncoder::FORMAT);
+            $record = $this->serializer->deserialize((string) $apiResponse->getBody(), Seller::class, JsonEncoder::FORMAT);
         }
 
         return $record;
@@ -99,7 +99,7 @@ class SellerManager
             ]
         );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $records[] = $this->serializer->denormalize($datum, Seller::class);
             }

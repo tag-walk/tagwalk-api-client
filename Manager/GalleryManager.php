@@ -63,7 +63,7 @@ class GalleryManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Gallery $data */
-            $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Gallery::class, JsonEncoder::FORMAT);
+            $data = $this->serializer->deserialize((string) $apiResponse->getBody(), Gallery::class, JsonEncoder::FORMAT);
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         }
 

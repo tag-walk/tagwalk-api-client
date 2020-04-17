@@ -60,7 +60,7 @@ class PressManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, Press::class);
             }

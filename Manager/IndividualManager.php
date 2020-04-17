@@ -68,7 +68,7 @@ class IndividualManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Individual $individual */
-            $individual = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Individual::class, JsonEncoder::FORMAT);
+            $individual = $this->serializer->deserialize((string) $apiResponse->getBody(), Individual::class, JsonEncoder::FORMAT);
         }
 
         return $individual;
@@ -102,7 +102,7 @@ class IndividualManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             if ($denormalize) {
                 foreach ($data as $datum) {
                     $individuals[] = $this->serializer->denormalize($datum, Individual::class);
@@ -153,7 +153,7 @@ class IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $individuals = json_decode($apiResponse->getBody()->getContents(), true);
+            $individuals = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $individuals;
@@ -182,7 +182,7 @@ class IndividualManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, Individual::class);
             }

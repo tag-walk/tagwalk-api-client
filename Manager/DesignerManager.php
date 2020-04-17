@@ -68,7 +68,7 @@ class DesignerManager
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Designer $data */
-            $data = $this->serializer->deserialize($apiResponse->getBody()->getContents(), Designer::class, 'json');
+            $data = $this->serializer->deserialize((string) $apiResponse->getBody(), Designer::class, 'json');
         }
 
         return $data;
@@ -105,7 +105,7 @@ class DesignerManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             if ($denormalize) {
                 foreach ($data as $datum) {
                     $designers[] = $this->serializer->denormalize($datum, Designer::class);
@@ -158,7 +158,7 @@ class DesignerManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $designers = json_decode($apiResponse->getBody()->getContents(), true);
+            $designers = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $designers;
@@ -193,7 +193,7 @@ class DesignerManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $results = json_decode($apiResponse->getBody()->getContents(), true);
+            $results = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $results;
@@ -222,7 +222,7 @@ class DesignerManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, Designer::class);
             }

@@ -23,7 +23,7 @@ class FilterManager
     private $apiProvider;
 
     /**
-     * @param ApiProvider          $apiProvider
+     * @param ApiProvider $apiProvider
      */
     public function __construct(ApiProvider $apiProvider)
     {
@@ -51,7 +51,7 @@ class FilterManager
             RequestOptions::QUERY       => $params,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $data;
@@ -81,7 +81,7 @@ class FilterManager
             RequestOptions::QUERY       => $params,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody()->getContents(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
         }
 
         return $data;
