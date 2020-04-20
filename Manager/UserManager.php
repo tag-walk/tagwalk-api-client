@@ -71,7 +71,7 @@ class UserManager
     {
         /** @var User $user */
         $user = $this->serializer->deserialize(
-            $response->getBody()->getContents(),
+            (string)$response->getBody(),
             User::class,
             JsonEncoder::FORMAT
         );
