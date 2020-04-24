@@ -197,7 +197,12 @@ class MoodboardManager
     {
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_DELETE,
-            sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
+            sprintf(
+                '/api/moodboards/%s/item/%s/%s',
+                $slug,
+                $type === 'media' ? 'medias' : 'streetstyles',
+                $lookSlug
+            ),
             [RequestOptions::HTTP_ERRORS => false]
         );
 
@@ -233,7 +238,12 @@ class MoodboardManager
     {
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_PUT,
-            sprintf('/api/moodboards/%s/%s/%s', $slug, $type === 'media' ? 'medias' : 'streetstyles', $lookSlug),
+            sprintf(
+                '/api/moodboards/%s/item/%s/%s',
+                $slug,
+                $type === 'media' ? 'medias' : 'streetstyles',
+                $lookSlug
+            ),
             [RequestOptions::HTTP_ERRORS => false]
         );
 
