@@ -116,7 +116,7 @@ class ApiProvider
         $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         $this->logger->debug('ApiProvider::request::response', [
-            'message' => (string)$response->getBody(),
+            'message' => (string) $response->getBody(),
             'code'    => $response->getStatusCode(),
         ]);
         switch ($response->getStatusCode()) {
@@ -171,7 +171,7 @@ class ApiProvider
             'Accept'                => 'application/json',
             'Accept-Language'       => $locale,
             'Authorization'         => $token !== null ? sprintf('Bearer %s', $token) : null,
-            'Analytics'             => (int)$this->analytics,
+            'Analytics'             => (int) $this->analytics,
             'Tagwalk-Showroom-Name' => $this->showroom,
         ], static function ($item) {
             return $item !== null;
