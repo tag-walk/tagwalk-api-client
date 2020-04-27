@@ -94,7 +94,7 @@ class ApiProvider
     /**
      * @param string $showroom
      */
-    public function setShowroom(string $showroom): void
+    final public function setShowroom(string $showroom): void
     {
         $this->showroom = $showroom;
     }
@@ -110,13 +110,13 @@ class ApiProvider
      *
      * @return ResponseInterface
      */
-    public function request($method, $uri, $options = []): ResponseInterface
+    final public function request(string $method, string $uri, array $options = []): ResponseInterface
     {
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
         $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         $this->logger->debug('ApiProvider::request::response', [
-            'message' => (string) $response->getBody(),
+            'message' => (string)$response->getBody(),
             'code'    => $response->getStatusCode(),
         ]);
         switch ($response->getStatusCode()) {
@@ -171,9 +171,11 @@ class ApiProvider
             'Accept'                => 'application/json',
             'Accept-Language'       => $locale,
             'Authorization'         => $token !== null ? sprintf('Bearer %s', $token) : null,
-            'Analytics'             => $this->analytics,
+            'Analytics'             => (int)$this->analytics,
             'Tagwalk-Showroom-Name' => $this->showroom,
-        ]);
+        ], static function ($item) {
+            return $item !== null;
+        });
         // Showroom clients specific headers
         if ($this->showroom !== null) {
             $headers['Tagwalk-Showroom-Name'] = $this->showroom;
@@ -197,7 +199,7 @@ class ApiProvider
      *
      * @deprecated request logic not implemented
      */
-    public function requestAsync($method, $uri, $options = []): PromiseInterface
+    final public function requestAsync(string $method, string $uri, array $options = []): PromiseInterface
     {
         $options = array_merge($this->getDefaultOptions(), $options);
 
@@ -207,7 +209,7 @@ class ApiProvider
     /**
      * @return Client
      */
-    public function getClient(): Client
+    final public function getClient(): Client
     {
         return $this->clientFactory->get();
     }
