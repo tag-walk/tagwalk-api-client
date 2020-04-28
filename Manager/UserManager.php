@@ -35,8 +35,8 @@ class UserManager
     private $serializer;
 
     /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
+     * @param ApiProvider         $apiProvider
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
@@ -71,7 +71,7 @@ class UserManager
     {
         /** @var User $user */
         $user = $this->serializer->deserialize(
-            (string)$response->getBody(),
+            (string) $response->getBody(),
             User::class,
             JsonEncoder::FORMAT
         );
