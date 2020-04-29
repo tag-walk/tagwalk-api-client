@@ -15,6 +15,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\SecurityEvents;
+use Tagwalk\ApiClientBundle\Model\User;
 
 /**
  * Stores the locale of the user in the session after the
@@ -60,7 +61,7 @@ class InteractiveLoginSubscriber implements EventSubscriberInterface
     public function setUserLocale(InteractiveLoginEvent $event): void
     {
         $user = $event->getAuthenticationToken()->getUser();
-        if (null !== $user->getLocale()) {
+        if ($user instanceof User && null !== $user->getLocale()) {
             $this->session->set('_locale', $user->getLocale());
         }
     }
