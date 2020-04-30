@@ -175,10 +175,14 @@ class TagManager
     public function similars(array $query): array
     {
         $tagsSimilars = [];
-        $apiResponse = $this->apiProvider->request('GET', '/api/tags/similars', [
-            RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => $query,
-        ]);
+        $apiResponse = $this->apiProvider->request(
+            'GET',
+            '/api/tags/similars',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => $query,
+            ]
+        );
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $tagsSimilars = json_decode((string) $apiResponse->getBody(), true);
         }
