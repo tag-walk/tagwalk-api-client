@@ -15,6 +15,7 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\ApiServerErrorException;
 use Tagwalk\ApiClientBundle\Model\Designer;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -113,6 +114,8 @@ class DesignerManager
                 $designers = $data;
             }
             $this->lastQueryCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_BAD_REQUEST) {
+            throw new ApiServerErrorException($apiResponse->getBody());
         }
 
         return $designers;
