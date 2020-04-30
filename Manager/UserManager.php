@@ -188,4 +188,24 @@ class UserManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
+
+    /**
+     * @param string $token
+     *
+     * @return User|null
+     */
+    public function activate(string $token): ?User
+    {
+        $apiResponse = $this->apiProvider->request(
+            'GET',
+            sprintf('/api/users/enable/%s', $token),
+            [RequestOptions::HTTP_ERRORS => false]
+        );
+        $user = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $user = $this->deserialize($apiResponse);
+        }
+
+        return $user;
+    }
 }
