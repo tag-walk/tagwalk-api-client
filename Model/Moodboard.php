@@ -46,6 +46,12 @@ class Moodboard extends AbstractDocument
     private $token;
 
     /**
+     * @var int|null
+     * @Assert\Type("int")
+     */
+    private $totalItems;
+
+    /**
      * @return User|null
      */
     public function getUser(): ?User
@@ -75,6 +81,26 @@ class Moodboard extends AbstractDocument
     public function setToken(?string $token)
     {
         $this->token = $token;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getTotalItems(): ?int
+    {
+        return $this->totalItems;
+    }
+
+    /**
+     * @param int|null $totalItems
+     *
+     * @return self
+     */
+    public function setTotalItems(?int $totalItems): self
+    {
+        $this->totalItems = $totalItems;
+
+        return $this;
     }
 
     /**
