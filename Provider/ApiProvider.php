@@ -105,8 +105,8 @@ class ApiProvider
      * @param array  $options
      *
      * @throws ApiAccessDeniedException
-     * @throws NotFoundHttpException
      * @throws ApiServerErrorException
+     * @throws NotFoundHttpException
      *
      * @return ResponseInterface
      */
@@ -116,7 +116,7 @@ class ApiProvider
         $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         $this->logger->debug('ApiProvider::request::response', [
-            'message' => (string) $response->getBody(),
+            'message' => substr($response->getBody(), 0, 1024),
             'code'    => $response->getStatusCode(),
         ]);
         switch ($response->getStatusCode()) {
