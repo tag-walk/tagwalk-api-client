@@ -73,7 +73,7 @@ class FilterManager
      *
      * @return array
      */
-    public function getLookFilter(array $params): array
+    public function getLookFilter(?array $params): array
     {
         $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/medias/adaptive-filters', [
