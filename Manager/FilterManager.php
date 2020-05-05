@@ -47,11 +47,11 @@ class FilterManager
      * $params['tags']          = (string) A comma-seperated string of tags to restrict the results (Required false)
      * $params['language']      = (string) Locale language.
      *
-     * @param array $params
+     * @param array|null $params
      *
      * @return array
      */
-    public function getStreetFilter(array $params): array
+    public function getStreetFilter(?array $params): array
     {
         $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/adaptive-filters', [
@@ -80,11 +80,11 @@ class FilterManager
      * $params['includes']      = (string) The comma-seperated (designer, city, season, models, category, tags) allow multiple values (Require true)
      * $params['language']      = (string) Locale language.
      *
-     * @param array $params
+     * @param array|null $params
      *
      * @return array
      */
-    public function getLookFilter(array $params): array
+    public function getLookFilter(?array $params): array
     {
         $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/medias/adaptive-filters', [
