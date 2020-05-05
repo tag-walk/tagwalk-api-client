@@ -69,11 +69,11 @@ class FilterManager
      *                            allow multiple values (Require true)
      * $params['language']      = (string) Locale language.
      *
-     * @param array $params
+     * @param array|null $params
      *
      * @return array
      */
-    public function getLookFilter(?array $params): array
+    public function getLookFilter(?array $params = null): array
     {
         $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/medias/adaptive-filters', [
