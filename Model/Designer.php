@@ -58,6 +58,11 @@ class Designer extends AbstractDocument
     private $detailsZh;
 
     /**
+     * @var string[]|null
+     */
+    private $labels;
+
+    /**
      * @return bool
      */
     public function getTalent(): bool
@@ -173,6 +178,26 @@ class Designer extends AbstractDocument
     public function setDetailsZh(?string $detailsZh): self
     {
         $this->detailsZh = $detailsZh;
+
+        return $this;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getLabels(): ?array
+    {
+        return $this->labels;
+    }
+
+    /**
+     * @param string[]|null $labels
+     *
+     * @return Designer
+     */
+    public function setLabels(?array $labels): self
+    {
+        $this->labels = $labels;
 
         return $this;
     }
