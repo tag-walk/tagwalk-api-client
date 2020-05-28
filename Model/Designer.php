@@ -195,7 +195,7 @@ class Designer extends AbstractDocument
      *
      * @return Designer
      */
-    public function setLabels(?array $labels): Designer
+    public function setLabels(?array $labels): self
     {
         $this->labels = $labels;
 
