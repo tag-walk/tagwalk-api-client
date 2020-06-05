@@ -138,17 +138,23 @@ class MediaManager
     }
 
     /**
-     * @param array  $query
-     * @param int    $from
-     * @param int    $size
-     * @param string $status
+     * @param array       $query
+     * @param int         $from
+     * @param int         $size
+     * @param string      $status
+     * @param string|null $language
      *
      * @return Media[]
      */
-    public function list($query = [], $from = 0, $size = self::DEFAULT_SIZE, $status = Status::ENABLED): array
-    {
+    public function list(
+        $query = [],
+        $from = 0,
+        $size = self::DEFAULT_SIZE,
+        $status = Status::ENABLED,
+        $language = null
+    ): array {
         $data = [];
-        $query = array_merge($query, compact('from', 'size', 'status'));
+        $query = array_merge($query, compact('from', 'size', 'status', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
