@@ -54,12 +54,11 @@ class OAuthController extends AbstractController
      *
      * @return Response
      */
-    public function authorize(Request $request): Response
+    final public function authorize(Request $request): Response
     {
         if (false === $request->query->has('code')) {
             throw $this->createAccessDeniedException('missing authorization code');
         }
-        /** @var User $user */
         $user = $this->getUser();
         if (null === $user || false === $user instanceof User || null === $userToken = $user->getApiToken()) {
             throw $this->createAccessDeniedException('missing user authentication');
@@ -81,8 +80,13 @@ class OAuthController extends AbstractController
         if ($session === null) {
             $redirect = '/';
         } else {
-            $target = $session->get(sprintf('_security.%s.target_path', $request->get('showroom', 'main')));
-            $redirect = empty($target) ? $session->get('login_redirect', '/') : $target;
+            $showroom = $request->get('showroom');
+            $target = $session->get(sprintf('_security.%s.target_path', $showroom ?? 'main'));
+            $redirect = $target
+                ?? $session->get('login_redirect')
+                ?? $showroom
+                    ? '/'.$showroom
+                    : '/';
         }
 
         return new RedirectResponse($redirect);
