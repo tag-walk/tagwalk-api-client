@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Model;
 
 use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
+use Tagwalk\ApiClientBundle\Model\Traits\Labelable;
 use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Notable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
@@ -22,6 +23,7 @@ class Designer extends AbstractDocument
 {
     use Coverable;
     use Descriptable;
+    use Labelable;
     use NameTranslatable;
     use Notable;
     use Positionable;
@@ -56,11 +58,6 @@ class Designer extends AbstractDocument
      * @var string|null
      */
     private $detailsZh;
-
-    /**
-     * @var string[]|null
-     */
-    private $labels;
 
     /**
      * @return bool
@@ -178,26 +175,6 @@ class Designer extends AbstractDocument
     public function setDetailsZh(?string $detailsZh): self
     {
         $this->detailsZh = $detailsZh;
-
-        return $this;
-    }
-
-    /**
-     * @return string[]|null
-     */
-    public function getLabels(): ?array
-    {
-        return $this->labels;
-    }
-
-    /**
-     * @param string[]|null $labels
-     *
-     * @return Designer
-     */
-    public function setLabels(?array $labels): self
-    {
-        $this->labels = $labels;
 
         return $this;
     }
