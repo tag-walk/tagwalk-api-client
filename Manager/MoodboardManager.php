@@ -94,15 +94,44 @@ class MoodboardManager
 
     /**
      * @param string $slug
+     * @param array  $params
+     * @param bool $innerHits
      *
      * @return null|Moodboard
      */
-    public function get(string $slug): ?Moodboard
+    public function get(string $slug, $params = [], $innerHits = false): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
+        $query = array_merge($params, ['inner_hits' => $innerHits]);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $moodboard = $this->denormalizeResponse($apiResponse);
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        }
+
+        return $moodboard;
+    }
+
+    /**
+     * @param string $slug
+     * @param array  $params
+     *
+     * @return null|array
+     */
+    public function getMore(string $slug, $params = []): ?array
+    {
+        $moodboard = null;
+        $query = array_merge($params, ['inner_hits' => true]);
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY       => $query,
+        ]);
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $moodboard = json_decode((string) $apiResponse->getBody(), true);
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         }
 
         return $moodboard;
