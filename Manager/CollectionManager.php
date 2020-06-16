@@ -49,7 +49,7 @@ class CollectionManager
      *
      * @return null|Collection
      */
-    final public function find(string $type, string $designer, string $season, array $query = []): ?Collection
+    public function find(string $type, string $designer, string $season, array $query = []): ?Collection
     {
         $data = null;
         $apiResponse = $this->apiProvider->request(
@@ -85,7 +85,7 @@ class CollectionManager
      *
      * @return null|Collection[]
      */
-    final public function list(array $query = []): ?array
+    public function list(array $query = []): ?array
     {
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_GET,
@@ -112,7 +112,7 @@ class CollectionManager
      *
      * @return null|Collection
      */
-    final public function get(string $slug): ?Collection
+    public function get(string $slug): ?Collection
     {
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_GET,

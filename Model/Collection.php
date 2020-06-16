@@ -159,7 +159,7 @@ class Collection extends AbstractDocument
     /**
      * @return string|null
      */
-    final public function getEmbed(): ?string
+    public function getEmbed(): ?string
     {
         return $this->embed;
     }
@@ -169,7 +169,7 @@ class Collection extends AbstractDocument
      *
      * @return self
      */
-    final public function setEmbed(?string $embed): self
+    public function setEmbed(?string $embed): self
     {
         $this->embed = $embed;
 
@@ -183,7 +183,7 @@ class Collection extends AbstractDocument
             $this->designer->getName(),
             $this->type,
             $this->season->getName(),
-            $this->city->getName(),
+            $this->city->getName()
         );
     }
 }
