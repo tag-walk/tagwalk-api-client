@@ -93,9 +93,9 @@ class MoodboardManager
     }
 
     /**
-     * @param string $slug
-     * @param array  $params
-     * @param bool $innerHits
+     * @param string     $slug
+     * @param array|null $params
+     * @param bool|null  $innerHits
      *
      * @return null|Moodboard
      */
