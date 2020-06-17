@@ -179,11 +179,11 @@ class DesignerManager
      * @return array
      */
     public function listFilters(
-        ?string $type,
-        ?string $season,
-        ?string $city,
-        ?string $tags,
-        ?string $models,
+        ?string $type = null,
+        ?string $season = null,
+        ?string $city = null,
+        ?string $tags = null,
+        ?string $models = null,
         ?bool $talent = false,
         ?string $language = null,
         ?string $country = null
