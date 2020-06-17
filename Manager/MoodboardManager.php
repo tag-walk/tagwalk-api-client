@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Provider\MoodboardProvider;
 
 class MoodboardManager
 {
@@ -36,19 +37,27 @@ class MoodboardManager
     private $apiProvider;
 
     /**
+     * @var MoodboardProvider
+     */
+    private $moodboardProvider;
+
+    /**
      * @var Serializer
      */
     private $serializer;
 
     /**
      * @param ApiProvider          $apiProvider
+     * @param MoodboardProvider    $moodboardProvider
      * @param SerializerInterface  $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
+        MoodboardProvider $moodboardProvider,
         SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
+        $this->moodboardProvider = $moodboardProvider;
         $this->serializer = $serializer;
     }
 
@@ -95,43 +104,17 @@ class MoodboardManager
     /**
      * @param string     $slug
      * @param array|null $params
-     * @param bool|null  $innerHits
      *
      * @return null|Moodboard
      */
-    public function get(string $slug, $params = [], $innerHits = false): ?Moodboard
+    public function get(string $slug, $params = []): ?Moodboard
     {
         $moodboard = null;
-        $query = array_merge($params, ['inner_hits' => $innerHits]);
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [
-            RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => $query,
-        ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $moodboard = $this->denormalizeResponse($apiResponse);
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
-        }
-
-        return $moodboard;
-    }
-
-    /**
-     * @param string $slug
-     * @param array  $params
-     *
-     * @return null|array
-     */
-    public function getMore(string $slug, $params = []): ?array
-    {
-        $moodboard = null;
-        $query = array_merge($params, ['inner_hits' => true]);
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [
-            RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => $query,
-        ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $moodboard = json_decode((string) $apiResponse->getBody(), true);
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        $data = $this->moodboardProvider->get($slug, $params);
+        if ($data !== null) {
+            /** @var Moodboard $moodboard */
+            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
+            $this->lastCount = $this->moodboardProvider->lastCount;
         }
 
         return $moodboard;
