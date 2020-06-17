@@ -33,18 +33,21 @@ class Season extends AbstractDocument
      * )
      */
     protected $name;
+
     /**
      * @var string
      * @Assert\NotBlank()
      * @Assert\Regex("/^[a-z0-9]+(?:-[a-z0-9]+)*$/")
      */
     protected $slug;
+
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      * @Assert\Type("string")
      */
     private $shortname;
+
     /**
      * @var bool
      * @Assert\Type("boolean")
@@ -64,7 +67,7 @@ class Season extends AbstractDocument
      *
      * @return Season
      */
-    public function setShortname(string $shortname): self
+    public function setShortname(?string $shortname): self
     {
         $this->shortname = $shortname;
 
@@ -89,5 +92,10 @@ class Season extends AbstractDocument
         $this->shopable = $shopable;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name;
     }
 }
