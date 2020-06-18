@@ -27,9 +27,6 @@ class MoodboardProvider
      */
     public $lastCount;
 
-    /**
-     * @param ApiProvider $apiProvider
-     */
     public function __construct(
         ApiProvider $apiProvider
     ) {
