@@ -34,6 +34,7 @@ class DocumentNormalizer extends ObjectNormalizer
      */
     public function normalize($object, $format = null, array $context = [])
     {
+        $context[self::IGNORED_ATTRIBUTES][] = 'enabled';
         $data = parent::normalize($object, $format, $context);
         if (false === empty($context['write'])) {
             unset($data['created_at'], $data['updated_at']);

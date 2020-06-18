@@ -15,7 +15,6 @@ trait Mediable
 {
     /**
      * @var Media[]|null
-     * @Assert\Valid()
      */
     protected $medias;
 

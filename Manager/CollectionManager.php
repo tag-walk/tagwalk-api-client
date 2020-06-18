@@ -134,16 +134,17 @@ class CollectionManager
     /**
      * @param string     $slug
      * @param Collection $record
+     * @param array      $serializationContext
      *
      * @return Collection
      */
-    public function update(string $slug, Collection $record): ?Collection
+    public function update(string $slug, Collection $record, array $serializationContext = []): ?Collection
     {
         $params = [
-            RequestOptions::JSON => $this->serializer->normalize($record, null, [
+            RequestOptions::JSON => $this->serializer->normalize($record, null, array_merge([
                 AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
                 'write'                                    => true,
-            ]),
+            ], $serializationContext)),
         ];
         $apiResponse = $this->apiProvider->request('PATCH', '/api/collections/'.$slug, $params);
         $updated = null;
