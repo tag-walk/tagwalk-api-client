@@ -35,6 +35,17 @@ jobs:
 
     - name: Run test suite
       run: composer run-script phpunit
-
+      
+    - name: Run test suite (with coverage)
+      run: ./vendor/bin/phpunit --coverage-clover=coverage.xml --no-interaction --no-suggest
+      
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.xml
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        
+  
     # - name: Run test suite
     #   run: composer run-script test
