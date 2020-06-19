@@ -43,6 +43,10 @@ services:
             $showroom: null
             $logger: '@logger'
 
+    Tagwalk\ApiClientBundle\Provider\MoodboardProvider:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
     Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
         arguments:
             $tokenStorage: '@security.token_storage'
@@ -147,6 +151,7 @@ services:
     Tagwalk\ApiClientBundle\Manager\MoodboardManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $moodboardProvider: '@Tagwalk\ApiClientBundle\Provider\MoodboardProvider'
             $serializer: '@serializer'
 
     Tagwalk\ApiClientBundle\Manager\AnalyticsManager:
