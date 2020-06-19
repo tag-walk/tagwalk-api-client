@@ -2,7 +2,6 @@
 
 namespace Tagwalk\ApiClientBundle\Model\Traits;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Utils\Reindexer;
 
@@ -15,7 +14,6 @@ trait Mediable
 {
     /**
      * @var Media[]|null
-     * @Assert\Valid()
      */
     protected $medias;
 
