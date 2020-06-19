@@ -33,11 +33,11 @@ jobs:
     - name: Run static analysis
       run: composer run-script phpstan
 
-    - name: Run test suite
-      run: composer run-script phpunit
+#    - name: Run test suite
+#      run: composer run-script phpunit
       
     - name: Run test suite (with coverage)
-      run: ./vendor/bin/phpunit --coverage-clover=coverage.xml --no-interaction --no-suggest
+      run: ./vendor/bin/phpunit --coverage-clover=coverage.xml --coverage-text
       
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
