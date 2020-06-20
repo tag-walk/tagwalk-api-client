@@ -11,7 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Exception;
 
-use \Exception;
+use Exception;
 
 class ApiLoginFailedException extends Exception
 {
