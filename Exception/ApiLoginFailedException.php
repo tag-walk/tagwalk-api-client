@@ -15,7 +15,11 @@ use Exception;
 
 class ApiLoginFailedException extends Exception
 {
-    public function __construct($message = 'Api Login Failed', int $code = 400)
+    /**
+     * @param string $message
+     * @param int    $code
+     */
+    public function __construct(string $message = 'Api Login Failed', int $code = 400)
     {
         parent::__construct($message, $code);
     }
