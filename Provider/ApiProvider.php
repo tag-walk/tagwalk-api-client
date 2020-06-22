@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
+use Tagwalk\ApiClientBundle\Exception\ApiLoginFailedException;
 use Tagwalk\ApiClientBundle\Exception\ApiServerErrorException;
 use Tagwalk\ApiClientBundle\Factory\ClientFactory;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
@@ -105,6 +106,7 @@ class ApiProvider
      * @param array  $options
      *
      * @throws ApiAccessDeniedException
+     * @throws ApiLoginFailedException
      * @throws ApiServerErrorException
      * @throws NotFoundHttpException
      *
@@ -122,6 +124,9 @@ class ApiProvider
         switch ($response->getStatusCode()) {
             case Response::HTTP_FORBIDDEN:
                 $this->logger->warning('ApiProvider request access denied');
+                if (strpos($uri, 'login') !== false) {
+                    throw new ApiLoginFailedException('Account disabled', Response::HTTP_FORBIDDEN);
+                }
 
                 throw new ApiAccessDeniedException();
             case Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
@@ -136,6 +141,8 @@ class ApiProvider
                 $this->logger->warning('ApiProvider request unauthorized');
                 if (strpos($uri, 'login') === false) {
                     $this->apiTokenStorage->clearCachedToken();
+                } else {
+                    throw new ApiLoginFailedException('Bad credentials', Response::HTTP_UNAUTHORIZED);
                 }
 
                 throw new ApiAccessDeniedException();
