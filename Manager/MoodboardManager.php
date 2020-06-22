@@ -230,13 +230,40 @@ class MoodboardManager
     public function update(string $slug, Moodboard $moodboard): Moodboard
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT,
+            '/api/moodboards/'.$slug,
+            array_merge(
+                $params,
+                [RequestOptions::HTTP_ERRORS => false]
+            )
+        );
         $response = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $response = $this->denormalizeResponse($apiResponse);
         }
 
         return $response;
+    }
+
+    /**
+     * @param string $slug
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function rename(string $slug, string $name): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT,
+            sprintf('/api/moodboards/%s/rename', $slug),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY => ['name' => $name]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
     /**
