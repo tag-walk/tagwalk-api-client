@@ -227,7 +227,7 @@ class MoodboardManager
      *
      * @return Moodboard
      */
-    public function update(string $slug, Moodboard $moodboard): Moodboard
+    public function update(string $slug, Moodboard $moodboard): ?Moodboard
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
         $apiResponse = $this->apiProvider->request(
@@ -244,6 +244,20 @@ class MoodboardManager
         }
 
         return $response;
+    }
+
+    public function reorder(string $slug, array $items): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT,
+            sprintf('/api/moodboards/%s/reorder', $slug),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::JSON => $items
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
     /**
