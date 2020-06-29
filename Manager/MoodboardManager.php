@@ -246,7 +246,13 @@ class MoodboardManager
         return $response;
     }
 
-    public function reorder(string $slug, array $items): bool
+    /**
+     * @param string $slug
+     * @param string $items
+     *
+     * @return bool
+     */
+    public function reorder(string $slug, string $items): bool
     {
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_PUT,
