@@ -259,7 +259,10 @@ class MoodboardManager
             sprintf('/api/moodboards/%s/reorder', $slug),
             [
                 RequestOptions::HTTP_ERRORS => false,
-                RequestOptions::JSON => $items
+                RequestOptions::BODY => $items,
+                RequestOptions::HEADERS => [
+                    'Content-type' => 'application/json'
+                ]
             ]
         );
 
