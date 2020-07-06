@@ -266,7 +266,7 @@ class MoodboardManager
             ]
         );
 
-        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+        return $apiResponse->getStatusCode();
     }
 
     /**
