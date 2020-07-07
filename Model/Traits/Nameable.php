@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait Nameable
 {
     /**
-     * @var string
+     * @var string|null
      * @Assert\NotBlank()
      * @Assert\Type("string")
      * @Assert\Length(
@@ -44,7 +44,7 @@ trait Nameable
      *
      * @return self
      */
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = $name;
 
