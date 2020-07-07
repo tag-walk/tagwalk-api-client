@@ -278,7 +278,7 @@ class MoodboardManager
     public function rename(string $slug, string $name): bool
     {
         $apiResponse = $this->apiProvider->request(
-            Request::METHOD_PUT,
+            Request::METHOD_PATCH,
             sprintf('/api/moodboards/%s/rename', $slug),
             [
                 RequestOptions::HTTP_ERRORS => false,
