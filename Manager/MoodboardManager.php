@@ -259,8 +259,8 @@ class MoodboardManager
             sprintf('/api/moodboards/%s/reorder', $slug),
             [
                 RequestOptions::HTTP_ERRORS => false,
-                RequestOptions::BODY => $item,
-                RequestOptions::HEADERS => [
+                RequestOptions::BODY        => $item,
+                RequestOptions::HEADERS     => [
                     'Content-type' => 'application/json',
                 ]
             ]
@@ -282,7 +282,7 @@ class MoodboardManager
             sprintf('/api/moodboards/%s/rename', $slug),
             [
                 RequestOptions::HTTP_ERRORS => false,
-                RequestOptions::QUERY => ['name' => $name],
+                RequestOptions::QUERY       => ['name' => $name],
             ]
         );
 
