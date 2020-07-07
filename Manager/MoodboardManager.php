@@ -262,7 +262,7 @@ class MoodboardManager
                 RequestOptions::BODY        => $item,
                 RequestOptions::HEADERS     => [
                     'Content-type' => 'application/json',
-                ]
+                ],
             ]
         );
 
