@@ -248,18 +248,25 @@ class MoodboardManager
 
     /**
      * @param string $slug
-     * @param string $item
+     * @param string $itemSlug
+     * @param int $originalPosition
+     * @param int $updatedPosition
      *
      * @return bool
      */
-    public function reorder(string $slug, string $item): bool
+    public function reorder(string $slug, string $itemSlug, int $originalPosition, int $updatedPosition): bool
     {
+        $item = [
+            'slug' => $itemSlug,
+            'originalPosition' => $originalPosition,
+            'updatedPosition' => $updatedPosition
+        ];
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_PUT,
             sprintf('/api/moodboards/%s/reorder', $slug),
             [
                 RequestOptions::HTTP_ERRORS => false,
-                RequestOptions::BODY        => $item,
+                RequestOptions::BODY        => json_encode($item),
                 RequestOptions::HEADERS     => [
                     'Content-type' => 'application/json',
                 ],
