@@ -257,9 +257,9 @@ class MoodboardManager
     public function reorder(string $slug, string $itemSlug, int $originalPosition, int $updatedPosition): bool
     {
         $item = [
-            'slug' => $itemSlug,
+            'slug'             => $itemSlug,
             'originalPosition' => $originalPosition,
-            'updatedPosition' => $updatedPosition
+            'updatedPosition'  => $updatedPosition,
         ];
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_PUT,
