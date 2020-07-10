@@ -27,7 +27,7 @@ class UserChecker implements UserCheckerInterface
             return;
         }
         $expiresAt = $user->getExpiresAt();
-        if ($expiresAt > new DateTime()) {
+        if ($expiresAt !== null && $expiresAt < new DateTime()) {
             throw new AccountExpiredException('Your user account is expired.');
         }
         if ($user->getStatus() === Status::DISABLED) {
