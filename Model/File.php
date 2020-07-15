@@ -41,16 +41,14 @@ class File extends AbstractDocument
     protected $filename;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $mimetype;
 
     /**
-     * @var string
+     * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected $extension;
 
@@ -121,19 +119,19 @@ class File extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getMimetype(): string
+    public function getMimetype(): ?string
     {
         return $this->mimetype;
     }
 
     /**
-     * @param string $mimetype
+     * @param string|null $mimetype
      *
      * @return File
      */
-    public function setMimetype(string $mimetype): self
+    public function setMimetype(?string $mimetype): self
     {
         $this->mimetype = $mimetype;
 
@@ -161,19 +159,19 @@ class File extends AbstractDocument
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getExtension(): string
+    public function getExtension(): ?string
     {
         return $this->extension;
     }
 
     /**
-     * @param string $extension
+     * @param string|null $extension
      *
      * @return self
      */
-    public function setExtension(string $extension): self
+    public function setExtension(?string $extension): self
     {
         $this->extension = $extension;
 
