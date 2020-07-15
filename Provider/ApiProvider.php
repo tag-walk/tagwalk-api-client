@@ -125,7 +125,7 @@ class ApiProvider
             case Response::HTTP_FORBIDDEN:
                 $this->logger->warning('ApiProvider request access denied');
                 if (strpos($uri, 'login') !== false) {
-                    throw new ApiLoginFailedException('Account disabled', Response::HTTP_FORBIDDEN);
+                    throw new ApiLoginFailedException((string)$response->getBody(), Response::HTTP_FORBIDDEN);
                 }
 
                 throw new ApiAccessDeniedException();

@@ -166,6 +166,16 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     private $note;
 
     /**
+     * @var string|null DateInterval format
+     */
+    private $duration;
+
+    /**
+     * @var \DateTime|null
+     */
+    private $expiresAt;
+
+    /**
      * @param string      $name
      * @param string|null $password
      * @param string|null $salt
@@ -653,6 +663,46 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     public function setApiToken(?string $apiToken): self
     {
         $this->apiToken = $apiToken;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDuration(): ?string
+    {
+        return $this->duration;
+    }
+
+    /**
+     * @param string|null $duration
+     *
+     * @return \App\Model\User
+     */
+    public function setDuration(?string $duration): self
+    {
+        $this->duration = $duration;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getExpiresAt(): ?\DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    /**
+     * @param \DateTime|null $expiresAt
+     *
+     * @return self
+     */
+    public function setExpiresAt(?\DateTime $expiresAt): self
+    {
+        $this->expiresAt = $expiresAt;
 
         return $this;
     }
