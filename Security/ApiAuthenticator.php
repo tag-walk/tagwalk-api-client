@@ -21,6 +21,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\ApiLoginFailedException;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -57,7 +58,8 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      */
     public function supports(Request $request): bool
     {
-        return 'login' === $request->attributes->get('_route') && $request->isMethod('POST');
+        return $request->isMethod('POST')
+            && strpos($request->attributes->get('_route'), 'login') !== false;
     }
 
     /**
@@ -85,15 +87,18 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         $password = $credentials['password'];
         $email = $credentials['username'];
         if (isset($password, $email)) {
-            $response = $this->provider->request('POST', '/api/users/login', [
-                RequestOptions::JSON => [
-                    'email'    => $email,
-                    'password' => $password,
-                ],
-            ]);
-            if ($response->getStatusCode() === Response::HTTP_OK) {
-                /** @var User $user */
-                $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
+            try {
+                $response = $this->provider->request('POST', '/api/users/login', [
+                    RequestOptions::JSON => [
+                        'email'    => $email,
+                        'password' => $password,
+                    ],
+                ]);
+                if ($response->getStatusCode() === Response::HTTP_OK) {
+                    /** @var User $user */
+                    $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
+                }
+            } catch (ApiLoginFailedException $exception) {
             }
         }
 
