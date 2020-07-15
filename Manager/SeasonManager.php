@@ -34,8 +34,8 @@ class SeasonManager
     private $serializer;
 
     /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
+     * @param ApiProvider         $apiProvider
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
@@ -90,11 +90,11 @@ class SeasonManager
      * @return Season[]
      */
     public function listFilters(
-        ?string $type,
-        ?string $city,
-        ?string $designer,
-        ?string $tags,
-        ?string $models,
+        ?string $type = null,
+        ?string $city = null,
+        ?string $designer = null,
+        ?string $tags = null,
+        ?string $models = null,
         ?string $language = null
     ): array {
         $results = [];

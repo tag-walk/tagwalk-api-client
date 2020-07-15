@@ -34,8 +34,8 @@ class CityManager
     private $serializer;
 
     /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
+     * @param ApiProvider         $apiProvider
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
@@ -88,11 +88,11 @@ class CityManager
      * @return City[]
      */
     public function listFilters(
-        ?string $type,
-        ?string $season,
-        ?string $designer,
-        ?string $tags,
-        ?string $models,
+        ?string $type = null,
+        ?string $season = null,
+        ?string $designer = null,
+        ?string $tags = null,
+        ?string $models = null,
         ?string $language = null
     ): array {
         $query = array_filter(compact('type', 'season', 'designer', 'tags', 'models', 'language'));

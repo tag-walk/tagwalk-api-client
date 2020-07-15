@@ -51,7 +51,7 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
 
     /**
      * @var string
-     * @Assert\Email()
+     * @Assert\Email(groups={"Default", "ShowroomUser", "base"})
      */
     private $email;
 
@@ -129,16 +129,19 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $facebookId;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $token;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $apiToken;
 
