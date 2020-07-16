@@ -79,6 +79,11 @@ class File extends AbstractDocument
     private $caption;
 
     /**
+     * @var bool|null
+     */
+    private $embed;
+
+    /**
      * @return string|null
      */
     public function getPath(): ?string
@@ -272,6 +277,26 @@ class File extends AbstractDocument
     public function setCaption(?string $caption): self
     {
         $this->caption = $caption;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isEmbed(): ?bool
+    {
+        return $this->embed;
+    }
+
+    /**
+     * @param bool|null $embed
+     *
+     * @return self
+     */
+    public function setEmbed(?bool $embed): self
+    {
+        $this->embed = $embed;
 
         return $this;
     }
