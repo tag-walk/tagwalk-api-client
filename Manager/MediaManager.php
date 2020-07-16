@@ -12,7 +12,10 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Media;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -52,7 +55,7 @@ class MediaManager
     private $apiProvider;
 
     /**
-     * @var SerializerInterface
+     * @var Serializer
      */
     private $serializer;
 
@@ -200,5 +203,28 @@ class MediaManager
         }
 
         return $data;
+    }
+
+    /**
+     * @param Media $media
+     *
+     * @return Media|null
+     */
+    public function update(Media $media): ?Media
+    {
+        $updated = null;
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT,
+            sprintf('/api/medias/%s', $media->getSlug()),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::JSON        =>  $this->serializer->normalize($media, null, ['write' => true]),
+            ]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $updated = $this->serializer->deserialize((string) $apiResponse->getBody(), Media::class, JsonEncoder::FORMAT);
+        }
+
+        return $updated;
     }
 }
