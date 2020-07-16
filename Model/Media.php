@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
 use Tagwalk\ApiClientBundle\Utils\Constants\AccessoryCategories;
@@ -20,6 +21,7 @@ use Tagwalk\ApiClientBundle\Utils\Reindexer;
 
 class Media extends AbstractDocument
 {
+    use Descriptable;
     use Positionable;
     use Watermarkable;
 
@@ -105,6 +107,12 @@ class Media extends AbstractDocument
      * @Assert\Choice(AccessoryCategories::VALUES)
      */
     private $accessoryCategories;
+
+    /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $reference;
 
     /**
      * @return null|Season
@@ -398,5 +406,21 @@ class Media extends AbstractDocument
         $this->members = $members;
 
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    /**
+     * @param string|null $reference
+     */
+    public function setReference(?string $reference): void
+    {
+        $this->reference = $reference;
     }
 }
