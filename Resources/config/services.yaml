@@ -265,3 +265,5 @@ services:
     Tagwalk\ApiClientBundle\Manager\FilterManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
+    Tagwalk\ApiClientBundle\Security\UserChecker:
