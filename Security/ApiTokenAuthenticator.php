@@ -156,7 +156,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -230,7 +230,7 @@ class ApiTokenAuthenticator
             throw $exception;
         }
 
-        $jsonDecode = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $jsonDecode = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         if (isset($jsonDecode['state']) && $jsonDecode['state'] !== $this->session->get(self::AUTHORIZATION_STATE)) {
             throw new InvalidArgumentException('Incorrect state value.');
         }
