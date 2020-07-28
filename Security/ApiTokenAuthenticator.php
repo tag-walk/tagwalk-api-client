@@ -91,7 +91,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setClientId(string $clientId): self
+    final public function setClientId(string $clientId): self
     {
         $this->clientId = $clientId;
 
@@ -103,7 +103,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setClientSecret(string $clientSecret): self
+    final public function setClientSecret(string $clientSecret): self
     {
         $this->clientSecret = $clientSecret;
 
@@ -115,7 +115,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setRedirectUri(?string $redirectUri): self
+    final public function setRedirectUri(?string $redirectUri): self
     {
         $this->redirectUri = $redirectUri;
 
@@ -127,7 +127,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setShowroom(?string $showroom): self
+    final public function setShowroom(?string $showroom): self
     {
         $this->showroom = $showroom;
 
@@ -139,7 +139,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function authenticate(): array
+    final public function authenticate(): array
     {
         $params = [
             'client_id'     => $this->clientId,
@@ -156,7 +156,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -164,7 +164,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function refreshToken(string $token): array
+    final public function refreshToken(string $token): array
     {
         $params = [
             'grant_type'    => 'refresh_token',
@@ -182,7 +182,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -191,7 +191,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function authorize(string $code, string $userToken): array
+    final public function authorize(string $code, string $userToken): array
     {
         try {
             $this->logger->info('ApiTokenAuthenticator::authorize', [
@@ -219,13 +219,18 @@ class ApiTokenAuthenticator
         } catch (ClientException $exception) {
             $this->logger->error('Error authorizing token', [
                 'user_token' => $userToken,
-                'response'   => $exception->getResponse() !== null ? json_decode($exception->getResponse()->getBody(), true) : null,
+                'response'   => $exception->getResponse() !== null ? json_decode(
+                    $exception->getResponse()->getBody(),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                ) : null,
             ]);
 
             throw $exception;
         }
 
-        $jsonDecode = json_decode($response->getBody(), true);
+        $jsonDecode = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         if (isset($jsonDecode['state']) && $jsonDecode['state'] !== $this->session->get(self::AUTHORIZATION_STATE)) {
             throw new InvalidArgumentException('Incorrect state value.');
         }
@@ -238,7 +243,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function getAuthorizationQueryParameters(?string $userToken): array
+    final public function getAuthorizationQueryParameters(?string $userToken): array
     {
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);

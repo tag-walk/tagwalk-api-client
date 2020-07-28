@@ -119,7 +119,7 @@ class MediaManager
      * @param string      $designer
      * @param string|null $city
      *
-     * @return array|mixed
+     * @return array
      */
     public function listRelated(string $type, string $season, string $designer, ?string $city = null): array
     {
@@ -134,7 +134,7 @@ class MediaManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $results = json_decode($apiResponse->getBody(), true);
+            $results = json_decode($apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
         }
 
         return $results;

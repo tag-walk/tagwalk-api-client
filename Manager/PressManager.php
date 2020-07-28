@@ -14,6 +14,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Press;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -31,13 +32,13 @@ class PressManager
     private $apiProvider;
 
     /**
-     * @var SerializerInterface
+     * @var Serializer
      */
     private $serializer;
 
     /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
+     * @param ApiProvider         $apiProvider
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
@@ -60,11 +61,11 @@ class PressManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode((string) $apiResponse->getBody(), true);
+            $data = json_decode((string)$apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
             foreach ($data as $datum) {
                 $results[] = $this->serializer->denormalize($datum, Press::class);
             }
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+            $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
         }
 
         return $results;
