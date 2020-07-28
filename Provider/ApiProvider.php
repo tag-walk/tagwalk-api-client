@@ -169,8 +169,8 @@ class ApiProvider
             $response = $exception->getResponse();
             $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error', [
                 'exception' => get_class($exception),
-                'code' => $response ? $response->getStatusCode() : null,
-                'message' => $response ? (string)$response->getBody() : null,
+                'code'      => $response ? $response->getStatusCode() : null,
+                'message'   => $response ? (string)$response->getBody() : null,
             ]);
             $this->apiTokenStorage->clearCachedToken();
 
@@ -183,7 +183,7 @@ class ApiProvider
             'Accept'                => 'application/json',
             'Accept-Language'       => $locale,
             'Authorization'         => $token !== null ? sprintf('Bearer %s', $token) : null,
-            'Analytics'             => (int) $this->analytics,
+            'Analytics'             => (int)$this->analytics,
             'Tagwalk-Showroom-Name' => $this->showroom,
         ], static function ($item) {
             return $item !== null;

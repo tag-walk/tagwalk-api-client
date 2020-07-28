@@ -6,5 +6,5 @@ parameters:
     ignoreErrors:
         - '#.*providerKey with no typehint specified.#'
         - '#.*username with no typehint specified.#'
-        - '#Method Tagwalk\ApiClientBundle\Security\ApiAuthenticator::onAuthenticationSuccess() should return Symfony\Component\HttpFoundation\Response|null but return statement is missing.#'
-        - '#Method Tagwalk\ApiClientBundle\Security\ApiAuthenticator::onAuthenticationFailure() should return Symfony\Component\HttpFoundation\Response|null but return statement is missing.#'
+        - '#Method Tagwalk\\ApiClientBundle\\Security\\ApiAuthenticator::onAuthenticationSuccess\(\) should return Symfony\\Component\\HttpFoundation\\Response\|null but return statement is missing.#'
+        - '#Method Tagwalk\\ApiClientBundle\\Security\\ApiAuthenticator::onAuthenticationFailure\(\) should return Symfony\\Component\\HttpFoundation\\Response\|null but return statement is missing.#'
