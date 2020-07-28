@@ -166,7 +166,12 @@ class ApiProvider
             // get oauth2 token for request header
             $token = $this->apiTokenStorage->getAccessToken();
         } catch (ClientException $exception) {
-            $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error');
+            $response = $exception->getResponse();
+            $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error', [
+                'exception' => get_class($exception),
+                'code' => $response ? $response->getStatusCode() : null,
+                'message' => $response ? (string)$response->getBody() : null,
+            ]);
             $this->apiTokenStorage->clearCachedToken();
 
             throw new ApiAccessDeniedException();

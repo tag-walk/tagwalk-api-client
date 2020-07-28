@@ -91,7 +91,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setClientId(string $clientId): self
+    final public function setClientId(string $clientId): self
     {
         $this->clientId = $clientId;
 
@@ -103,7 +103,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setClientSecret(string $clientSecret): self
+    final public function setClientSecret(string $clientSecret): self
     {
         $this->clientSecret = $clientSecret;
 
@@ -115,7 +115,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setRedirectUri(?string $redirectUri): self
+    final public function setRedirectUri(?string $redirectUri): self
     {
         $this->redirectUri = $redirectUri;
 
@@ -127,7 +127,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setShowroom(?string $showroom): self
+    final public function setShowroom(?string $showroom): self
     {
         $this->showroom = $showroom;
 
@@ -139,12 +139,12 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function authenticate(): array
+    final public function authenticate(): array
     {
         $params = [
-            'client_id'     => $this->clientId,
+            'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
-            'grant_type'    => 'client_credentials',
+            'grant_type' => 'client_credentials',
         ];
         $this->logger->info('ApiTokenAuthenticator::authenticate', $params);
         $response = $this->clientFactory->get()->request(
@@ -156,7 +156,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -164,11 +164,11 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function refreshToken(string $token): array
+    final public function refreshToken(string $token): array
     {
         $params = [
-            'grant_type'    => 'refresh_token',
-            'client_id'     => $this->clientId,
+            'grant_type' => 'refresh_token',
+            'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'refresh_token' => $token,
         ];
@@ -182,7 +182,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -191,11 +191,11 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function authorize(string $code, string $userToken): array
+    final public function authorize(string $code, string $userToken): array
     {
         try {
             $this->logger->info('ApiTokenAuthenticator::authorize', [
-                'code'       => $code,
+                'code' => $code,
                 'user_token' => $userToken,
             ]);
             $response = $this->clientFactory->get()->request(
@@ -203,14 +203,14 @@ class ApiTokenAuthenticator
                 '/oauth/v2/token',
                 [
                     RequestOptions::FORM_PARAMS => [
-                        'grant_type'    => 'authorization_code',
-                        'client_id'     => $this->clientId,
+                        'grant_type' => 'authorization_code',
+                        'client_id' => $this->clientId,
                         'client_secret' => $this->clientSecret,
-                        'redirect_uri'  => $this->redirectUri,
-                        'code'          => $code,
+                        'redirect_uri' => $this->redirectUri,
+                        'code' => $code,
                     ],
-                    RequestOptions::HEADERS     => array_filter([
-                        'X-AUTH-TOKEN'          => $userToken,
+                    RequestOptions::HEADERS => array_filter([
+                        'X-AUTH-TOKEN' => $userToken,
                         'Tagwalk-Showroom-Name' => $this->showroom,
                     ]),
                     RequestOptions::HTTP_ERRORS => true,
@@ -219,13 +219,18 @@ class ApiTokenAuthenticator
         } catch (ClientException $exception) {
             $this->logger->error('Error authorizing token', [
                 'user_token' => $userToken,
-                'response'   => $exception->getResponse() !== null ? json_decode($exception->getResponse()->getBody(), true) : null,
+                'response' => $exception->getResponse() !== null ? json_decode(
+                    $exception->getResponse()->getBody(),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                ) : null,
             ]);
 
             throw $exception;
         }
 
-        $jsonDecode = json_decode($response->getBody(), true);
+        $jsonDecode = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         if (isset($jsonDecode['state']) && $jsonDecode['state'] !== $this->session->get(self::AUTHORIZATION_STATE)) {
             throw new InvalidArgumentException('Incorrect state value.');
         }
@@ -238,17 +243,17 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function getAuthorizationQueryParameters(?string $userToken): array
+    final public function getAuthorizationQueryParameters(?string $userToken): array
     {
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
 
         return array_filter([
-            'response_type'         => 'code',
-            'state'                 => $state,
-            'client_id'             => $this->clientId,
-            'redirect_uri'          => $this->redirectUri,
-            'x-auth-token'          => $userToken,
+            'response_type' => 'code',
+            'state' => $state,
+            'client_id' => $this->clientId,
+            'redirect_uri' => $this->redirectUri,
+            'x-auth-token' => $userToken,
             'tagwalk-showroom-name' => $this->showroom,
         ]);
     }
