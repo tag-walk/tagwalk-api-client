@@ -6,7 +6,6 @@ APP_ENV?=prod
 help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-
 ##---------------------------------------------------------------------------
 ## setup
 ##---------------------------------------------------------------------------
@@ -17,14 +16,6 @@ install:
 
 test:			## Run tests
 test: phpstan phpunit
-
-cs-fixer:		## Run php-cs-fixer
-cs-fixer:
-	vendor/bin/phpcs
-
-phpcs-error:	## Run phpcs (error only)
-phpcs-error:
-	vendor/bin/phpcs -n
 
 phpstan:		## Run phpstan
 phpstan:
