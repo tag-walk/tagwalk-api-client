@@ -118,6 +118,12 @@ class Media extends AbstractDocument
     private $downloadable;
 
     /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $category;
+
+    /**
      * @return null|Season
      */
     public function getSeason(): ?Season
@@ -447,6 +453,26 @@ class Media extends AbstractDocument
     public function setDownloadable(?bool $downloadable): self
     {
         $this->downloadable = $downloadable;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param string|null $category
+     *
+     * @return self
+     */
+    public function setCategory(?string $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }
