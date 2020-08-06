@@ -88,13 +88,16 @@ class ConfigManager
 
     /**
      * @param string $key
-     * @param string $value
+     * @param string|null $value
+     * @param bool|string $refresh
      *
      * @return bool
      */
-    public function set(string $key, string $value): bool
+    public function set(string $key, ?string $value, $refresh = false): bool
     {
-        $apiResponse = $this->apiProvider->request('PUT', sprintf('/api/config/%s/%s', $key, $value));
+        $apiResponse = $this->apiProvider->request('PUT', sprintf('/api/config/%s', $key), [
+            RequestOptions::QUERY => compact('value', 'refresh')
+        ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
