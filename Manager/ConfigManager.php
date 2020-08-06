@@ -96,7 +96,7 @@ class ConfigManager
     public function set(string $key, string $value, $refresh = false): bool
     {
         $apiResponse = $this->apiProvider->request('PUT', sprintf('/api/config/%s/%s', $key, $value), [
-            RequestOptions::QUERY => ['refresh' => $refresh]
+            RequestOptions::QUERY => compact('refresh')
         ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
