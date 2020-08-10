@@ -8,7 +8,7 @@
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2020 TAGWALK
+ * @copyright   2020 TAGWALK
  * @license     proprietary
  */
 
@@ -51,7 +51,7 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
 
     /**
      * @var string
-     * @Assert\Email()
+     * @Assert\Email(groups={"Default", "ShowroomUser", "base"})
      */
     private $email;
 
@@ -129,16 +129,19 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $facebookId;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $token;
 
     /**
      * @var string|null
+     * @Assert\Type("string")
      */
     private $apiToken;
 
@@ -161,6 +164,16 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
      * @Assert\Type("string")
      */
     private $note;
+
+    /**
+     * @var string|null DateInterval format
+     */
+    private $duration;
+
+    /**
+     * @var \DateTime|null
+     */
+    private $expiresAt;
 
     /**
      * @param string      $name
@@ -449,7 +462,7 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     }
 
     /**
-     * @param string|null
+     * @param string|null $token
      *
      * @return self
      */
@@ -571,7 +584,7 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
      */
     public function getFullName(): string
     {
-        return $this->firstname.' '.$this->lastname;
+        return $this->firstname . ' ' . $this->lastname;
     }
 
     /**
@@ -650,6 +663,46 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     public function setApiToken(?string $apiToken): self
     {
         $this->apiToken = $apiToken;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDuration(): ?string
+    {
+        return $this->duration;
+    }
+
+    /**
+     * @param string|null $duration
+     *
+     * @return self
+     */
+    public function setDuration(?string $duration): self
+    {
+        $this->duration = $duration;
+
+        return $this;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getExpiresAt(): ?\DateTime
+    {
+        return $this->expiresAt;
+    }
+
+    /**
+     * @param \DateTime|null $expiresAt
+     *
+     * @return self
+     */
+    public function setExpiresAt(?\DateTime $expiresAt): self
+    {
+        $this->expiresAt = $expiresAt;
 
         return $this;
     }

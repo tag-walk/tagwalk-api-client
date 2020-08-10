@@ -21,16 +21,15 @@ trait Reindexable
     /**
      * Reorder collection items by position.
      *
-     * @param Positionable[] $collection
+     * @param array $collection
      *
-     * @return Positionable[]
+     * @return array
      */
     protected function reindex(?array $collection)
     {
         if (false === empty($collection)) {
-            usort($collection, function ($a, $b) {
-                /* @var Positionable $a */
-                /* @var Positionable $b */
+            /** @var Positionable[] $collection */
+            usort($collection, static function ($a, $b) {
                 return ($a->getPosition() < $b->getPosition()) ? -1 : 1;
             });
             foreach ($collection as $i => $item) {

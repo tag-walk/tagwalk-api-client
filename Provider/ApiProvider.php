@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
+use Tagwalk\ApiClientBundle\Exception\ApiLoginFailedException;
 use Tagwalk\ApiClientBundle\Exception\ApiServerErrorException;
 use Tagwalk\ApiClientBundle\Factory\ClientFactory;
 use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
@@ -105,8 +106,9 @@ class ApiProvider
      * @param array  $options
      *
      * @throws ApiAccessDeniedException
-     * @throws NotFoundHttpException
+     * @throws ApiLoginFailedException
      * @throws ApiServerErrorException
+     * @throws NotFoundHttpException
      *
      * @return ResponseInterface
      */
@@ -116,12 +118,15 @@ class ApiProvider
         $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         $this->logger->debug('ApiProvider::request::response', [
-            'message' => (string) $response->getBody(),
+            'message' => substr($response->getBody(), 0, 1024),
             'code'    => $response->getStatusCode(),
         ]);
         switch ($response->getStatusCode()) {
             case Response::HTTP_FORBIDDEN:
                 $this->logger->warning('ApiProvider request access denied');
+                if (strpos($uri, 'login') !== false) {
+                    throw new ApiLoginFailedException((string)$response->getBody(), Response::HTTP_FORBIDDEN);
+                }
 
                 throw new ApiAccessDeniedException();
             case Response::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
@@ -136,6 +141,8 @@ class ApiProvider
                 $this->logger->warning('ApiProvider request unauthorized');
                 if (strpos($uri, 'login') === false) {
                     $this->apiTokenStorage->clearCachedToken();
+                } else {
+                    throw new ApiLoginFailedException('Bad credentials', Response::HTTP_UNAUTHORIZED);
                 }
 
                 throw new ApiAccessDeniedException();
@@ -159,7 +166,12 @@ class ApiProvider
             // get oauth2 token for request header
             $token = $this->apiTokenStorage->getAccessToken();
         } catch (ClientException $exception) {
-            $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error');
+            $response = $exception->getResponse();
+            $this->logger->warning('ApiTokenStorage::getAccessToken unauthorized error', [
+                'exception' => get_class($exception),
+                'code'      => $response ? $response->getStatusCode() : null,
+                'message'   => $response ? (string)$response->getBody() : null,
+            ]);
             $this->apiTokenStorage->clearCachedToken();
 
             throw new ApiAccessDeniedException();
@@ -171,7 +183,7 @@ class ApiProvider
             'Accept'                => 'application/json',
             'Accept-Language'       => $locale,
             'Authorization'         => $token !== null ? sprintf('Bearer %s', $token) : null,
-            'Analytics'             => (int) $this->analytics,
+            'Analytics'             => (int)$this->analytics,
             'Tagwalk-Showroom-Name' => $this->showroom,
         ], static function ($item) {
             return $item !== null;

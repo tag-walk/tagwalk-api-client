@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Moodboard;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
+use Tagwalk\ApiClientBundle\Provider\MoodboardProvider;
 
 class MoodboardManager
 {
@@ -36,19 +37,27 @@ class MoodboardManager
     private $apiProvider;
 
     /**
+     * @var MoodboardProvider
+     */
+    private $moodboardProvider;
+
+    /**
      * @var Serializer
      */
     private $serializer;
 
     /**
      * @param ApiProvider          $apiProvider
+     * @param MoodboardProvider    $moodboardProvider
      * @param SerializerInterface  $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
+        MoodboardProvider $moodboardProvider,
         SerializerInterface $serializer
     ) {
         $this->apiProvider = $apiProvider;
+        $this->moodboardProvider = $moodboardProvider;
         $this->serializer = $serializer;
     }
 
@@ -93,16 +102,19 @@ class MoodboardManager
     }
 
     /**
-     * @param string $slug
+     * @param string     $slug
+     * @param array|null $params
      *
      * @return null|Moodboard
      */
-    public function get(string $slug): ?Moodboard
+    public function get(string $slug, $params = []): ?Moodboard
     {
         $moodboard = null;
-        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/moodboards/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $moodboard = $this->denormalizeResponse($apiResponse);
+        $data = $this->moodboardProvider->get($slug, $params);
+        if ($data !== null) {
+            /** @var Moodboard $moodboard */
+            $moodboard = $this->serializer->denormalize($data, Moodboard::class);
+            $this->lastCount = $this->moodboardProvider->lastCount;
         }
 
         return $moodboard;
@@ -215,16 +227,73 @@ class MoodboardManager
      *
      * @return Moodboard
      */
-    public function update(string $slug, Moodboard $moodboard): Moodboard
+    public function update(string $slug, Moodboard $moodboard): ?Moodboard
     {
         $params = [RequestOptions::JSON => $this->serializer->normalize($moodboard, null, ['write' => true])];
-        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/moodboards/'.$slug, array_merge($params, [RequestOptions::HTTP_ERRORS => false]));
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT,
+            '/api/moodboards/'.$slug,
+            array_merge(
+                $params,
+                [RequestOptions::HTTP_ERRORS => false]
+            )
+        );
         $response = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $response = $this->denormalizeResponse($apiResponse);
         }
 
         return $response;
+    }
+
+    /**
+     * @param string $slug
+     * @param string $itemSlug
+     * @param int $originalPosition
+     * @param int $updatedPosition
+     *
+     * @return bool
+     */
+    public function reorder(string $slug, string $itemSlug, int $originalPosition, int $updatedPosition): bool
+    {
+        $item = [
+            'slug'             => $itemSlug,
+            'originalPosition' => $originalPosition,
+            'updatedPosition'  => $updatedPosition,
+        ];
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT,
+            sprintf('/api/moodboards/%s/reorder', $slug),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::BODY        => json_encode($item),
+                RequestOptions::HEADERS     => [
+                    'Content-type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $apiResponse->getStatusCode();
+    }
+
+    /**
+     * @param string $slug
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function rename(string $slug, string $name): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PATCH,
+            sprintf('/api/moodboards/%s/rename', $slug),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => ['name' => $name],
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
     /**

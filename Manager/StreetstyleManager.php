@@ -13,6 +13,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Streetstyle;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -34,13 +35,13 @@ class StreetstyleManager
     private $apiProvider;
 
     /**
-     * @var SerializerInterface
+     * @var Serializer
      */
     private $serializer;
 
     /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
+     * @param ApiProvider         $apiProvider
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
@@ -58,9 +59,10 @@ class StreetstyleManager
     public function get(string $slug): ?Streetstyle
     {
         $data = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/'.$slug, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/streetstyles/' . $slug,
+            [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
+            $data = json_decode($apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
             /** @var Streetstyle $data */
             $data = $this->serializer->denormalize($data, Streetstyle::class);
         }
@@ -86,11 +88,11 @@ class StreetstyleManager
             RequestOptions::HTTP_ERRORS => false,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode($apiResponse->getBody(), true);
+            $data = json_decode($apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
             foreach ($data as $i => $datum) {
                 $data[$i] = $this->serializer->denormalize($datum, Streetstyle::class);
             }
-            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+            $this->lastCount = (int)$apiResponse->getHeaderLine('X-Total-Count');
         }
 
         return $data;

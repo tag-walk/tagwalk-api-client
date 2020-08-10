@@ -51,6 +51,12 @@ class Collection extends AbstractDocument
     private $courtesy;
 
     /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $embed;
+
+    /**
      * @return City|null
      */
     public function getCity(): ?City
@@ -148,5 +154,36 @@ class Collection extends AbstractDocument
         $this->courtesy = $courtesy;
 
         return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmbed(): ?string
+    {
+        return $this->embed;
+    }
+
+    /**
+     * @param string|null $embed
+     *
+     * @return self
+     */
+    public function setEmbed(?string $embed): self
+    {
+        $this->embed = $embed;
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            '%s %s %s %s',
+            $this->designer->getName(),
+            $this->type,
+            $this->season->getName(),
+            $this->city->getName()
+        );
     }
 }

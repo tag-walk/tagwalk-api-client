@@ -145,7 +145,7 @@ class ApiTokenStorage
                 // create a new anonymous token
                 $authentication = $this->authenticator->authenticate();
             }
-            $this->logger->debug('ApiTokenStorage::getAccessToken creating cache fron api response', $authentication);
+            $this->logger->debug('ApiTokenStorage::getAccessToken creating cache from api response', $authentication);
             // save the refresh token in his storage
             if (isset($authentication['refresh_token'])) {
                 $refreshTokenExpiration = (clone $dateTime)->modify('+1 year');

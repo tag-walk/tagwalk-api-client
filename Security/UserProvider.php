@@ -59,14 +59,16 @@ class UserProvider implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        $response = $this->provider->request('GET', '/api/users/'.strtolower($username), [RequestOptions::HTTP_ERRORS => false]);
+        $response = $this->provider->request('GET', '/api/users/'.strtolower($username), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
         if ($response->getStatusCode() === Response::HTTP_NOT_FOUND) {
             throw new UsernameNotFoundException(sprintf('user not found with %s', $username));
         }
         if ($response->getStatusCode() !== Response::HTTP_OK) {
             $this->logger->error('UserProvider::loadUserByUsername error ', [
                 'username' => $username,
-                'message'  => (string) $response->getBody(),
+                'message'  => (string)$response->getBody(),
                 'code'     => $response->getStatusCode(),
             ]);
 
@@ -88,6 +90,10 @@ class UserProvider implements UserProviderInterface
                 sprintf('Instances of "%s" are not supported.', get_class($user))
             );
         }
+        if ($user->getDuration() !== null && $user->getExpiresAt() === null) {
+            $response = $this->provider->request('GET', '/api/users/'.$user->getSlug());
+            $user = $this->serializer->deserialize($response->getBody(), User::class, JsonEncoder::FORMAT);
+        }
 
         return $user;
     }
@@ -101,6 +107,6 @@ class UserProvider implements UserProviderInterface
      */
     public function supportsClass($class): bool
     {
-        return User::class === $class;
+        return User::class === $class || is_subclass_of($class, User::class);
     }
 }
