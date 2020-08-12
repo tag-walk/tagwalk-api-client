@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Tagwalk\ApiClientBundle\Model\Traits\Identifiable;
 use Tagwalk\ApiClientBundle\Model\Traits\Nameable;
 use Tagwalk\ApiClientBundle\Model\Traits\Sluggable;
 use Tagwalk\ApiClientBundle\Model\Traits\Statusable;
@@ -18,6 +19,7 @@ use Tagwalk\ApiClientBundle\Model\Traits\Timestampable;
 
 abstract class AbstractDocument implements Document
 {
+    use Identifiable;
     use Sluggable;
     use Statusable;
     use Timestampable;
