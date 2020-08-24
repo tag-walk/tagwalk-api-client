@@ -45,6 +45,11 @@ class ApiTokenAuthenticator
     private $clientSecret;
 
     /**
+     * @var bool
+     */
+    private $prefixIndexes;
+
+    /**
      * @var string|null
      */
     private $redirectUri;
@@ -64,6 +69,7 @@ class ApiTokenAuthenticator
      * @param SessionInterface     $session
      * @param string               $clientId
      * @param string               $clientSecret
+     * @param bool                 $prefixIndexes
      * @param string|null          $redirectUri
      * @param string|null          $showroom
      * @param LoggerInterface|null $logger
@@ -73,6 +79,7 @@ class ApiTokenAuthenticator
         SessionInterface $session,
         string $clientId,
         string $clientSecret,
+        bool $prefixIndexes = false,
         ?string $redirectUri = null,
         ?string $showroom = null,
         LoggerInterface $logger = null
@@ -81,6 +88,7 @@ class ApiTokenAuthenticator
         $this->session = $session;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
+        $this->prefixIndexes = $prefixIndexes;
         $this->redirectUri = $redirectUri;
         $this->showroom = $showroom;
         $this->logger = $logger ?? new NullLogger();
@@ -106,6 +114,18 @@ class ApiTokenAuthenticator
     final public function setClientSecret(string $clientSecret): self
     {
         $this->clientSecret = $clientSecret;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $prefixIndexes
+     *
+     * @return self
+     */
+    final public function setPrefixIndexes(bool $prefixIndexes): self
+    {
+        $this->prefixIndexes = $prefixIndexes;
 
         return $this;
     }
@@ -255,6 +275,7 @@ class ApiTokenAuthenticator
             'redirect_uri'          => $this->redirectUri,
             'x-auth-token'          => $userToken,
             'tagwalk-showroom-name' => $this->showroom,
+            'prefix-indexes'        => $this->prefixIndexes,
         ]);
     }
 }
