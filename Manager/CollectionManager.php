@@ -156,4 +156,23 @@ class CollectionManager
 
         return $updated;
     }
+
+    /**
+     * @param string $slug
+     * @param string $status
+     *
+     * @return boolean
+     */
+    public function toggleStatus(string $slug, string $status): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PATCH,
+            sprintf('/api/collections/%s/status/%s', $slug, $status),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
