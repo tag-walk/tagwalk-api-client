@@ -24,6 +24,23 @@ class NewsletterInsightManager
         $this->serializer = $serializer;
     }
 
+    public function get(string $slug): ?NewsletterInsight
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/newsletter/insights/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        $data = json_decode($apiResponse->getBody(), true);
+        /** @var NewsletterInsight $data */
+        $data = $this->serializer->denormalize($data, NewsletterInsight::class);
+
+        return $data;
+    }
+
     /**
      * @return NewsletterInsight[]
      */
@@ -52,5 +69,14 @@ class NewsletterInsightManager
         $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
 
         return $data;
+    }
+
+    public function delete(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request('DELETE', '/api/newsletter/insights/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
