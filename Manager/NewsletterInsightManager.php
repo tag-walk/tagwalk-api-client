@@ -7,12 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\NewsletterInsight;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 
 class NewsletterInsightManager
 {
     private const DEFAULT_SIZE = 10;
     private const DEFAULT_SORT = 'sent_at:desc';
+
+    public int $lastCount;
 
     private ApiProvider $apiProvider;
     private SerializerInterface $serializer;
@@ -27,10 +28,10 @@ class NewsletterInsightManager
      * @return NewsletterInsight[]
      */
     public function list(
-        string $sort = self::DEFAULT_SORT,
         int $from = 0,
         int $size = self::DEFAULT_SIZE,
-        string $status = Status::ENABLED
+        string $status = null,
+        string $sort = self::DEFAULT_SORT
     ): array {
         $query = array_filter(compact('sort', 'from', 'size', 'status'));
         $apiResponse = $this->apiProvider->request('GET', '/api/newsletter/insights', [
@@ -47,6 +48,8 @@ class NewsletterInsightManager
         foreach ($data as $i => $datum) {
             $data[$i] = $this->serializer->denormalize($datum, NewsletterInsight::class);
         }
+
+        $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
 
         return $data;
     }
