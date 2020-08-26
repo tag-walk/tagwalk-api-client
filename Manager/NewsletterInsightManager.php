@@ -4,6 +4,7 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\NewsletterInsight;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -69,6 +70,27 @@ class NewsletterInsightManager
         $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
 
         return $data;
+    }
+
+    public function update(NewsletterInsight $newsletter): ?NewsletterInsight
+    {
+        $apiResponse = $this->apiProvider->request('PUT', '/api/newsletter/insights/' . $newsletter->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON => $this->serializer->normalize($newsletter, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        /** @var NewsletterInsight $updated */
+        $updated = $this->serializer->deserialize(
+            (string) $apiResponse->getBody(),
+            NewsletterInsight::class,
+            JsonEncoder::FORMAT
+        );
+
+        return $updated;
     }
 
     public function delete(string $slug): bool
