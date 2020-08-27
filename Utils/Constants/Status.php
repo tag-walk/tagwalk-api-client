@@ -22,13 +22,9 @@ class Status extends Constants
     /** @var string enabled resources */
     const ENABLED = 'enabled';
 
-    /** @var string all resources */
-    const ALL = 'all';
-
     /** @var array */
     const VALUES = [
         self::DISABLED,
         self::ENABLED,
-        self::ALL
     ];
 }

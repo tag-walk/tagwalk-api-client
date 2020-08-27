@@ -72,6 +72,23 @@ class NewsletterInsightManager
         return $data;
     }
 
+    public function create(NewsletterInsight $newsletter): ?NewsletterInsight
+    {
+        $apiResponse = $this->apiProvider->request('POST', '/api/newsletter/insights', [
+            RequestOptions::JSON => $this->serializer->normalize($newsletter, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
+            return null;
+        }
+
+        $json = json_decode($apiResponse->getBody(), true);
+        /** @var NewsletterInsight $data */
+        $data = $this->serializer->denormalize($json, NewsletterInsight::class);
+
+        return $data;
+    }
+
     public function update(NewsletterInsight $newsletter): ?NewsletterInsight
     {
         $apiResponse = $this->apiProvider->request('PUT', '/api/newsletter/insights/' . $newsletter->getSlug(), [
@@ -97,6 +114,7 @@ class NewsletterInsightManager
     {
         $apiResponse = $this->apiProvider->request('DELETE', '/api/newsletter/insights/' . $slug, [
             RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => ['refresh' => true]
         ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
