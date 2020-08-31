@@ -268,4 +268,9 @@ services:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
+    Tagwalk\ApiClientBundle\Manager\NewsletterInsightManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
     Tagwalk\ApiClientBundle\Security\UserChecker:

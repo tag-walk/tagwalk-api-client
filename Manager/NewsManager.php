@@ -24,6 +24,7 @@ class NewsManager
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'date:desc';
     public const DEFAULT_SIZE = 12;
+    public const SIMILAR_DEFAULT_SIZE = 2;
 
     /**
      * @var int
@@ -115,6 +116,30 @@ class NewsManager
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var News $data */
             $data = $this->serializer->deserialize($apiResponse->getBody(), News::class, JsonEncoder::FORMAT);
+        }
+
+        return $data;
+    }
+
+    public function getWithSimilar(
+        string $slug,
+        int $similarSize = self::SIMILAR_DEFAULT_SIZE,
+        ?string $language = null
+    ): array {
+        $apiResponse = $this->apiProvider->request('GET', '/api/news/similar/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => array_filter(['language' => $language, 'size' => $similarSize]),
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return [];
+        }
+
+        $data = json_decode($apiResponse->getBody(), true);
+        $data['news'] = $this->serializer->denormalize($data['news'], News::class, JsonEncoder::FORMAT);
+
+        foreach ($data['similar'] as $index => $similar) {
+            $data['similar'][$index] = $this->serializer->denormalize($similar, News::class, JsonEncoder::FORMAT);
         }
 
         return $data;

@@ -16,10 +16,10 @@ namespace Tagwalk\ApiClientBundle\Utils\Constants;
  */
 class Status extends Constants
 {
-    /** @var string disabled ressource */
+    /** @var string disabled resources */
     const DISABLED = 'disabled';
 
-    /** @var string enabled ressource */
+    /** @var string enabled resources */
     const ENABLED = 'enabled';
 
     /** @var array */
