@@ -12,7 +12,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 class NewsletterInsightManager
 {
     private const DEFAULT_SIZE = 10;
-    private const DEFAULT_SORT = 'sent_at:desc';
+    public const DEFAULT_SORT = 'sent_at:desc';
 
     public int $lastCount;
 
@@ -49,9 +49,10 @@ class NewsletterInsightManager
         int $from = 0,
         int $size = self::DEFAULT_SIZE,
         string $status = null,
-        string $sort = self::DEFAULT_SORT
+        string $sort = self::DEFAULT_SORT,
+        string $language = null
     ): array {
-        $query = array_filter(compact('sort', 'from', 'size', 'status'));
+        $query = array_filter(compact('sort', 'from', 'size', 'status', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/newsletter/insights', [
             RequestOptions::QUERY => $query,
             RequestOptions::HTTP_ERRORS => false,
