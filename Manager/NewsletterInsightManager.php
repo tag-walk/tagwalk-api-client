@@ -6,6 +6,7 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\NewsletterInsight;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -73,11 +74,18 @@ class NewsletterInsightManager
         return $data;
     }
 
+    /**
+     * @throws SlugNotAvailableException When a document with the same slug already exists
+     */
     public function create(NewsletterInsight $newsletter): ?NewsletterInsight
     {
         $apiResponse = $this->apiProvider->request('POST', '/api/newsletter/insights', [
             RequestOptions::JSON => $this->serializer->normalize($newsletter, null, ['write' => true])
         ]);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            throw new SlugNotAvailableException();
+        }
 
         if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
             return null;
