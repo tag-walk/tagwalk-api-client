@@ -29,6 +29,7 @@ services:
             $session: '@session'
             $clientId: ''
             $clientSecret: ''
+            $authenticateInShowroom: false
             $redirectUri: null
             $showroom: null
             $logger: '@logger'
@@ -40,6 +41,7 @@ services:
             $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
             $lightData: false
             $analytics: false
+            $authenticateInShowroom: false
             $showroom: null
             $logger: '@logger'
 
