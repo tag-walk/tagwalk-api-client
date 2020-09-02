@@ -47,7 +47,7 @@ class ApiTokenAuthenticator
     /**
      * @var bool
      */
-    private $prefixIndexes;
+    private $authenticateInShowroom;
 
     /**
      * @var string|null
@@ -69,7 +69,7 @@ class ApiTokenAuthenticator
      * @param SessionInterface     $session
      * @param string               $clientId
      * @param string               $clientSecret
-     * @param bool                 $prefixIndexes
+     * @param bool                 $authenticateInShowroom
      * @param string|null          $redirectUri
      * @param string|null          $showroom
      * @param LoggerInterface|null $logger
@@ -79,7 +79,7 @@ class ApiTokenAuthenticator
         SessionInterface $session,
         string $clientId,
         string $clientSecret,
-        bool $prefixIndexes = false,
+        bool $authenticateInShowroom = false,
         ?string $redirectUri = null,
         ?string $showroom = null,
         LoggerInterface $logger = null
@@ -88,7 +88,7 @@ class ApiTokenAuthenticator
         $this->session = $session;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->prefixIndexes = $prefixIndexes;
+        $this->authenticateInShowroom = $authenticateInShowroom;
         $this->redirectUri = $redirectUri;
         $this->showroom = $showroom;
         $this->logger = $logger ?? new NullLogger();
@@ -119,13 +119,13 @@ class ApiTokenAuthenticator
     }
 
     /**
-     * @param bool $prefixIndexes
+     * @param bool $authenticateInShowroom
      *
      * @return self
      */
-    final public function setPrefixIndexes(bool $prefixIndexes): self
+    final public function setAuthenticateInShowroom(bool $authenticateInShowroom): self
     {
-        $this->prefixIndexes = $prefixIndexes;
+        $this->authenticateInShowroom = $authenticateInShowroom;
 
         return $this;
     }
@@ -230,8 +230,9 @@ class ApiTokenAuthenticator
                         'code'          => $code,
                     ],
                     RequestOptions::HEADERS     => array_filter([
-                        'X-AUTH-TOKEN'          => $userToken,
-                        'Tagwalk-Showroom-Name' => $this->showroom,
+                        'X-AUTH-TOKEN'             => $userToken,
+                        'Tagwalk-Showroom-Name'    => $this->showroom,
+                        'Authenticate-In-Showroom' => $this->authenticateInShowroom
                     ]),
                     RequestOptions::HTTP_ERRORS => true,
                 ]
@@ -275,7 +276,7 @@ class ApiTokenAuthenticator
             'redirect_uri'          => $this->redirectUri,
             'x-auth-token'          => $userToken,
             'tagwalk-showroom-name' => $this->showroom,
-            'prefix-indexes'        => $this->prefixIndexes,
+            'authenticate-in-showroom' => $this->authenticateInShowroom,
         ]);
     }
 }

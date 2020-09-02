@@ -53,7 +53,7 @@ class ApiProvider
     /**
      * @var bool
      */
-    private $prefixIndexes;
+    private $authenticateInShowroom;
 
     /**
      * @var string
@@ -76,7 +76,7 @@ class ApiProvider
      * @param ApiTokenStorage      $apiTokenStorage
      * @param bool                 $lightData do not resolve files path property
      * @param bool                 $analytics
-     * @param bool                 $prefixIndexes
+     * @param bool                 $authenticateInShowroom
      * @param string|null          $showroom
      * @param LoggerInterface|null $logger
      */
@@ -86,7 +86,7 @@ class ApiProvider
         ApiTokenStorage $apiTokenStorage,
         bool $lightData = true,
         bool $analytics = false,
-        bool $prefixIndexes = false,
+        bool $authenticateInShowroom = false,
         ?string $showroom = null,
         LoggerInterface $logger = null
     ) {
@@ -95,7 +95,7 @@ class ApiProvider
         $this->apiTokenStorage = $apiTokenStorage;
         $this->lightData = $lightData;
         $this->analytics = $analytics;
-        $this->prefixIndexes = $prefixIndexes;
+        $this->authenticateInShowroom = $authenticateInShowroom;
         $this->showroom = $showroom;
         $this->logger = $logger ?? new NullLogger();
     }
@@ -109,13 +109,13 @@ class ApiProvider
     }
 
     /**
-     * @param bool $prefixIndexes
+     * @param bool $authenticateInShowroom
      *
      * @return self
      */
-    final public function setPrefixIndexes(bool $prefixIndexes): self
+    final public function setAuthenticateInShowroom(bool $authenticateInShowroom): self
     {
-        $this->prefixIndexes = $prefixIndexes;
+        $this->authenticateInShowroom = $authenticateInShowroom;
 
         return $this;
     }
@@ -200,12 +200,12 @@ class ApiProvider
             ? $this->requestStack->getCurrentRequest()->getLocale() ?? 'en'
             : 'en';
         $headers = array_filter([
-            'Accept'                => 'application/json',
-            'Accept-Language'       => $locale,
-            'Authorization'         => $token !== null ? sprintf('Bearer %s', $token) : null,
-            'Analytics'             => (int)$this->analytics,
-            'Tagwalk-Showroom-Name' => $this->showroom,
-            'Prefix-Indexes'        => $this->prefixIndexes,
+            'Accept'                   => 'application/json',
+            'Accept-Language'          => $locale,
+            'Authorization'            => $token !== null ? sprintf('Bearer %s', $token) : null,
+            'Analytics'                => (int)$this->analytics,
+            'Tagwalk-Showroom-Name'    => $this->showroom,
+            'Authenticate-In-Showroom' => $this->authenticateInShowroom,
         ], static function ($item) {
             return $item !== null;
         });
