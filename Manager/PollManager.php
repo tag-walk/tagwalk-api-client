@@ -19,9 +19,9 @@ class PollManager
         $this->serializer = $serializer;
     }
 
-    public function addVote(int $pollId, int $answerId): ?Poll
+    public function addVote(int $pollId, int $choiceId): ?Poll
     {
-        $path = sprintf('/api/poll/vote/%s/%s', $pollId, $answerId);
+        $path = sprintf('/api/poll/vote/%s/%s', $pollId, $choiceId);
         $apiResponse = $this->apiProvider->request('POST', $path, [RequestOptions::HTTP_ERRORS => false]);
 
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {

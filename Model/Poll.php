@@ -16,10 +16,10 @@ class Poll extends AbstractDocument
     private ?string $color;
 
     /**
-     * @var PollAnswer[]
+     * @var PollChoice[]
      * @Assert\Type("array")
      */
-    private array $answers = [];
+    private array $choices = [];
 
     /**
      * @Assert\Type("integer")
@@ -39,42 +39,42 @@ class Poll extends AbstractDocument
         return $this->color;
     }
 
-    public function getAnswers(): array
+    public function getChoices(): array
     {
-        return $this->answers;
+        return $this->choices;
     }
 
-    public function setAnswers(array $answers): self
+    public function setChoices(array $choices): self
     {
-        $this->answers = $answers;
+        $this->choices = $choices;
 
         return $this;
     }
 
-    public function addAnswer(PollAnswer $answer): self
+    public function addChoice(PollChoice $choice): self
     {
-        if (!$this->containsAnswer($answer)) {
-            $this->answers[] = $answer;
+        if (!$this->containsChoice($choice)) {
+            $this->choices[] = $choice;
         }
 
         return $this;
     }
 
-    public function removeAnswer(PollAnswer $answer): self
+    public function removeChoice(PollChoice $choice): self
     {
-        foreach ($this->answers as $key => $existingAnswer) {
-            if ($existingAnswer->getId() === $answer->getId()) {
-                unset($this->answers[$key]);
+        foreach ($this->choices as $key => $existingChoice) {
+            if ($existingChoice->getId() === $choice->getId()) {
+                unset($this->choices[$key]);
             }
         }
 
         return $this;
     }
 
-    public function containsAnswer(PollAnswer $answer): bool
+    public function containsChoice(PollChoice $choice): bool
     {
-        foreach ($this->answers as $existingAnswer) {
-            if ($existingAnswer->getId() === $answer->getId()) {
+        foreach ($this->choices as $existingChoice) {
+            if ($existingChoice->getId() === $choice->getId()) {
                 return true;
             }
         }

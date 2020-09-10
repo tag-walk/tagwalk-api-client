@@ -6,7 +6,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Identifiable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
 
-class PollAnswer
+class PollChoice
 {
     use Identifiable, Textable;
 
