@@ -58,21 +58,8 @@ class HomepageCell extends AbstractDocument
      */
     private $filters;
 
-    /**
-     * This field is not mapped in the index cause it is specific to the poll type.
-     *
-     * @var string|null
-     * @Assert\Regex("/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/")
-     */
-    private $color;
-
-    /**
-     * This field is not mapped in the index cause it is specific to the poll type.
-     *
-     * @var PollAnswer[]|null
-     * @Assert\Type("array")
-     */
-    private $pollAnswers;
+    /** @var Poll|null */
+    private $poll;
 
     /**
      * @return int
@@ -174,32 +161,14 @@ class HomepageCell extends AbstractDocument
         return $this;
     }
 
-    public function getColor(): ?string
+    public function getPoll(): ?Poll
     {
-        return $this->color;
+        return $this->poll;
     }
 
-    public function setColor(?string $color): self
+    public function setPoll(?Poll $poll): self
     {
-        $this->color = $color;
-
-        return $this;
-    }
-
-    /**
-     * @return PollAnswer[]|null
-     */
-    public function getPollAnswers(): ?array
-    {
-        return $this->pollAnswers;
-    }
-
-    /**
-     * @var PollAnswer[]|null $answers
-     */
-    public function setPollAnswers(?array $answers): self
-    {
-        $this->pollAnswers = $answers;
+        $this->poll = $poll;
 
         return $this;
     }
