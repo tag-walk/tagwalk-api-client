@@ -6,6 +6,7 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Poll;
+use Tagwalk\ApiClientBundle\Model\PollAnswer;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class PollManager
@@ -19,10 +20,12 @@ class PollManager
         $this->serializer = $serializer;
     }
 
-    public function addVote(int $pollId, int $choiceId): ?Poll
+    public function addVote(PollAnswer $answer): ?Poll
     {
-        $path = sprintf('/api/poll/vote/%s/%s', $pollId, $choiceId);
-        $apiResponse = $this->apiProvider->request('POST', $path, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('POST', '/api/poll/vote', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON => $this->serializer->normalize($answer, null, ['write' => true])
+        ]);
 
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
             return null;
