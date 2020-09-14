@@ -273,4 +273,9 @@ services:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             $serializer: '@serializer'
 
+    Tagwalk\ApiClientBundle\Manager\PollManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
     Tagwalk\ApiClientBundle\Security\UserChecker:

@@ -58,6 +58,9 @@ class HomepageCell extends AbstractDocument
      */
     private $filters;
 
+    /** @var Poll|null */
+    private $poll;
+
     /**
      * @return int
      */
@@ -154,6 +157,18 @@ class HomepageCell extends AbstractDocument
     public function setFilters(?array $filters): self
     {
         $this->filters = $filters;
+
+        return $this;
+    }
+
+    public function getPoll(): ?Poll
+    {
+        return $this->poll;
+    }
+
+    public function setPoll(?Poll $poll): self
+    {
+        $this->poll = $poll;
 
         return $this;
     }
