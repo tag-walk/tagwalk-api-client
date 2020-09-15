@@ -189,4 +189,29 @@ class TagManager
 
         return $tagsSimilars;
     }
+
+    /**
+     * @param string      $search
+     * @param null|string $language
+     *
+     * @return array
+     */
+    public function nearby(string $search, ?string $language = null): array
+    {
+        $tags = [];
+        $query = array_filter(compact('search', 'language'));
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_GET,
+            '/api/tags/nearby',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => $query,
+            ]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $tags = json_decode((string) $apiResponse->getBody(), true);
+        }
+
+        return $tags;
+    }
 }
