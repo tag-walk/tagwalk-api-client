@@ -137,6 +137,30 @@ class AutocompleteController extends AbstractController
     }
 
     /**
+     * @Route("/tag/nearby", name="nearby-tags")
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function nearbyTags(Request $request): JsonResponse
+    {
+        $search = $request->query->get('search');
+        $results = [];
+        if (!empty($search)) {
+            $results = $this->tagManager->nearby($search, $request->getLocale());
+        }
+        $response = new JsonResponse($results);
+        $response->setCache([
+            'max_age'  => 600,
+            's_maxage' => 600,
+            'public'   => true,
+        ]);
+
+        return $response;
+    }
+
+    /**
      * @Route("/individual", name="autocomplete_individual")
      *
      * @param Request $request
