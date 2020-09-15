@@ -14,17 +14,21 @@ namespace Tagwalk\ApiClientBundle\Utils\Constants;
 /**
  * This class purpose is to list all available statuses in constants.
  */
-class Status extends Constants
+class UserStatus extends Status
 {
-    /** @var string disabled resources */
+    /** @var string pending moderation account */
+    const PENDING = 'pending';
+
+    /** @var string disabled account */
     const DISABLED = 'disabled';
 
-    /** @var string enabled resources */
+    /** @var string enabled account */
     const ENABLED = 'enabled';
 
     /** @var array */
     const VALUES = [
         self::DISABLED,
+        self::PENDING,
         self::ENABLED,
     ];
 }

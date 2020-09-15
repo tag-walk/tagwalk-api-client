@@ -29,6 +29,7 @@ services:
             $session: '@session'
             $clientId: ''
             $clientSecret: ''
+            $authenticateInShowroom: false
             $redirectUri: null
             $showroom: null
             $logger: '@logger'
@@ -40,6 +41,7 @@ services:
             $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
             $lightData: false
             $analytics: false
+            $authenticateInShowroom: false
             $showroom: null
             $logger: '@logger'
 
@@ -265,3 +267,15 @@ services:
     Tagwalk\ApiClientBundle\Manager\FilterManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
+    Tagwalk\ApiClientBundle\Manager\NewsletterInsightManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
+    Tagwalk\ApiClientBundle\Manager\PollManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
+    Tagwalk\ApiClientBundle\Security\UserChecker:

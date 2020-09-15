@@ -1,11 +1,11 @@
 <?php
 /**
- * PHP version 7.
+ * PHP version 7
  *
  * LICENSE: This source file is subject to copyright
  *
  * @author      Florian Ajir <florian@tag-walk.com>
- * @copyright   2016-2019 TAGWALK
+ * @copyright   2019 TAGWALK
  * @license     proprietary
  */
 
@@ -17,7 +17,7 @@ use Tagwalk\ApiClientBundle\Model\Document;
 /**
  * Normalizer for all Document instances.
  *
- * @extends ObjectNormalizer for nested properties but extract attributes only from object properties like PropertyNormalizer
+ * extends ObjectNormalizer for nested properties but extract attributes only from object properties like PropertyNormalizer
  */
 class DocumentNormalizer extends ObjectNormalizer
 {

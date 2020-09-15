@@ -30,7 +30,7 @@ class UserManager
     private $apiProvider;
 
     /**
-     * @var SerializerInterface|Serializer
+     * @var Serializer
      */
     private $serializer;
 
@@ -54,7 +54,8 @@ class UserManager
     public function get(string $email): ?User
     {
         $user = null;
-        $apiResponse = $this->apiProvider->request('GET', '/api/users/'.$email, [RequestOptions::HTTP_ERRORS => false]);
+        $apiResponse = $this->apiProvider->request('GET', '/api/users/' . $email,
+            [RequestOptions::HTTP_ERRORS => false]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $user = $this->deserialize($apiResponse);
         }
@@ -71,7 +72,7 @@ class UserManager
     {
         /** @var User $user */
         $user = $this->serializer->deserialize(
-            (string) $response->getBody(),
+            (string)$response->getBody(),
             User::class,
             JsonEncoder::FORMAT
         );
