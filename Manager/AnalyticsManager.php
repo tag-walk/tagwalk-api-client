@@ -137,7 +137,7 @@ class AnalyticsManager
         array $query = [],
         ?string $clientIp = null
     ): bool {
-        $response = $this->apiProvider->request('POST', sprintf("/api/analytics/outbound"), [
+        $response = $this->apiProvider->request('POST', "/api/analytics/outbound", [
             RequestOptions::QUERY   => $query,
             RequestOptions::HEADERS => ['X-Client-IP' => $clientIp],
         ]);
