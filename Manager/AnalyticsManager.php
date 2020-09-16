@@ -71,7 +71,8 @@ class AnalyticsManager
             RequestOptions::QUERY       => $query,
         ]);
 
-        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
+        return $response->getStatusCode() === Response::HTTP_CREATED ||
+            $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
@@ -93,7 +94,8 @@ class AnalyticsManager
             ],
         ]);
 
-        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
+        return $response->getStatusCode() === Response::HTTP_CREATED ||
+            $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 
     /**
@@ -121,6 +123,26 @@ class AnalyticsManager
             ],
         ]);
 
-        return $response->getStatusCode() === Response::HTTP_CREATED || $response->getStatusCode() === Response::HTTP_NO_CONTENT;
+        return $response->getStatusCode() === Response::HTTP_CREATED ||
+            $response->getStatusCode() === Response::HTTP_NO_CONTENT;
+    }
+
+    /**
+     * @param array       $query
+     * @param string|null $clientIp
+     *
+     * @return bool
+     */
+    public function outbound(
+        array $query = [],
+        ?string $clientIp = null
+    ): bool {
+        $response = $this->apiProvider->request('POST', sprintf("/api/analytics/outbound"), [
+            RequestOptions::QUERY   => $query,
+            RequestOptions::HEADERS => ['X-Client-IP' => $clientIp],
+        ]);
+
+        return $response->getStatusCode() === Response::HTTP_CREATED ||
+            $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
