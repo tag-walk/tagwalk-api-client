@@ -144,4 +144,20 @@ class SeasonManager
 
         return $results;
     }
+
+    public function create(Season $season): ?Season
+    {
+        $apiResponse = $this->apiProvider->request('POST', '/api/seasons', [
+            RequestOptions::JSON => $this->serializer->normalize($season, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
+            return null;
+        }
+
+        /** @var Season $season */
+        $season = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Season::class);
+
+        return $season;
+    }
 }
