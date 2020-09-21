@@ -160,4 +160,36 @@ class SeasonManager
 
         return $season;
     }
+
+    public function get(string $slug): ?Season
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/seasons/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        /** @var Season $season */
+        $season = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Season::class);
+
+        return $season;
+    }
+
+    public function update(Season $season): ?Season
+    {
+        $apiResponse = $this->apiProvider->request('PUT', '/api/seasons/' . $season->getSlug(), [
+            RequestOptions::JSON => $this->serializer->normalize($season, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        /** @var Season $season */
+        $season = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Season::class);
+
+        return $season;
+    }
 }
