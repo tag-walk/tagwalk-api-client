@@ -97,4 +97,18 @@ class AnalyticsController extends AbstractController
 
         return new Response();
     }
+
+    /**
+     * @Route("/outbound", name="tts_outbound", methods={"POST"}, options={"expose"=true})
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function outbound(Request $request): Response
+    {
+        $this->manager->outbound($request->request->all(), $request->getClientIp());
+
+        return new Response();
+    }
 }
