@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Season;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -23,36 +22,17 @@ class SeasonManager
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'position:asc';
 
-    /**
-     * @var ApiProvider
-     */
-    private $apiProvider;
+    public int $lastCount = 0;
+    private ApiProvider $apiProvider;
+    private SerializerInterface $serializer;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer
-    ) {
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
     }
 
     /**
-     * @param string|null $language
-     * @param int|null    $from
-     * @param int|null    $size
-     * @param string|null $sort
-     * @param string|null $status
-     * @param bool|null   $shopable
-     *
      * @return Season[]
      */
     public function list(
@@ -63,18 +43,23 @@ class SeasonManager
         ?string $status = self::DEFAULT_STATUS,
         ?bool $shopable = false
     ): array {
-        $results = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'shopable'));
         $apiResponse = $this->apiProvider->request('GET', '/api/seasons', [
-            'query'       => $query,
+            'query' => $query,
             'http_errors' => false,
         ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode((string) $apiResponse->getBody(), true);
-            foreach ($data as $datum) {
-                $results[] = $this->serializer->denormalize($datum, Season::class);
-            }
+
+        $results = [];
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return $results;
         }
+
+        $data = json_decode((string) $apiResponse->getBody(), true);
+        foreach ($data as $datum) {
+            $results[] = $this->serializer->denormalize($datum, Season::class);
+        }
+
+        $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
 
         return $results;
     }
@@ -191,5 +176,15 @@ class SeasonManager
         $season = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Season::class);
 
         return $season;
+    }
+
+    public function delete(Season $season): bool
+    {
+        $apiResponse = $this->apiProvider->request('DELETE', '/api/seasons/' . $season->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => ['refresh' => true]
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
