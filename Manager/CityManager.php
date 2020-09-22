@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\City;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -23,35 +22,17 @@ class CityManager
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'name:asc';
 
-    /**
-     * @var ApiProvider
-     */
-    private $apiProvider;
+    public int $lastCount = 0;
+    private ApiProvider $apiProvider;
+    private SerializerInterface $serializer;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-
-    /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer
-    ) {
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
     }
 
     /**
-     * @param string|null $language
-     * @param int         $from
-     * @param int         $size
-     * @param string      $sort
-     * @param string      $status
-     *
      * @return City[]
      */
     public function list(
@@ -61,30 +42,28 @@ class CityManager
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS
     ): array {
-        $results = [];
         $query = array_filter(compact('from', 'size', 'sort', 'status', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/cities', [
             RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::QUERY       => $query,
+            RequestOptions::QUERY => $query,
         ]);
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode((string) $apiResponse->getBody(), true);
-            foreach ($data as $datum) {
-                $results[] = $this->serializer->denormalize($datum, City::class);
-            }
+
+        $results = [];
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return $results;
         }
+
+        $data = json_decode((string) $apiResponse->getBody(), true);
+        foreach ($data as $datum) {
+            $results[] = $this->serializer->denormalize($datum, City::class);
+        }
+
+        $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
 
         return $results;
     }
 
     /**
-     * @param null|string $type
-     * @param null|string $season
-     * @param null|string $designer
-     * @param null|string $tags
-     * @param null|string $models
-     * @param string|null $language
-     *
      * @return City[]
      */
     public function listFilters(
@@ -112,12 +91,6 @@ class CityManager
     }
 
     /**
-     * @param string|null $season
-     * @param string|null $designers
-     * @param string|null $individuals
-     * @param string|null $tags
-     * @param string|null $language
-     *
      * @return City[]
      */
     public function listFiltersStreet(
@@ -141,5 +114,63 @@ class CityManager
         }
 
         return $results;
+    }
+
+    public function create(City $city): ?City
+    {
+        $apiResponse = $this->apiProvider->request('POST', '/api/cities', [
+            RequestOptions::JSON => $this->serializer->normalize($city, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), City::class);
+
+        return $city;
+    }
+
+    public function get(string $slug): ?City
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/cities/' . $slug, [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), City::class);
+
+        return $city;
+    }
+
+    public function update(City $city): ?City
+    {
+        $apiResponse = $this->apiProvider->request('PUT', '/api/cities/' . $city->getSlug(), [
+            RequestOptions::JSON => $this->serializer->normalize($city, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        /** @var City $city */
+        $city = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), City::class);
+
+        return $city;
+    }
+
+    public function delete(City $city): bool
+    {
+        $apiResponse = $this->apiProvider->request('DELETE', '/api/cities/' . $city->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => ['refresh' => true]
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
