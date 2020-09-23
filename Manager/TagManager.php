@@ -40,8 +40,8 @@ class TagManager
     public $lastCount;
 
     /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
+     * @param ApiProvider         $apiProvider
+     * @param SerializerInterface $serializer
      */
     public function __construct(
         ApiProvider $apiProvider,
@@ -156,5 +156,37 @@ class TagManager
         }
 
         return $tags;
+    }
+
+    /**
+     * $query['tags']        = (string) A comma-seperated string of tags selected to restrict the result (require true)
+     * $query['type']        = (string) The type selected to restrict the result (optional)
+     * $query['city']        = (string) The city selected to restrict the result (optional)
+     * $query['season']      = (string) The season selected to restrict the result (optional)
+     * $query['designer']    = (string) The designer selected to restrict the result (optional)
+     * $query['individuals'] = (string) The individual selected to restrict the result (optional)
+     * $query['streetstyle'] = (bool) To find in index streetstyles or medias (require true)
+     * $query['language']    = (optional)
+     *
+     * @param array $query
+     *
+     * @return array
+     */
+    public function similars(array $query): array
+    {
+        $tagsSimilars = [];
+        $apiResponse = $this->apiProvider->request(
+            'GET',
+            '/api/tags/similars',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => $query,
+            ]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $tagsSimilars = json_decode((string) $apiResponse->getBody(), true);
+        }
+
+        return $tagsSimilars;
     }
 }

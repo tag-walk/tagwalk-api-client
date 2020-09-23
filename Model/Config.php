@@ -22,8 +22,7 @@ class Config
     private $key;
 
     /**
-     * @var string
-     * @Assert\NotBlank()
+     * @var string|null
      */
     private $value;
 
@@ -60,7 +59,7 @@ class Config
      *
      * @return self
      */
-    public function setValue(string $value): self
+    public function setValue(?string $value): self
     {
         $this->value = $value;
 

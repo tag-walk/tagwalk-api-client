@@ -45,6 +45,11 @@ class ApiTokenAuthenticator
     private $clientSecret;
 
     /**
+     * @var bool
+     */
+    private $authenticateInShowroom;
+
+    /**
      * @var string|null
      */
     private $redirectUri;
@@ -64,6 +69,7 @@ class ApiTokenAuthenticator
      * @param SessionInterface     $session
      * @param string               $clientId
      * @param string               $clientSecret
+     * @param bool                 $authenticateInShowroom
      * @param string|null          $redirectUri
      * @param string|null          $showroom
      * @param LoggerInterface|null $logger
@@ -73,6 +79,7 @@ class ApiTokenAuthenticator
         SessionInterface $session,
         string $clientId,
         string $clientSecret,
+        bool $authenticateInShowroom = false,
         ?string $redirectUri = null,
         ?string $showroom = null,
         LoggerInterface $logger = null
@@ -81,6 +88,7 @@ class ApiTokenAuthenticator
         $this->session = $session;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
+        $this->authenticateInShowroom = $authenticateInShowroom;
         $this->redirectUri = $redirectUri;
         $this->showroom = $showroom;
         $this->logger = $logger ?? new NullLogger();
@@ -91,7 +99,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setClientId(string $clientId): self
+    final public function setClientId(string $clientId): self
     {
         $this->clientId = $clientId;
 
@@ -103,9 +111,21 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setClientSecret(string $clientSecret): self
+    final public function setClientSecret(string $clientSecret): self
     {
         $this->clientSecret = $clientSecret;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $authenticateInShowroom
+     *
+     * @return self
+     */
+    final public function setAuthenticateInShowroom(bool $authenticateInShowroom): self
+    {
+        $this->authenticateInShowroom = $authenticateInShowroom;
 
         return $this;
     }
@@ -115,7 +135,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setRedirectUri(?string $redirectUri): self
+    final public function setRedirectUri(?string $redirectUri): self
     {
         $this->redirectUri = $redirectUri;
 
@@ -127,7 +147,7 @@ class ApiTokenAuthenticator
      *
      * @return self
      */
-    public function setShowroom(?string $showroom): self
+    final public function setShowroom(?string $showroom): self
     {
         $this->showroom = $showroom;
 
@@ -139,7 +159,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function authenticate(): array
+    final public function authenticate(): array
     {
         $params = [
             'client_id'     => $this->clientId,
@@ -156,7 +176,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -164,7 +184,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function refreshToken(string $token): array
+    final public function refreshToken(string $token): array
     {
         $params = [
             'grant_type'    => 'refresh_token',
@@ -182,7 +202,7 @@ class ApiTokenAuthenticator
             ]
         );
 
-        return json_decode($response->getBody(), true);
+        return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -191,7 +211,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function authorize(string $code, string $userToken): array
+    final public function authorize(string $code, string $userToken): array
     {
         try {
             $this->logger->info('ApiTokenAuthenticator::authorize', [
@@ -210,8 +230,9 @@ class ApiTokenAuthenticator
                         'code'          => $code,
                     ],
                     RequestOptions::HEADERS     => array_filter([
-                        'X-AUTH-TOKEN'          => $userToken,
-                        'Tagwalk-Showroom-Name' => $this->showroom,
+                        'X-AUTH-TOKEN'             => $userToken,
+                        'Tagwalk-Showroom-Name'    => $this->showroom,
+                        'Authenticate-In-Showroom' => $this->authenticateInShowroom
                     ]),
                     RequestOptions::HTTP_ERRORS => true,
                 ]
@@ -219,13 +240,18 @@ class ApiTokenAuthenticator
         } catch (ClientException $exception) {
             $this->logger->error('Error authorizing token', [
                 'user_token' => $userToken,
-                'response'   => $exception->getResponse() !== null ? json_decode($exception->getResponse()->getBody(), true) : null,
+                'response'   => $exception->getResponse() !== null ? json_decode(
+                    $exception->getResponse()->getBody(),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                ) : null,
             ]);
 
             throw $exception;
         }
 
-        $jsonDecode = json_decode($response->getBody(), true);
+        $jsonDecode = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         if (isset($jsonDecode['state']) && $jsonDecode['state'] !== $this->session->get(self::AUTHORIZATION_STATE)) {
             throw new InvalidArgumentException('Incorrect state value.');
         }
@@ -238,7 +264,7 @@ class ApiTokenAuthenticator
      *
      * @return array
      */
-    public function getAuthorizationQueryParameters(?string $userToken): array
+    final public function getAuthorizationQueryParameters(?string $userToken): array
     {
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
@@ -250,6 +276,7 @@ class ApiTokenAuthenticator
             'redirect_uri'          => $this->redirectUri,
             'x-auth-token'          => $userToken,
             'tagwalk-showroom-name' => $this->showroom,
+            'authenticate-in-showroom' => $this->authenticateInShowroom,
         ]);
     }
 }

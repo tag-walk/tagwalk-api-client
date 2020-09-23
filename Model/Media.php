@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
 use Tagwalk\ApiClientBundle\Utils\Constants\AccessoryCategories;
@@ -22,6 +23,7 @@ class Media extends AbstractDocument
 {
     use Positionable;
     use Watermarkable;
+    use Descriptable;
 
     /**
      * @var File[]|null
@@ -89,7 +91,6 @@ class Media extends AbstractDocument
     /**
      * @var int|null
      * @Assert\Type("int")
-     * @Assert\GreaterThan(1)
      */
     private $look;
 
@@ -101,10 +102,26 @@ class Media extends AbstractDocument
 
     /**
      * @var string[]|null
-     * @Assert\Type("array")
-     * @Assert\Choice(AccessoryCategories::VALUES)
      */
     private $accessoryCategories;
+
+    /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $reference;
+
+    /**
+     * @var bool|null
+     * @Assert\Type("bool")
+     */
+    private $downloadable;
+
+    /**
+     * @var string|null
+     * @Assert\Type("string")
+     */
+    private $category;
 
     /**
      * @return null|Season
@@ -240,7 +257,7 @@ class Media extends AbstractDocument
     public function removeFile(string $slug)
     {
         foreach ($this->files as $i => $file) {
-            if ($file->getSlug() === $slug) {
+            if ($file->getFilename() === $slug) {
                 unset($this->files[$i]);
             }
         }
@@ -396,6 +413,66 @@ class Media extends AbstractDocument
             $members = [];
         }
         $this->members = $members;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    /**
+     * @param string|null $reference
+     *
+     * @return self
+     */
+    public function setReference(?string $reference): self
+    {
+        $this->reference = $reference;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isDownloadable(): ?bool
+    {
+        return $this->downloadable;
+    }
+
+    /**
+     * @param bool|null $downloadable
+     *
+     * @return self
+     */
+    public function setDownloadable(?bool $downloadable): self
+    {
+        $this->downloadable = $downloadable;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param string|null $category
+     *
+     * @return self
+     */
+    public function setCategory(?string $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }

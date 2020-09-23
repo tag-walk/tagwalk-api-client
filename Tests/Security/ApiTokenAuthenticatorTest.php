@@ -104,6 +104,7 @@ class ApiTokenAuthenticatorTest extends TestCase
             $session,
             'identifier',
             'secret',
+            false,
             'redirect_uri',
             'showroom'
         );
@@ -117,6 +118,7 @@ class ApiTokenAuthenticatorTest extends TestCase
             'redirect_uri'          => 'redirect_uri',
             'x-auth-token'          => $userToken,
             'tagwalk-showroom-name' => 'showroom',
+            'authenticate-in-showroom' => false,
         ]), $queryParameters);
     }
 
