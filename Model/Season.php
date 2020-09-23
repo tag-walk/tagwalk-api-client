@@ -36,7 +36,6 @@ class Season extends AbstractDocument
 
     /**
      * @var string
-     * @Assert\NotBlank()
      * @Assert\Regex("/^[a-z0-9]+(?:-[a-z0-9]+)*$/")
      */
     protected $slug;
