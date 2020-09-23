@@ -12,6 +12,11 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class PollManager
 {
+    public const DEFAULT_SIZE = 24;
+    public const DEFAULT_SORT = 'created_at:desc';
+
+    public int $lastCount = 0;
+
     private ApiProvider $apiProvider;
     private SerializerInterface $serializer;
 
@@ -54,5 +59,39 @@ class PollManager
         $data = $this->serializer->deserialize($apiResponse->getBody(), Poll::class, JsonEncoder::FORMAT);
 
         return $data;
+    }
+
+    /**
+     * @return Poll[]
+     */
+    public function list(
+        array $params = [],
+        int $from = 0,
+        int $size = self::DEFAULT_SIZE,
+        string $sort = self::DEFAULT_SORT,
+        string $language = null
+    ): array {
+        $params = array_merge(
+            $params,
+            array_filter(compact('sort', 'from', 'size', 'language'))
+        );
+
+        $apiResponse = $this->apiProvider->request('GET', '/api/poll', [
+            RequestOptions::QUERY => $params,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return [];
+        }
+
+        $polls = json_decode($apiResponse->getBody(), true);
+        foreach ($polls as $key => $poll) {
+            $polls[$key] = $this->serializer->denormalize($poll, Poll::class);
+        }
+
+        $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
+
+        return $polls;
     }
 }
