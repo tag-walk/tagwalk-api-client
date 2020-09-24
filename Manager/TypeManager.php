@@ -125,4 +125,17 @@ class TypeManager
 
         return $records;
     }
+
+    public function toggleStatus(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PATCH,
+            sprintf('/api/types/%s/status', $slug),
+            [
+                RequestOptions::HTTP_ERRORS => false,
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
