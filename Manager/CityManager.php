@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\City;
@@ -172,5 +173,14 @@ class CityManager
         ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
+    }
+
+    public function toggleStatus(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, sprintf('/api/cities/%s/status', $slug), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 }
