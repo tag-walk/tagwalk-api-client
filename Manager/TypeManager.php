@@ -138,4 +138,34 @@ class TypeManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
+
+    /**
+     * @return Type[]
+     */
+    public function listFilters(
+        ?string $season = null,
+        ?string $city = null,
+        ?string $designer = null,
+        ?string $tags = null,
+        ?string $models = null,
+        ?string $language = null
+    ): array {
+        $query = array_filter(compact('season', 'city', 'designer', 'tags', 'models', 'language'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/types/filter', [
+            RequestOptions::QUERY => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        $results = [];
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return $results;
+        }
+
+        $data = json_decode((string) $apiResponse->getBody(), true);
+        foreach ($data as $datum) {
+            $results[] = $this->serializer->denormalize($datum, Type::class);
+        }
+
+        return $results;
+    }
 }
