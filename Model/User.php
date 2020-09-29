@@ -78,7 +78,7 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
      * @var bool|null
      * @Assert\Type("bool", groups={"ShowroomUser"})
      */
-    private $newsletter;
+    protected $newsletter;
 
     /**
      * @var bool|null
