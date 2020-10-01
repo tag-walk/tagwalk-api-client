@@ -108,7 +108,7 @@ class AutocompleteController extends AbstractController
     {
         $search = $request->query->get('search');
         if (false === empty($search)) {
-            $results = $this->tagManager->suggest($search, $request->getLocale());
+            $results = $this->tagManager->suggest($search, $request->query->get('language'));
             $count = min(10, count($results));
         } else {
             $page = $request->query->get('page', 1);
