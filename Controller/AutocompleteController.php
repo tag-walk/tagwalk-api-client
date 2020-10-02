@@ -107,8 +107,9 @@ class AutocompleteController extends AbstractController
     public function tag(Request $request): JsonResponse
     {
         $search = $request->query->get('search');
+        $language = $request->query->get('language');
         if (false === empty($search)) {
-            $results = $this->tagManager->suggest($search, $request->query->get('language'));
+            $results = $this->tagManager->suggest($search, $language);
             $count = min(10, count($results));
         } else {
             $page = $request->query->get('page', 1);

@@ -70,15 +70,15 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
 
     /**
      * @var string|null
-     * @Assert\Type("string")
+     * @Assert\Type("string", groups={"ShowroomUser"})
      */
     private $jobTitle;
 
     /**
      * @var bool|null
-     * @Assert\Type("bool")
+     * @Assert\Type("bool", groups={"ShowroomUser"})
      */
-    private $newsletter;
+    protected $newsletter;
 
     /**
      * @var bool|null
@@ -100,25 +100,25 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
 
     /**
      * @var string|null
-     * @Assert\NotBlank(groups={"Default", "ShowroomUser"})
+     * @Assert\NotBlank(groups={"Default"})
      */
     private $country;
 
     /**
      * @var string|null
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(groups={"ShowroomUser"})
      */
     private $locale;
 
     /**
      * @var string|null
-     * @Assert\Type("string")
+     * @Assert\Type("string", groups={"ShowroomUser"})
      */
     private $salt;
 
     /**
      * @var string|null
-     * @Assert\Type("string")
+     * @Assert\Type("string", groups={"ShowroomUser"})
      */
     private $password;
 
@@ -148,14 +148,14 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     /**
      * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank(groups={"ShowroomUser"})
+     * @Assert\NotBlank()
      */
     private $company;
 
     /**
      * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank(groups={"ShowroomUser"})
+     * @Assert\NotBlank()
      */
     private $address;
 
@@ -176,7 +176,7 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     private $expiresAt;
 
     /**
-     * @param string      $name
+     * @param string|null $name
      * @param string|null $password
      * @param string|null $salt
      * @param array|null  $roles
