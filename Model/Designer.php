@@ -60,6 +60,11 @@ class Designer extends AbstractDocument
     private $detailsZh;
 
     /**
+     * @var string|null
+     */
+    private $email;
+
+    /**
      * @return bool
      */
     public function getTalent(): bool
@@ -183,4 +188,26 @@ class Designer extends AbstractDocument
     {
         return $this->name;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param string|null $email
+     *
+     * @return self
+     */
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+
 }
