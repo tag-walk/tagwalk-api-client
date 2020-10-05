@@ -208,6 +208,4 @@ class Designer extends AbstractDocument
 
         return $this;
     }
-
-
 }
