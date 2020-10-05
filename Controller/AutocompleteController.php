@@ -98,7 +98,7 @@ class AutocompleteController extends AbstractController
     }
 
     /**
-     * @Route("/tag", name="autocomplete_tag")
+     * @Route("/tag", name="autocomplete_tag", options={"expose"=true})
      *
      * @param Request $request
      *

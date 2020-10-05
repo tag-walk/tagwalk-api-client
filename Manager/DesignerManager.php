@@ -176,7 +176,7 @@ class DesignerManager
      * @param string|null $language
      * @param string|null $country
      *
-     * @return array
+     * @return Designer[]
      */
     public function listFilters(
         ?string $type = null,
@@ -195,7 +195,10 @@ class DesignerManager
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $results = json_decode((string) $apiResponse->getBody(), true);
+            $data = json_decode((string) $apiResponse->getBody(), true);
+            foreach ($data as $designer) {
+                $results[] = $this->serializer->denormalize($designer, Designer::class);
+            }
         }
 
         return $results;
