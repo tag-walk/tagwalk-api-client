@@ -59,14 +59,8 @@ class MediaManager
      */
     private $serializer;
 
-    /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer
-    ) {
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
     }
@@ -226,5 +220,19 @@ class MediaManager
         }
 
         return $updated;
+    }
+
+    public function suggestWatermarks(string $prefix): array
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/medias/watermarks/suggestions', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => compact('prefix')
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return [];
+        }
+
+        return json_decode($apiResponse->getBody());
     }
 }
