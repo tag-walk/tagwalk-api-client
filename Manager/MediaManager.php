@@ -235,4 +235,19 @@ class MediaManager
 
         return json_decode($apiResponse->getBody());
     }
+
+    public function addTag(string $tag, array $mediaSlugs): bool
+    {
+        $query = [
+            'tag' => $tag,
+            'slugs' => implode(',', $mediaSlugs)
+        ];
+
+        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/medias/tag', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => $query
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
