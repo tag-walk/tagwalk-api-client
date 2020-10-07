@@ -250,4 +250,13 @@ class MediaManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
+
+    public function toggleStatus(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, sprintf('/api/medias/%s/status', $slug), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
