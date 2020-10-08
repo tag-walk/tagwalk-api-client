@@ -269,4 +269,14 @@ class MediaManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
+
+    public function deleteMultiple(array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_DELETE, '/api/medias', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => ['slugs' => implode(',', $slugs)]
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
