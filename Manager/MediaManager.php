@@ -235,4 +235,48 @@ class MediaManager
 
         return json_decode($apiResponse->getBody());
     }
+
+    public function addTag(string $tag, array $mediaSlugs): bool
+    {
+        $query = [
+            'tag' => $tag,
+            'slugs' => implode(',', $mediaSlugs)
+        ];
+
+        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/medias/tag', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => $query
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    public function toggleStatuses(array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, '/api/medias/status', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => ['slugs' => implode(',', $slugs)]
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    public function delete(Media $media): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_DELETE, '/api/medias/' . $media->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
+    }
+
+    public function deleteMultiple(array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_DELETE, '/api/medias', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::QUERY => ['slugs' => implode(',', $slugs)]
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
