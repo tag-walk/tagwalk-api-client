@@ -260,4 +260,13 @@ class MediaManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
+
+    public function delete(Media $media): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_DELETE, '/api/medias/' . $media->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
+    }
 }
