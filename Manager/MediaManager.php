@@ -67,7 +67,7 @@ class MediaManager
 
     public function create(Media $media): ?Media
     {
-        $data = $this->serializer->normalize($media, null, ['wrtie' => true]);
+        $data = $this->serializer->normalize($media, null, ['write' => true]);
         $apiResponse = $this->apiProvider->request('POST', '/api/medias', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON        => $data,
