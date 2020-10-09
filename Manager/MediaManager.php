@@ -65,6 +65,21 @@ class MediaManager
         $this->serializer = $serializer;
     }
 
+    public function create(Media $media): ?Media
+    {
+        $data = $this->serializer->normalize($media, null, ['write' => true]);
+        $apiResponse = $this->apiProvider->request('POST', '/api/medias', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON        => $data,
+        ]);
+        $created = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $created = $this->serializer->deserialize((string) $apiResponse->getBody(), Media::class, JsonEncoder::FORMAT);
+        }
+
+        return $created;
+    }
+
     /**
      * @param string $slug
      *
