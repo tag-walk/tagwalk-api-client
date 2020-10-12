@@ -21,35 +21,21 @@ use Tagwalk\ApiClientBundle\Manager\TagManager;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 /**
- * @Route("/autocomplete")
+ * @Route("/autocomplete", options={"expose"=true})
  */
 class AutocompleteController extends AbstractController
 {
-    /**
-     * @var ApiProvider
-     */
-    protected $apiProvider;
-    /**
-     * @var DesignerManager
-     */
-    private $designerManager;
-    /**
-     * @var IndividualManager
-     */
-    private $individualManager;
-    /**
-     * @var TagManager
-     */
-    private $tagManager;
+    protected ApiProvider $apiProvider;
+    private DesignerManager $designerManager;
+    private IndividualManager $individualManager;
+    private TagManager $tagManager;
 
-    /**
-     * @param ApiProvider       $apiProvider
-     * @param DesignerManager   $designerManager
-     * @param IndividualManager $individualManager
-     * @param TagManager        $tagManager
-     */
-    public function __construct(ApiProvider $apiProvider, DesignerManager $designerManager, IndividualManager $individualManager, TagManager $tagManager)
-    {
+    public function __construct(
+        ApiProvider $apiProvider,
+        DesignerManager $designerManager,
+        IndividualManager $individualManager,
+        TagManager $tagManager
+    ) {
         $this->apiProvider = $apiProvider;
         $this->designerManager = $designerManager;
         $this->individualManager = $individualManager;
@@ -58,14 +44,15 @@ class AutocompleteController extends AbstractController
 
     /**
      * @Route("/designer", name="autocomplete_designer")
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
      */
     public function designer(Request $request): JsonResponse
     {
+        if ($request->query->has('showroom') === true) {
+            $this->apiProvider->setShowroom($request->query->get('showroom'));
+        }
+
         $search = $request->query->get('search');
+
         if (false === empty($search)) {
             $results = $this->designerManager->suggest($search, $request->getLocale());
             $count = min(10, count($results));
@@ -83,11 +70,12 @@ class AutocompleteController extends AbstractController
             );
             $count = $this->designerManager->lastQueryCount;
         }
-        $data = [
+
+        $response = new JsonResponse([
             'results'     => $results,
             'total_count' => $count,
-        ];
-        $response = new JsonResponse($data);
+        ]);
+
         $response->setCache([
             'max_age'  => 600,
             's_maxage' => 600,
@@ -98,7 +86,7 @@ class AutocompleteController extends AbstractController
     }
 
     /**
-     * @Route("/tag", name="autocomplete_tag", options={"expose"=true})
+     * @Route("/tag", name="autocomplete_tag")
      *
      * @param Request $request
      *
