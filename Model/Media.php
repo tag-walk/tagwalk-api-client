@@ -84,7 +84,6 @@ class Media extends AbstractDocument
     /**
      * @var string
      * @Assert\Type("string")
-     * @Assert\Choice(MediaType::VALUES)
      */
     private $type = MediaType::WOMENSWEAR;
 
