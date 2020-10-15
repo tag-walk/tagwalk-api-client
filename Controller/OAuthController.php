@@ -84,9 +84,7 @@ class OAuthController extends AbstractController
             $target = $session->get(sprintf('_security.%s.target_path', $showroom ?? 'main'));
             $redirect = $target
                 ?? $session->get('login_redirect')
-                ?? $showroom
-                    ? '/'.$showroom
-                    : '/';
+                ?? ($showroom ? '/'.$showroom : '/');
         }
 
         return new RedirectResponse($redirect);
