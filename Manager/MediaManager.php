@@ -27,7 +27,9 @@ class MediaManager
     public const DEFAULT_SIZE = 24;
 
     /** @var string default list medias sort for a model */
-    public const DEFAULT_MEDIAS_MODEL_SORT = 'created_at:desc';
+    public const DEFAULT_MEDIAS_CREATION_SORT = 'created_at:desc';
+
+    public const DEFAULT_LIST_MEDIAS_SORT = 'season.position:asc,designer.name.keyword:asc,city.name.keyword:asc,type:desc,look.number:asc';
 
     /**
      * @var int last query result count
@@ -155,6 +157,7 @@ class MediaManager
      * @param int         $size
      * @param string      $status
      * @param string|null $language
+     * @param string      $sort
      *
      * @return Media[]
      */
@@ -163,10 +166,11 @@ class MediaManager
         $from = 0,
         $size = self::DEFAULT_SIZE,
         $status = Status::ENABLED,
-        $language = null
+        $language = null,
+        $sort = self::DEFAULT_LIST_MEDIAS_SORT
     ): array {
         $data = [];
-        $query = array_merge($query, compact('from', 'size', 'status', 'language'));
+        $query = array_merge($query, compact('from', 'size', 'status', 'language', 'sort'));
         $apiResponse = $this->apiProvider->request('GET', '/api/medias', [
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
@@ -192,7 +196,7 @@ class MediaManager
      */
     public function listByModel(string $slug, array $query = []): array
     {
-        $query = array_merge($query, ['sort' => self::DEFAULT_MEDIAS_MODEL_SORT]);
+        $query = array_merge($query, ['sort' => self::DEFAULT_MEDIAS_CREATION_SORT]);
         $data = [];
         $apiResponse = $this->apiProvider->request('GET', '/api/individuals/'.$slug.'/medias', [
             RequestOptions::QUERY       => $query,
