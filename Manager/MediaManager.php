@@ -76,6 +76,7 @@ class MediaManager
         ]);
         $created = null;
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Media $created */
             $created = $this->serializer->deserialize((string) $apiResponse->getBody(), Media::class, JsonEncoder::FORMAT);
         }
 
