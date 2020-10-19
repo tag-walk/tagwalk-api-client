@@ -123,6 +123,12 @@ class Media extends AbstractDocument
     private $category;
 
     /**
+     * @var bool|null
+     * @Assert\Type("bool")
+     */
+    private $isWatermarked;
+
+    /**
      * @return null|Season
      */
     public function getSeason(): ?Season
@@ -472,6 +478,26 @@ class Media extends AbstractDocument
     public function setCategory(?string $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsWatermarked(): ?bool
+    {
+        return $this->isWatermarked;
+    }
+
+    /**
+     * @param bool|null $isWatermarked
+     *
+     * @return self
+     */
+    public function setIsWatermarked(?bool $isWatermarked): self
+    {
+        $this->isWatermarked = $isWatermarked;
 
         return $this;
     }
