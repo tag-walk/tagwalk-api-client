@@ -123,10 +123,10 @@ class Media extends AbstractDocument
     private $category;
 
     /**
-     * @var bool|null
+     * @var bool
      * @Assert\Type("bool")
      */
-    private $isWatermarked;
+    private $watermarked = true;
 
     /**
      * @return null|Season
@@ -483,21 +483,21 @@ class Media extends AbstractDocument
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function getIsWatermarked(): ?bool
+    public function isWatermarked(): bool
     {
-        return $this->isWatermarked;
+        return $this->watermarked;
     }
 
     /**
-     * @param bool|null $isWatermarked
+     * @param bool $watermarked
      *
      * @return self
      */
-    public function setIsWatermarked(?bool $isWatermarked): self
+    public function setWatermarked(bool $watermarked): self
     {
-        $this->isWatermarked = $isWatermarked;
+        $this->watermarked = $watermarked;
 
         return $this;
     }
