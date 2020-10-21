@@ -148,14 +148,12 @@ class User extends AbstractDocument implements UserInterface, EquatableInterface
     /**
      * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     private $company;
 
     /**
      * @var string|null
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     private $address;
 
