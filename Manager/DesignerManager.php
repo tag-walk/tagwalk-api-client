@@ -75,16 +75,6 @@ class DesignerManager
     }
 
     /**
-     * @param string|null $language
-     * @param int         $from
-     * @param int         $size
-     * @param string      $sort
-     * @param string      $status
-     * @param bool        $talent
-     * @param bool        $tagbook
-     * @param bool        $denormalize
-     * @param string|null $country
-     *
      * @return array|Designer[]
      */
     public function list(
@@ -96,10 +86,11 @@ class DesignerManager
         bool $talent = false,
         bool $tagbook = false,
         bool $denormalize = true,
-        ?string $country = null
+        ?string $country = null,
+        ?string $name = null
     ): array {
         $designers = [];
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook', 'country'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'language', 'talent', 'tagbook', 'country', 'name'));
         $apiResponse = $this->apiProvider->request('GET', '/api/designers', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
