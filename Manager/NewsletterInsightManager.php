@@ -15,7 +15,7 @@ class NewsletterInsightManager
     private const DEFAULT_SIZE = 10;
     public const DEFAULT_SORT = 'sent_at:desc';
 
-    public int $lastCount;
+    public int $lastCount = 0;
 
     private ApiProvider $apiProvider;
     private SerializerInterface $serializer;
