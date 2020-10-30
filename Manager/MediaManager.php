@@ -315,4 +315,19 @@ class MediaManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
-}
+
+    public function reorder(array $items): int
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT, '/api/medias/reorder',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::BODY        => json_encode($items),
+                RequestOptions::HEADERS     => [
+                    'Content-type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $apiResponse->getStatusCode();
+    }}
