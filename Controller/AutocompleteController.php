@@ -94,6 +94,9 @@ class AutocompleteController extends AbstractController
      */
     public function tag(Request $request): JsonResponse
     {
+        if ($request->query->has('showroom') === true) {
+            $this->apiProvider->setShowroom($request->query->get('showroom'));
+        }
         $search = $request->query->get('search');
         $language = $request->query->get('language');
         if (false === empty($search)) {
