@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\Tag;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use function GuzzleHttp\Psr7\str;
@@ -196,6 +197,10 @@ class TagManager
         $apiResponse = $this->apiProvider->request('POST', '/api/tags', [
             RequestOptions::JSON => $this->serializer->normalize($tag, null, ['write' => true])
         ]);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            throw new SlugNotAvailableException();
+        }
 
         if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
             return null;
