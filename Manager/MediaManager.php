@@ -271,6 +271,22 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function addType(string $type, array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/type',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'type'  => $type,
+                    'slugs' => implode(',', $slugs),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
     public function toggleStatuses(array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, '/api/medias/status', [
@@ -299,4 +315,19 @@ class MediaManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
-}
+
+    public function reorder(array $items): int
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PUT, '/api/medias/reorder',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::BODY        => json_encode($items),
+                RequestOptions::HEADERS     => [
+                    'Content-type' => 'application/json',
+                ],
+            ]
+        );
+
+        return $apiResponse->getStatusCode();
+    }}
