@@ -157,18 +157,6 @@ class DesignerManager
         return $designers;
     }
 
-    /**
-     * @param null|string $type
-     * @param null|string $season
-     * @param null|string $city
-     * @param null|string $tags
-     * @param null|string $models
-     * @param bool|null   $talent
-     * @param string|null $language
-     * @param string|null $country
-     *
-     * @return Designer[]
-     */
     public function listFilters(
         ?string $type = null,
         ?string $season = null,
@@ -177,16 +165,20 @@ class DesignerManager
         ?string $models = null,
         ?bool $talent = false,
         ?string $language = null,
-        ?string $country = null
+        ?string $country = null,
+        ?bool $cover = false
     ): array {
         $results = [];
-        $query = array_filter(compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language', 'country'));
+        $query = array_filter(
+            compact('type', 'season', 'city', 'tags', 'models', 'talent', 'language', 'country', 'cover')
+        );
         $apiResponse = $this->apiProvider->request('GET', '/api/designers/filter', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode((string) $apiResponse->getBody(), true);
+            $this->lastQueryCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
             foreach ($data as $designer) {
                 $results[] = $this->serializer->denormalize($designer, Designer::class);
             }
