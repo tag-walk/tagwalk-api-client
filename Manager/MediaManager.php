@@ -256,14 +256,14 @@ class MediaManager
         return json_decode($apiResponse->getBody());
     }
 
-    public function addTag(string $tag, array $mediaSlugs): bool
+    public function addTags(array $tags, array $mediaSlugs): bool
     {
         $query = [
-            'tag' => $tag,
+            'tags' => implode(',', $tags),
             'slugs' => implode(',', $mediaSlugs)
         ];
 
-        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/medias/tag', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/medias/tags', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY => $query
         ]);
