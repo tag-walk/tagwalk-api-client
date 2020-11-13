@@ -52,6 +52,7 @@ class AutocompleteController extends AbstractController
         }
 
         $search = $request->query->get('search');
+        $status = $request->query->get('status');
 
         if (false === empty($search)) {
             $results = $this->designerManager->suggest($search, $request->getLocale());
@@ -62,8 +63,8 @@ class AutocompleteController extends AbstractController
                 $request->getLocale(),
                 ($page - 1) * 20,
                 20,
-                $this->designerManager::DEFAULT_SORT,
-                $this->designerManager::DEFAULT_STATUS,
+                DesignerManager::DEFAULT_SORT,
+                $status ?? DesignerManager::DEFAULT_STATUS,
                 false,
                 false,
                 false
