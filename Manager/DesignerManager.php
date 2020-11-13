@@ -166,7 +166,7 @@ class DesignerManager
         ?bool $talent = false,
         ?string $language = null,
         ?string $country = null,
-        ?array $params = []
+        array $params = []
     ): array {
         $results = [];
         $query = array_merge(
