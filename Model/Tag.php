@@ -203,4 +203,11 @@ class Tag extends AbstractDocument
 
         return $this;
     }
+
+    public function concatNames(): string
+    {
+        $names = array_filter([$this->name, $this->nameFr, $this->nameIt, $this->nameEs, $this->nameZh]);
+
+        return implode(' | ', $names);
+    }
 }
