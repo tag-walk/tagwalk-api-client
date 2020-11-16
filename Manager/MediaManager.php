@@ -336,7 +336,7 @@ class MediaManager
     {
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_GET,
-            '/api/medias/last-look-position',
+            '/api/medias/last-position',
             [
                 RequestOptions::QUERY       => $params,
                 RequestOptions::HTTP_ERRORS => false,
