@@ -330,4 +330,22 @@ class MediaManager
         );
 
         return $apiResponse->getStatusCode();
-    }}
+    }
+
+    public function getLastPosition(array $params): ?int
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_GET,
+            '/api/medias/last-position',
+            [
+                RequestOptions::QUERY       => $params,
+                RequestOptions::HTTP_ERRORS => false,
+            ]
+        );
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        return (int) json_decode($apiResponse->getBody(), true);
+    }
+ }
