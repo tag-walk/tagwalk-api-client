@@ -270,6 +270,20 @@ class Media extends AbstractDocument
     }
 
     /**
+     * @return File|null
+     */
+    public function getFirstFileNotEmbedded() : ?File
+    {
+        foreach ($this->files as $file) {
+            if (!$file->isEmbed()) {
+                return $file;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return Affiliation[]|null
      */
     public function getAffiliations(): ?array
