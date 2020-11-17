@@ -15,7 +15,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Descriptable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Watermarkable;
-use Tagwalk\ApiClientBundle\Utils\Constants\AccessoryCategories;
 use Tagwalk\ApiClientBundle\Utils\Constants\MediaType;
 use Tagwalk\ApiClientBundle\Utils\Reindexer;
 

@@ -276,4 +276,11 @@ class Talk extends AbstractDocument
 
         return $this;
     }
+
+    public function setDescription(?string $description): Descriptable
+    {
+        $this->description = $description;
+
+        return $this;
+    }
 }
