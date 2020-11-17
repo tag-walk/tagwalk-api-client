@@ -347,6 +347,6 @@ class MediaManager
         }
         $result = json_decode($apiResponse->getBody(), true);
 
-        return $result['position'];
+        return $result['position'] ?? null;
     }
  }
