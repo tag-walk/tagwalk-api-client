@@ -345,7 +345,8 @@ class MediaManager
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
             return null;
         }
+        $result = json_decode($apiResponse->getBody(), true);
 
-        return (int) json_decode($apiResponse->getBody(), true);
+        return $result['position'] ?? null;
     }
  }
