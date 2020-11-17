@@ -226,7 +226,7 @@ class File extends AbstractDocument
      */
     public function setCourtesy(?string $courtesy): self
     {
-        $this->courtesy = $courtesy;
+        $this->courtesy = strip_tags($courtesy);
 
         return $this;
     }
