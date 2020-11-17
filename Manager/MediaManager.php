@@ -287,6 +287,22 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function addCourtesy(string $courtesy, array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/courtesy',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'courtesy' => $courtesy,
+                    'slugs'    => implode(',', $slugs),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
     public function toggleStatuses(array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, '/api/medias/status', [
