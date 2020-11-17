@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -210,5 +211,21 @@ class TagManager
         $tag = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Tag::class);
 
         return $tag;
+    }
+
+    public function update(Tag $tag): ?Tag
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/tags/' . $tag->getSlug(), [
+            RequestOptions::JSON => $this->serializer->normalize($tag, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        /** @var Tag $updated */
+        $updated = $this->serializer->denormalize(json_decode($apiResponse->getBody(), true), Tag::class);
+
+        return $updated;
     }
 }
