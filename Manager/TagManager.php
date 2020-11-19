@@ -20,36 +20,22 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\Tag;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
-use function GuzzleHttp\Psr7\str;
 
 class TagManager
 {
     public const DEFAULT_STATUS = 'enabled';
     public const DEFAULT_SORT = 'name:asc';
 
-    /**
-     * @var ApiProvider
-     */
-    private $apiProvider;
-
-    /**
-     * @var Serializer
-     */
-    private $serializer;
+    private ApiProvider $apiProvider;
+    private SerializerInterface $serializer;
 
     /**
      * @var int
      */
     public $lastCount;
 
-    /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer
-    ) {
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
     }
@@ -116,11 +102,6 @@ class TagManager
         return $tags;
     }
 
-    /**
-     * @param string $status
-     *
-     * @return int|null
-     */
     public function count(string $status = self::DEFAULT_STATUS): ?int
     {
         $count = null;
@@ -138,16 +119,8 @@ class TagManager
         return $count;
     }
 
-    /**
-     * @param string      $prefix
-     * @param string|null $language
-     *
-     * @return array
-     */
-    public function suggest(
-        string $prefix,
-        string $language = null
-    ): array {
+    public function suggest(string $prefix, ?string $language = null): array
+    {
         $tags = [];
         $query = array_filter(compact('prefix', 'language'));
         $apiResponse = $this->apiProvider->request('GET', '/api/tags/suggestions', [
@@ -170,10 +143,6 @@ class TagManager
      * $query['individuals'] = (string) The individual selected to restrict the result (optional)
      * $query['streetstyle'] = (bool) To find in index streetstyles or medias (require true)
      * $query['language']    = (optional)
-     *
-     * @param array $query
-     *
-     * @return array
      */
     public function similars(array $query): array
     {
@@ -213,9 +182,9 @@ class TagManager
         return $tag;
     }
 
-    public function update(Tag $tag): ?Tag
+    public function update(Tag $tag, string $oldSlug): ?Tag
     {
-        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/tags/' . $tag->getSlug(), [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/tags/' . $oldSlug, [
             RequestOptions::JSON => $this->serializer->normalize($tag, null, ['write' => true])
         ]);
 
