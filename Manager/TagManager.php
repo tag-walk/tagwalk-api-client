@@ -188,6 +188,10 @@ class TagManager
             RequestOptions::JSON => $this->serializer->normalize($tag, null, ['write' => true])
         ]);
 
+        if ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            throw new SlugNotAvailableException();
+        }
+
         if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
             return null;
         }
