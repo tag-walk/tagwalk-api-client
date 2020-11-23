@@ -271,6 +271,43 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function removeTags(array $slugs, array $tags): bool
+    {
+        $query = [
+            'slugs' => implode(',', $slugs),
+            'tags'  => implode(',', $tags)
+        ];
+
+        $apiReponse = $this->apiProvider->request(
+            Request::METHOD_POST,
+            '/api/medias/tags/remove',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => $query,
+            ]
+        );
+
+        return $apiReponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    public function listTagsByMediaSlugs(array $slugs): array
+    {
+        $tags = [];
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_GET,
+            '/api/medias/tags/list',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => ['slugs' => implode(',', $slugs)]
+            ]
+        );
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $tags = json_decode($apiResponse->getBody(), true);
+        }
+
+        return $tags;
+    }
+
     public function addType(string $type, array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(
