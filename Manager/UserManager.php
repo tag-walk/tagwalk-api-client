@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\AccountAlreadyActivatedException;
 use Tagwalk\ApiClientBundle\Model\User;
@@ -28,7 +29,8 @@ class UserManager
     public ?string $lastError = null;
 
     private ApiProvider $apiProvider;
-    private SerializerInterface $serializer;
+    /** @var Serializer $serializer */
+    private $serializer;
 
     public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
     {
