@@ -15,42 +15,27 @@ namespace Tagwalk\ApiClientBundle\Manager;
 use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\AccountAlreadyActivatedException;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class UserManager
 {
-    /**
-     * @var ApiProvider
-     */
-    private $apiProvider;
+    public ?string $lastError = null;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
+    private ApiProvider $apiProvider;
+    private SerializerInterface $serializer;
 
-    /**
-     * @param ApiProvider         $apiProvider
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer
-    ) {
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
     }
 
-    /**
-     * @param string $email
-     *
-     * @return User|null
-     */
     public function get(string $email): ?User
     {
         $user = null;
@@ -80,11 +65,6 @@ class UserManager
         return $user;
     }
 
-    /**
-     * @param User $user
-     *
-     * @return User|null
-     */
     public function create(User $user): ?User
     {
         $data = $this->serializer->normalize($user, null, ['write' => true]);
@@ -102,13 +82,6 @@ class UserManager
         return $created;
     }
 
-    /**
-     * @param string      $email
-     * @param User        $user
-     * @param string|null $appContext
-     *
-     * @return User|null
-     */
     public function update(string $email, User $user, ?string $appContext = null): ?User
     {
         $data = $this->serializer->normalize($user, null, ['write' => true]);
@@ -119,14 +92,6 @@ class UserManager
         return $this->doUpdate($data, $email, $appContext);
     }
 
-    /**
-     * @param string      $email
-     * @param string      $property
-     * @param mixed       $value
-     * @param string|null $appContext
-     *
-     * @return User|null
-     */
     public function patch(string $email, string $property, $value, ?string $appContext = null): ?User
     {
         $data = [$property => $value];
@@ -153,12 +118,6 @@ class UserManager
         return $updated;
     }
 
-    /**
-     * @param string $property
-     * @param string $value
-     *
-     * @return User|null
-     */
     public function findBy(string $property, string $value): ?User
     {
         $data = null;
@@ -176,11 +135,6 @@ class UserManager
         return $data;
     }
 
-    /**
-     * @param string $email
-     *
-     * @return bool
-     */
     public function delete(string $email): bool
     {
         $apiResponse = $this->apiProvider->request('DELETE', sprintf('/api/users/%s', $email), [
@@ -188,5 +142,24 @@ class UserManager
         ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
+    }
+
+    public function sendActivationEmailAgain(string $email): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, '/api/users/email/activation/' . $email, [
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+
+        $status = $apiResponse->getStatusCode();
+
+        if ($status === Response::HTTP_CONFLICT) {
+            throw new AccountAlreadyActivatedException();
+        }
+
+        if ($status === Response::HTTP_UNPROCESSABLE_ENTITY) {
+            $this->lastError = (string) $apiResponse->getBody();
+        }
+
+        return $status === Response::HTTP_OK;
     }
 }
