@@ -201,4 +201,25 @@ class TagManager
 
         return $updated;
     }
+
+    public function getMultiple(array $slugs): array
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/tags/multi', [
+            RequestOptions::QUERY => ['slugs' => implode(',', $slugs)],
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return [];
+        }
+
+        $data = json_decode($apiResponse->getBody(), true);
+        $tags = [];
+
+        foreach ($data as $tag) {
+            $tags[] = $this->serializer->denormalize($tag, Tag::class);
+        }
+
+        return $tags;
+    }
 }
