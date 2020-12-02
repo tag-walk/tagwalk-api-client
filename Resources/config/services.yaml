@@ -283,4 +283,9 @@ services:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             $serializer: '@serializer'
 
+    Tagwalk\ApiClientBundle\Manager\DesignerSeasonManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
     Tagwalk\ApiClientBundle\Security\UserChecker:
