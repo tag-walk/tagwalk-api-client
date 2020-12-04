@@ -284,3 +284,7 @@ services:
             $serializer: '@serializer'
 
     Tagwalk\ApiClientBundle\Security\UserChecker:
+
+    Tagwalk\ApiClientBundle\Manager\ShowroomManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
