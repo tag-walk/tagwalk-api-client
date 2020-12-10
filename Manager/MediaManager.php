@@ -372,6 +372,22 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function addLabel(string $label, array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/label',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'label' => $label,
+                    'slugs' => implode(',', $slugs),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
     public function toggleStatuses(array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, '/api/medias/status', [
