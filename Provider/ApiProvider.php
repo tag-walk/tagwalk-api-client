@@ -221,7 +221,7 @@ class ApiProvider
             $headers['Tagwalk-Showroom-Name'] = $this->showroom;
         }
 
-        if ($this->applicationName !== null || true) {
+        if ($this->applicationName !== null) {
             $headers['Tagwalk-Application-Name'] = 'gucci';
         }
 
