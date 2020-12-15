@@ -222,7 +222,7 @@ class ApiProvider
         }
 
         if ($this->applicationName !== null) {
-            $headers['Tagwalk-Application-Name'] = 'gucci';
+            $headers['Tagwalk-Application-Name'] = $this->applicationName;
         }
 
         return [
