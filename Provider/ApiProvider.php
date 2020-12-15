@@ -60,6 +60,8 @@ class ApiProvider
      */
     private $showroom;
 
+    private ?string $applicationName = null;
+
     /**
      * @var LoggerInterface|null
      */
@@ -106,6 +108,11 @@ class ApiProvider
     final public function setShowroom(string $showroom): void
     {
         $this->showroom = $showroom;
+    }
+
+    public function setApplicationName(string $applicationName): void
+    {
+        $this->applicationName = $applicationName;
     }
 
     /**
@@ -212,6 +219,10 @@ class ApiProvider
         // Showroom clients specific headers
         if ($this->showroom !== null) {
             $headers['Tagwalk-Showroom-Name'] = $this->showroom;
+        }
+
+        if ($this->applicationName !== null) {
+            $headers['Tagwalk-Application-Name'] = $this->applicationName;
         }
 
         return [
