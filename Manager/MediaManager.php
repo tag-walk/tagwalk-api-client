@@ -340,6 +340,22 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function addDesigner(string $designer, array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/designer',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'designer' => $designer,
+                    'slugs'    => implode(',', $slugs),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
     public function addWatermark(string $watermark, array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(
