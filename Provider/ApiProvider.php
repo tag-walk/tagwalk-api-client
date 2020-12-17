@@ -211,6 +211,7 @@ class ApiProvider
             'Accept-Language'          => $locale,
             'Authorization'            => $token !== null ? sprintf('Bearer %s', $token) : null,
             'Analytics'                => (int)$this->analytics,
+//            'Tagwalk-Application-Name' => 'gucci',
             'Tagwalk-Showroom-Name'    => $this->showroom,
             'Authenticate-In-Showroom' => $this->authenticateInShowroom,
         ], static function ($item) {

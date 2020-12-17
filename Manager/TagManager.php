@@ -19,6 +19,7 @@ use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\Tag;
+use Tagwalk\ApiClientBundle\Model\TagCategory;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class TagManager
@@ -221,5 +222,21 @@ class TagManager
         }
 
         return $tags;
+    }
+
+    public function getTagCategories()
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/tags/categories', [
+            RequestOptions::HTTP_ERRORS => false
+        ]);
+        $response = [];
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $categories = json_decode((string) $apiResponse->getBody(), true);
+            foreach ($categories as $category) {
+                $response[] = $this->serializer->denormalize($category, TagCategory::class);
+            }
+        }
+
+        return $response;
     }
 }

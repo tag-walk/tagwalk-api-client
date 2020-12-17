@@ -65,6 +65,18 @@ class Tag extends AbstractDocument
     private $synonymsZh;
 
     /**
+     * @var string[]|null
+     */
+    private $tagCategoryId;
+
+    /**
+     * @var Acl|null
+     * @Assert\Valid()
+     * @Assert\Type("object")
+     */
+    private $acl;
+
+    /**
      * @return Tag[]|null
      */
     public function getSimilars(): ?array
@@ -209,5 +221,45 @@ class Tag extends AbstractDocument
         $names = array_filter([$this->name, $this->nameFr, $this->nameIt, $this->nameEs, $this->nameZh]);
 
         return implode(' | ', $names);
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getTagCategoryId(): ?array
+    {
+        return $this->tagCategoryId;
+    }
+
+    /**
+     * @param string[]|null $tagCategoryId
+     *
+     * @return self
+     */
+    public function setTagCategoryId(?array $tagCategoryId): self
+    {
+        $this->tagCategoryId = $tagCategoryId;
+
+        return $this;
+    }
+
+    /**
+     * @return Acl|null
+     */
+    public function getAcl(): ?Acl
+    {
+        return $this->acl;
+    }
+
+    /**
+     * @param Acl|null $acl
+     *
+     * @return self
+     */
+    public function setAcl(?Acl $acl): self
+    {
+        $this->acl = $acl;
+
+        return $this;
     }
 }
