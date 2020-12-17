@@ -288,3 +288,7 @@ services:
     Tagwalk\ApiClientBundle\Manager\ShowroomManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+
+    Tagwalk\ApiClientBundle\Manager\CustomerApplicationManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'

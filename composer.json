@@ -35,9 +35,9 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^8.5",
-    "phpstan/phpstan": "^0.12.17",
+    "phpstan/phpstan": "^0.12.63",
     "friendsofphp/php-cs-fixer": "^2.16",
-    "phpstan/phpstan-phpunit": "^0.12.6"
+    "phpstan/phpstan-phpunit": "^0.12.17"
   },
   "scripts": {
     "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
