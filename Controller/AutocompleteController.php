@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Controller;
 
+use App\Controller\Customer\CustomerControllerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +24,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 /**
  * @Route("/autocomplete", options={"expose"=true})
  */
-class AutocompleteController extends AbstractController
+class AutocompleteController extends AbstractController implements CustomerControllerInterface
 {
     protected ApiProvider $apiProvider;
     private DesignerManager $designerManager;
@@ -47,10 +48,6 @@ class AutocompleteController extends AbstractController
      */
     public function designer(Request $request): JsonResponse
     {
-        if (null !== $showroom = $request->query->get('showroom')) {
-            $this->apiProvider->setShowroom($showroom);
-        }
-
         $search = $request->query->get('search');
         $status = $request->query->get('status');
 
@@ -95,9 +92,6 @@ class AutocompleteController extends AbstractController
      */
     public function tag(Request $request): JsonResponse
     {
-        if (null !== $showroom = $request->query->get('showroom')) {
-            $this->apiProvider->setShowroom($showroom);
-        }
         $search = $request->query->get('search');
         $language = $request->query->get('language');
         if (false === empty($search)) {
