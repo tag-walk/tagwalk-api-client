@@ -11,7 +11,6 @@
 
 namespace Tagwalk\ApiClientBundle\Controller;
 
-use App\Controller\Customer\CustomerControllerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +23,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 /**
  * @Route("/autocomplete", options={"expose"=true})
  */
-class AutocompleteController extends AbstractController implements CustomerControllerInterface
+class AutocompleteController extends AbstractController
 {
     protected ApiProvider $apiProvider;
     private DesignerManager $designerManager;
