@@ -41,6 +41,12 @@ class File extends AbstractDocument
     protected $filename;
 
     /**
+     * @Assert\Type("string")
+     * @Assert\NotBlank()
+     */
+    protected ?string $originalFilename;
+
+    /**
      * @var string|null
      * @Assert\Type("string")
      */
@@ -83,19 +89,11 @@ class File extends AbstractDocument
      */
     private $embed;
 
-    /**
-     * @return string|null
-     */
     public function getPath(): ?string
     {
         return $this->path;
     }
 
-    /**
-     * @param string|null $path
-     *
-     * @return File
-     */
     public function setPath(?string $path): self
     {
         $this->path = $path;
@@ -103,19 +101,11 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getFilename(): ?string
     {
         return $this->filename;
     }
 
-    /**
-     * @param string $filename
-     *
-     * @return File
-     */
     public function setFilename(?string $filename): self
     {
         $this->filename = $filename;
@@ -123,19 +113,23 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
+    public function getOriginalFilename(): ?string
+    {
+        return $this->originalFilename;
+    }
+
+    public function setOriginalFilename(?string $originalFilename): self
+    {
+        $this->originalFilename = $originalFilename;
+
+        return $this;
+    }
+
     public function getMimetype(): ?string
     {
         return $this->mimetype;
     }
 
-    /**
-     * @param string|null $mimetype
-     *
-     * @return File
-     */
     public function setMimetype(?string $mimetype): self
     {
         $this->mimetype = $mimetype;
@@ -143,19 +137,11 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDisplay(): ?string
     {
         return $this->display;
     }
 
-    /**
-     * @param string $display
-     *
-     * @return File
-     */
     public function setDisplay(?string $display): self
     {
         $this->display = $display;
@@ -163,19 +149,11 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getExtension(): ?string
     {
         return $this->extension;
     }
 
-    /**
-     * @param string|null $extension
-     *
-     * @return self
-     */
     public function setExtension(?string $extension): self
     {
         $this->extension = $extension;
@@ -183,27 +161,16 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getKeyname()
+    public function getKeyname(): string
     {
         return sprintf('%s.%s', $this->slug, $this->extension);
     }
 
-    /**
-     * @return null|string
-     */
     public function getCrop(): ?string
     {
         return $this->crop;
     }
 
-    /**
-     * @param null|string $crop
-     *
-     * @return self
-     */
     public function setCrop(?string $crop): self
     {
         $this->crop = $crop;
@@ -211,19 +178,11 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getCourtesy(): ?string
     {
         return $this->courtesy;
     }
 
-    /**
-     * @param string $courtesy
-     *
-     * @return self
-     */
     public function setCourtesy(?string $courtesy): self
     {
         $this->courtesy = strip_tags($courtesy);
@@ -231,19 +190,11 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return array|null
-     */
     public function getVariants(): ?array
     {
         return $this->variants;
     }
 
-    /**
-     * @param array|null $variants
-     *
-     * @return File
-     */
     public function setVariants(?array $variants): self
     {
         $this->variants = $variants;
@@ -251,29 +202,16 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @param string $variant
-     *
-     * @return string|null
-     */
     public function getVariant(string $variant): ?string
     {
         return $this->variants[$variant] ?? null;
     }
 
-    /**
-     * @return string|null
-     */
     public function getCaption(): ?string
     {
         return $this->caption;
     }
 
-    /**
-     * @param string|null $caption
-     *
-     * @return self
-     */
     public function setCaption(?string $caption): self
     {
         $this->caption = $caption;
@@ -281,19 +219,11 @@ class File extends AbstractDocument
         return $this;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isEmbed(): ?bool
     {
         return $this->embed;
     }
 
-    /**
-     * @param bool|null $embed
-     *
-     * @return self
-     */
     public function setEmbed(?bool $embed): self
     {
         $this->embed = $embed;
