@@ -292,3 +292,4 @@ services:
     Tagwalk\ApiClientBundle\Manager\CustomerApplicationManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
