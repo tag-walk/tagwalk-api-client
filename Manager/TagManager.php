@@ -226,7 +226,7 @@ class TagManager
     public function getTagCategories()
     {
         $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/tags/categories', [
-            RequestOptions::HTTP_ERRORS => false
+            RequestOptions::HTTP_ERRORS => true
         ]);
         $response = [];
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
