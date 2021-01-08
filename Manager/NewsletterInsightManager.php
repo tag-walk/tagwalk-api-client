@@ -98,9 +98,9 @@ class NewsletterInsightManager
         return $data;
     }
 
-    public function update(NewsletterInsight $newsletter): ?NewsletterInsight
+    public function update(NewsletterInsight $newsletter, string $oldSlug): ?NewsletterInsight
     {
-        $apiResponse = $this->apiProvider->request('PUT', '/api/newsletter/insights/' . $newsletter->getSlug(), [
+        $apiResponse = $this->apiProvider->request('PUT', '/api/newsletter/insights/' . $oldSlug, [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON => $this->serializer->normalize($newsletter, null, ['write' => true])
         ]);
