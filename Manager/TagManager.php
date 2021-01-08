@@ -230,12 +230,9 @@ class TagManager
         ]);
         $response = [];
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            try {
-                $categories = json_decode((string)$apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
-                foreach ($categories as $category) {
-                    $response[] = $this->serializer->denormalize($category, TagCategory::class);
-                }
-            } catch (\JsonException $e) {
+            $categories = json_decode((string)$apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
+            foreach ($categories as $category) {
+                $response[] = $this->serializer->denormalize($category, TagCategory::class);
             }
         }
 
