@@ -47,10 +47,6 @@ class AutocompleteController extends AbstractController
      */
     public function designer(Request $request): JsonResponse
     {
-        if (null !== $showroom = $request->query->get('showroom')) {
-            $this->apiProvider->setShowroom($showroom);
-        }
-
         $search = $request->query->get('search');
         $status = $request->query->get('status');
 
@@ -95,9 +91,6 @@ class AutocompleteController extends AbstractController
      */
     public function tag(Request $request): JsonResponse
     {
-        if (null !== $showroom = $request->query->get('showroom')) {
-            $this->apiProvider->setShowroom($showroom);
-        }
         $search = $request->query->get('search');
         $language = $request->query->get('language');
         if (false === empty($search)) {
