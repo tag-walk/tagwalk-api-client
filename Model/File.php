@@ -42,7 +42,6 @@ class File extends AbstractDocument
 
     /**
      * @Assert\Type("string")
-     * @Assert\NotBlank()
      */
     protected ?string $originalFilename;
 
