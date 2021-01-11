@@ -15,10 +15,10 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\Tag;
+use Tagwalk\ApiClientBundle\Model\TagCategory;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class TagManager
@@ -221,5 +221,21 @@ class TagManager
         }
 
         return $tags;
+    }
+
+    public function getTagCategories()
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/tags/categories', [
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+        $response = [];
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $categories = json_decode((string)$apiResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
+            foreach ($categories as $category) {
+                $response[] = $this->serializer->denormalize($category, TagCategory::class);
+            }
+        }
+
+        return $response;
     }
 }
