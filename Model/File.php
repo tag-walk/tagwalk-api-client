@@ -43,7 +43,7 @@ class File extends AbstractDocument
     /**
      * @Assert\Type("string")
      */
-    protected ?string $originalFilename;
+    protected ?string $originalFilename = null;
 
     /**
      * @var string|null
