@@ -107,6 +107,7 @@ class ApiTokenAuthenticatorTest extends TestCase
             false,
             'redirect_uri'
         );
+        $authenticator->setApplicationName('levis');
         $queryParameters = $authenticator->getAuthorizationQueryParameters($userToken);
         $this->assertArrayHasKey('state', $queryParameters);
         $this->assertIsString($queryParameters['state']);
