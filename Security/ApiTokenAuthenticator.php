@@ -54,26 +54,13 @@ class ApiTokenAuthenticator
      */
     private $redirectUri;
 
-    /**
-     * @var string|null
-     */
-    private $showroom;
+    private ?string $applicationName = null;
 
     /**
      * @var LoggerInterface
      */
     private $logger;
 
-    /**
-     * @param ClientFactory        $clientFactory
-     * @param SessionInterface     $session
-     * @param string               $clientId
-     * @param string               $clientSecret
-     * @param bool                 $authenticateInShowroom
-     * @param string|null          $redirectUri
-     * @param string|null          $showroom
-     * @param LoggerInterface|null $logger
-     */
     public function __construct(
         ClientFactory $clientFactory,
         SessionInterface $session,
@@ -81,7 +68,6 @@ class ApiTokenAuthenticator
         string $clientSecret,
         bool $authenticateInShowroom = false,
         ?string $redirectUri = null,
-        ?string $showroom = null,
         LoggerInterface $logger = null
     ) {
         $this->clientFactory = $clientFactory;
@@ -90,15 +76,14 @@ class ApiTokenAuthenticator
         $this->clientSecret = $clientSecret;
         $this->authenticateInShowroom = $authenticateInShowroom;
         $this->redirectUri = $redirectUri;
-        $this->showroom = $showroom;
         $this->logger = $logger ?? new NullLogger();
     }
 
-    /**
-     * @param string $clientId
-     *
-     * @return self
-     */
+    public function setApplicationName(string $applicationName): void
+    {
+        $this->applicationName = $applicationName;
+    }
+
     final public function setClientId(string $clientId): self
     {
         $this->clientId = $clientId;
@@ -106,11 +91,6 @@ class ApiTokenAuthenticator
         return $this;
     }
 
-    /**
-     * @param string $clientSecret
-     *
-     * @return self
-     */
     final public function setClientSecret(string $clientSecret): self
     {
         $this->clientSecret = $clientSecret;
@@ -118,11 +98,6 @@ class ApiTokenAuthenticator
         return $this;
     }
 
-    /**
-     * @param bool $authenticateInShowroom
-     *
-     * @return self
-     */
     final public function setAuthenticateInShowroom(bool $authenticateInShowroom): self
     {
         $this->authenticateInShowroom = $authenticateInShowroom;
@@ -130,11 +105,6 @@ class ApiTokenAuthenticator
         return $this;
     }
 
-    /**
-     * @param string|null $redirectUri
-     *
-     * @return self
-     */
     final public function setRedirectUri(?string $redirectUri): self
     {
         $this->redirectUri = $redirectUri;
@@ -142,23 +112,6 @@ class ApiTokenAuthenticator
         return $this;
     }
 
-    /**
-     * @param string|null $showroom
-     *
-     * @return self
-     */
-    final public function setShowroom(?string $showroom): self
-    {
-        $this->showroom = $showroom;
-
-        return $this;
-    }
-
-    /**
-     * Authenticate to API and returns response as array
-     *
-     * @return array
-     */
     final public function authenticate(): array
     {
         $params = [
@@ -179,11 +132,6 @@ class ApiTokenAuthenticator
         return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @param string $token
-     *
-     * @return array
-     */
     final public function refreshToken(string $token): array
     {
         $params = [
@@ -205,12 +153,6 @@ class ApiTokenAuthenticator
         return json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
-    /**
-     * @param string $code
-     * @param string $userToken
-     *
-     * @return array
-     */
     final public function authorize(string $code, string $userToken): array
     {
         try {
@@ -231,7 +173,7 @@ class ApiTokenAuthenticator
                     ],
                     RequestOptions::HEADERS     => array_filter([
                         'X-AUTH-TOKEN'             => $userToken,
-                        'Tagwalk-Showroom-Name'    => $this->showroom,
+                        'Tagwalk-Application-Name' => $this->applicationName,
                         'Authenticate-In-Showroom' => $this->authenticateInShowroom
                     ]),
                     RequestOptions::HTTP_ERRORS => true,
@@ -259,23 +201,18 @@ class ApiTokenAuthenticator
         return $jsonDecode;
     }
 
-    /**
-     * @param string|null $userToken
-     *
-     * @return array
-     */
     final public function getAuthorizationQueryParameters(?string $userToken): array
     {
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
 
         return array_filter([
-            'response_type'         => 'code',
-            'state'                 => $state,
-            'client_id'             => $this->clientId,
-            'redirect_uri'          => $this->redirectUri,
-            'x-auth-token'          => $userToken,
-            'tagwalk-showroom-name' => $this->showroom,
+            'response_type'            => 'code',
+            'state'                    => $state,
+            'client_id'                => $this->clientId,
+            'redirect_uri'             => $this->redirectUri,
+            'x-auth-token'             => $userToken,
+            'tagwalk-application-name' => $this->applicationName,
             'authenticate-in-showroom' => $this->authenticateInShowroom,
         ]);
     }

@@ -13,7 +13,6 @@ namespace Tagwalk\ApiClientBundle\Provider;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
 use OutOfBoundsException;
 use Psr\Http\Message\ResponseInterface;
@@ -55,11 +54,6 @@ class ApiProvider
      */
     private $authenticateInShowroom;
 
-    /**
-     * @var string
-     */
-    private $showroom;
-
     private ?string $applicationName = null;
 
     /**
@@ -72,16 +66,6 @@ class ApiProvider
      */
     private $apiTokenStorage;
 
-    /**
-     * @param ClientFactory        $clientFactory
-     * @param RequestStack         $requestStack
-     * @param ApiTokenStorage      $apiTokenStorage
-     * @param bool                 $lightData do not resolve files path property
-     * @param bool                 $analytics
-     * @param bool                 $authenticateInShowroom
-     * @param string|null          $showroom
-     * @param LoggerInterface|null $logger
-     */
     public function __construct(
         ClientFactory $clientFactory,
         RequestStack $requestStack,
@@ -89,7 +73,6 @@ class ApiProvider
         bool $lightData = true,
         bool $analytics = false,
         bool $authenticateInShowroom = false,
-        ?string $showroom = null,
         LoggerInterface $logger = null
     ) {
         $this->clientFactory = $clientFactory;
@@ -98,16 +81,7 @@ class ApiProvider
         $this->lightData = $lightData;
         $this->analytics = $analytics;
         $this->authenticateInShowroom = $authenticateInShowroom;
-        $this->showroom = $showroom;
         $this->logger = $logger ?? new NullLogger();
-    }
-
-    /**
-     * @param string $showroom
-     */
-    final public function setShowroom(string $showroom): void
-    {
-        $this->showroom = $showroom;
     }
 
     public function setApplicationName(string $applicationName): void
@@ -115,11 +89,6 @@ class ApiProvider
         $this->applicationName = $applicationName;
     }
 
-    /**
-     * @param bool $authenticateInShowroom
-     *
-     * @return self
-     */
     final public function setAuthenticateInShowroom(bool $authenticateInShowroom): self
     {
         $this->authenticateInShowroom = $authenticateInShowroom;
@@ -128,16 +97,10 @@ class ApiProvider
     }
 
     /**
-     * @param string $method
-     * @param string $uri
-     * @param array  $options
-     *
      * @throws ApiAccessDeniedException
      * @throws ApiLoginFailedException
      * @throws ApiServerErrorException
      * @throws NotFoundHttpException
-     *
-     * @return ResponseInterface
      */
     final public function request(string $method, string $uri, array $options = []): ResponseInterface
     {
@@ -184,9 +147,6 @@ class ApiProvider
         return $response;
     }
 
-    /**
-     * @return array
-     */
     private function getDefaultOptions(): array
     {
         try {
@@ -211,19 +171,11 @@ class ApiProvider
             'Accept-Language'          => $locale,
             'Authorization'            => $token !== null ? sprintf('Bearer %s', $token) : null,
             'Analytics'                => (int)$this->analytics,
-            'Tagwalk-Showroom-Name'    => $this->showroom,
+            'Tagwalk-Application-Name' => $this->applicationName,
             'Authenticate-In-Showroom' => $this->authenticateInShowroom,
         ], static function ($item) {
             return $item !== null;
         });
-        // Showroom clients specific headers
-        if ($this->showroom !== null) {
-            $headers['Tagwalk-Showroom-Name'] = $this->showroom;
-        }
-
-        if ($this->applicationName !== null) {
-            $headers['Tagwalk-Application-Name'] = $this->applicationName;
-        }
 
         return [
             RequestOptions::HTTP_ERRORS => false,
@@ -234,25 +186,6 @@ class ApiProvider
         ];
     }
 
-    /**
-     * @param string $method
-     * @param string $uri
-     * @param array  $options
-     *
-     * @return PromiseInterface
-     *
-     * @deprecated request logic not implemented
-     */
-    final public function requestAsync(string $method, string $uri, array $options = []): PromiseInterface
-    {
-        $options = array_merge($this->getDefaultOptions(), $options);
-
-        return $this->clientFactory->get()->requestAsync($method, $uri, $options);
-    }
-
-    /**
-     * @return Client
-     */
     final public function getClient(): Client
     {
         return $this->clientFactory->get();
