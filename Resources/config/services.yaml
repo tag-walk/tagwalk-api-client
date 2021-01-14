@@ -67,7 +67,6 @@ services:
         arguments:
             - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             - '@serializer'
-            - '@session'
 
     serializer.name_converter.camel_case_to_spinal_case:
         class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
