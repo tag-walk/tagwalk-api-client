@@ -41,7 +41,6 @@ class Configuration implements ConfigurationInterface
             ->booleanNode('analytics')->defaultFalse()->end()
             ->booleanNode('http_cache')->defaultTrue()->end()
             ->booleanNode('light')->defaultFalse()->end()
-            ->scalarNode('showroom')->defaultNull()->end()
             ->scalarNode('redirect_url')->defaultNull()->end()
             ->scalarNode('authorization_url')->defaultNull()->end()
             ->end();

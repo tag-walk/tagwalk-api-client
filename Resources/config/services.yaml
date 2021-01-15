@@ -31,7 +31,6 @@ services:
             $clientSecret: ''
             $authenticateInShowroom: false
             $redirectUri: null
-            $showroom: null
             $logger: '@logger'
 
     Tagwalk\ApiClientBundle\Provider\ApiProvider:
@@ -42,7 +41,6 @@ services:
             $lightData: false
             $analytics: false
             $authenticateInShowroom: false
-            $showroom: null
             $logger: '@logger'
 
     Tagwalk\ApiClientBundle\Provider\MoodboardProvider:
@@ -69,7 +67,6 @@ services:
         arguments:
             - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             - '@serializer'
-            - '@session'
 
     serializer.name_converter.camel_case_to_spinal_case:
         class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'

@@ -105,19 +105,19 @@ class ApiTokenAuthenticatorTest extends TestCase
             'identifier',
             'secret',
             false,
-            'redirect_uri',
-            'showroom'
+            'redirect_uri'
         );
+        $authenticator->setApplicationName('levis');
         $queryParameters = $authenticator->getAuthorizationQueryParameters($userToken);
         $this->assertArrayHasKey('state', $queryParameters);
         $this->assertIsString($queryParameters['state']);
         unset($queryParameters['state']);
         $this->assertEquals(array_filter([
-            'response_type'         => 'code',
-            'client_id'             => 'identifier',
-            'redirect_uri'          => 'redirect_uri',
-            'x-auth-token'          => $userToken,
-            'tagwalk-showroom-name' => 'showroom',
+            'response_type'            => 'code',
+            'client_id'                => 'identifier',
+            'redirect_uri'             => 'redirect_uri',
+            'x-auth-token'             => $userToken,
+            'tagwalk-application-name' => 'levis',
             'authenticate-in-showroom' => false,
         ]), $queryParameters);
     }

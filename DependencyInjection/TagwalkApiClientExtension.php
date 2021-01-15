@@ -43,7 +43,6 @@ class TagwalkApiClientExtension extends Extension
         $apiProviderDefinition = $container->getDefinition(ApiProvider::class);
         $apiProviderDefinition->replaceArgument('$lightData', $config['light']);
         $apiProviderDefinition->replaceArgument('$analytics', $config['analytics']);
-        $apiProviderDefinition->replaceArgument('$showroom', $config['showroom']);
         // Edit AuthorizationHelper dependency injection
         $authorizationHelperDefinition = $container->getDefinition(AuthorizationHelper::class);
         $authorizationHelperDefinition->replaceArgument('$authorizationUrl', $config['authorization_url']);
@@ -57,7 +56,6 @@ class TagwalkApiClientExtension extends Extension
         $apiTokenAuthenticatorDefinition->replaceArgument('$clientId', $config['client_id']);
         $apiTokenAuthenticatorDefinition->replaceArgument('$clientSecret', $config['client_secret']);
         $apiTokenAuthenticatorDefinition->replaceArgument('$redirectUri', $config['redirect_url']);
-        $apiTokenAuthenticatorDefinition->replaceArgument('$showroom', $config['showroom']);
     }
 
     /**
