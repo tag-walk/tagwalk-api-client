@@ -372,6 +372,21 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function removeWatermarks(array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/watermark/remove',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'slugs' => implode(',', $slugs),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
     public function addCourtesy(string $courtesy, array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(
