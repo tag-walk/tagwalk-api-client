@@ -12,6 +12,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
@@ -168,7 +169,7 @@ class IndividualManager
      */
     public function create(Individual $individual): ?Individual
     {
-        $apiResponse = $this->apiProvider->request('POST', '/api/individuals', [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/individuals', [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
         ]);
@@ -194,7 +195,7 @@ class IndividualManager
 
     public function update(Individual $individual): ?Individual
     {
-        $apiResponse = $this->apiProvider->request('PUT', '/api/individuals/' . $individual->getSlug(), [
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/individuals/' . $individual->getSlug(), [
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
         ]);
@@ -212,6 +213,17 @@ class IndividualManager
         }
 
         return $this->serializer->denormalize($data, Individual::class);
+    }
+
+    public function toggleStatus(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PATCH,
+            sprintf('/api/individuals/%s/status', $slug),
+            [RequestOptions::HTTP_ERRORS => false]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
     public function getLastErrors(): array
