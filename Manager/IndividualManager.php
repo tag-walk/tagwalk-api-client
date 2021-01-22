@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -34,6 +35,8 @@ class IndividualManager
      * @var int
      */
     public $lastCount;
+
+    public array $lastErrors = [];
 
     public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
     {
@@ -158,5 +161,33 @@ class IndividualManager
         }
 
         return $results;
+    }
+
+    /**
+     * @throws SlugNotAvailableException When an individual with the same slug already exists
+     */
+    public function create(Individual $individual): ?Individual
+    {
+        $apiResponse = $this->apiProvider->request('POST', '/api/individuals', [
+            RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            throw new SlugNotAvailableException();
+        }
+
+        $data = json_decode($apiResponse->getBody(), true);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_BAD_REQUEST) {
+            $this->lastErrors = $data['errors'];
+
+            return null;
+        }
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
+            return null;
+        }
+
+        return $this->serializer->denormalize($data, Individual::class);
     }
 }
