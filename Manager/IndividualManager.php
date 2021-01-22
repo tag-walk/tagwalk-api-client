@@ -152,7 +152,7 @@ class IndividualManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
-        
+
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
