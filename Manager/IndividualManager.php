@@ -36,7 +36,7 @@ class IndividualManager
      */
     public $lastCount;
 
-    public array $lastErrors = [];
+    private array $lastErrors = [];
 
     public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
     {
@@ -169,6 +169,7 @@ class IndividualManager
     public function create(Individual $individual): ?Individual
     {
         $apiResponse = $this->apiProvider->request('POST', '/api/individuals', [
+            RequestOptions::HTTP_ERRORS => false,
             RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
         ]);
 
@@ -189,5 +190,35 @@ class IndividualManager
         }
 
         return $this->serializer->denormalize($data, Individual::class);
+    }
+
+    public function update(Individual $individual): ?Individual
+    {
+        $apiResponse = $this->apiProvider->request('PUT', '/api/individuals/' . $individual->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
+        ]);
+
+        $data = json_decode($apiResponse->getBody(), true);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_BAD_REQUEST) {
+            $this->lastErrors = $data['errors'];
+
+            return null;
+        }
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        return $this->serializer->denormalize($data, Individual::class);
+    }
+
+    public function getLastErrors(): array
+    {
+        $errors = $this->lastErrors;
+        $this->lastErrors = [];
+
+        return $errors;
     }
 }
