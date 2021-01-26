@@ -21,19 +21,19 @@ class Event extends AbstractDocument
     /**
      * @Assert\Type("string")
      */
-    private ?string $date;
+    private ?string $date = null;
 
     /**
      * @Assert\Type("string")
      */
-    private ?string $type;
+    private ?string $type = null;
 
     public function getDate(): ?string
     {
         return $this->date;
     }
 
-    public function setDate(string $date): self
+    public function setDate(?string $date): self
     {
         $this->date = $date;
 
@@ -45,7 +45,7 @@ class Event extends AbstractDocument
         return $this->type;
     }
 
-    public function setType(string $type): self
+    public function setType(?string $type): self
     {
         $this->type = $type;
 

@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Event;
-use Tagwalk\ApiClientBundle\Model\Poll;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class EventManager
@@ -26,29 +25,25 @@ class EventManager
         $this->serializer = $serializer;
     }
 
-    public function get(int $id, ?string $language = null): ?Poll
+    public function get(int $id, ?string $language = null): ?Event
     {
 
     }
 
-    public function list(
-        array $params = [],
-        int $from = 0,
-        int $size = self::DEFAULT_SIZE,
-        string $sort = self::DEFAULT_SORT,
-        string $language = null
-    ): array {
 
+    public function list(array $params = []): array {
     }
 
     public function create(Event $event): Event
     {
         $normalized = $this->serializer->normalize($event, null, ['write' => true]);
-        $response = null;
+
         $apiResponse = $this->apiProvider->request('POST', 'api/event', [
             RequestOptions::HTTP_ERRORS => true,
             RequestOptions::JSON => $normalized
         ]);
+
+        $response = null;
 
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             /** @var Event $response */
