@@ -11,7 +11,7 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class EventManager
 {
-    public const DEFAULT_SIZE = 24;
+    public const DEFAULT_SIZE = 48;
     public const DEFAULT_SORT = 'created_at:desc';
 
     public int $lastCount = 0;
@@ -25,16 +25,51 @@ class EventManager
         $this->serializer = $serializer;
     }
 
-    public function get(int $id, ?string $language = null): ?Event
+    public function get(string $slug): ?Event
     {
+        $apiResponse = $this->apiProvider->request('GET', sprintf('api/event/%s', $slug), [
+            RequestOptions::HTTP_ERRORS => true,
+        ]);
 
+        $response = null;
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            /** @var Event $response */
+            $response = $this->serializer->deserialize((string) $apiResponse->getBody(), Event::class, JsonEncoder::FORMAT);
+        }
+
+        return $response;
     }
 
 
-    public function list(array $params = []): array {
+    public function list(
+        int $from = 0,
+        int $size = self::DEFAULT_SIZE,
+        string $sort = self::DEFAULT_SORT,
+        array $params = []
+    ): array {
+        $query = array_merge($params, array_filter(compact('from', 'size', 'sort')));
+
+        $apiResponse = $this->apiProvider->request('GET', 'api/event', [
+            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::QUERY => $query
+        ]);
+
+        $response = [];
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+            $data = json_decode((string) $apiResponse->getBody(), true);
+            foreach ($data as $event) {
+                /** @var Event $response */
+                $response[] = $this->serializer->denormalize($event, Event::class);
+            }
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
+        }
+
+        return $response;
     }
 
-    public function create(Event $event): Event
+    public function create(Event $event): ?Event
     {
         $normalized = $this->serializer->normalize($event, null, ['write' => true]);
 
@@ -46,6 +81,25 @@ class EventManager
         $response = null;
 
         if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
+            /** @var Event $response */
+            $response = $this->serializer->deserialize((string) $apiResponse->getBody(), Event::class, JsonEncoder::FORMAT);
+        }
+
+        return $response;
+    }
+
+    public function update(Event $event): ?Event
+    {
+        $normalized = $this->serializer->normalize($event);
+
+        $apiResponse = $this->apiProvider->request('PUT', sprintf('api/event/%s', $event->getSlug()), [
+            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::JSON => $normalized
+        ]);
+
+        $response = null;
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Event $response */
             $response = $this->serializer->deserialize((string) $apiResponse->getBody(), Event::class, JsonEncoder::FORMAT);
         }
