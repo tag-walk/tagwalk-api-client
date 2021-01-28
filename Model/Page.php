@@ -19,4 +19,18 @@ use Tagwalk\ApiClientBundle\Model\Traits\Textable;
 class Page extends AbstractDocument
 {
     use Textable;
+
+    private ?string $position = null;
+
+    public function getPosition(): ?string
+    {
+        return $this->position;
+    }
+
+    public function setPosition(?string $position): self
+    {
+        $this->position = $position;
+
+        return $this;
+    }
 }
