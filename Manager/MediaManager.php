@@ -75,7 +75,7 @@ class MediaManager
             RequestOptions::JSON        => $data,
         ]);
         $created = null;
-        if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
+        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
             /** @var Media $created */
             $created = $this->serializer->deserialize((string) $apiResponse->getBody(), Media::class, JsonEncoder::FORMAT);
         }
@@ -365,6 +365,21 @@ class MediaManager
                 RequestOptions::QUERY       => [
                     'watermark' => $watermark,
                     'slugs'     => implode(',', $slugs),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    public function removeWatermarks(array $slugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/watermark/remove',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'slugs' => implode(',', $slugs),
                 ]
             ]
         );
