@@ -107,7 +107,7 @@ class EventManager
         return $response;
     }
 
-    public function delete(string $slug): int
+    public function delete(string $slug): bool
     {
         $apiResponse = $this->apiProvider->request('DELETE', sprintf('api/event/%s', $slug), [
             RequestOptions::HTTP_ERRORS => true,
