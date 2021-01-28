@@ -21,13 +21,17 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Exception\AccountAlreadyActivatedException;
+use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\User;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class UserManager
 {
-    public ?string $lastError = null;
+    public const DEFAULT_STATUS = 'enabled';
+    public const DEFAULT_SORT = 'created_at:desc';
 
+    public ?string $lastError = null;
+    public int $lastCount = 0;
     private ApiProvider $apiProvider;
     /** @var Serializer $serializer */
     private $serializer;
@@ -48,6 +52,42 @@ class UserManager
         }
 
         return $user;
+    }
+
+    public function list(
+        ?int $from = 0,
+        ?int $size = 20,
+        ?string $sort = self::DEFAULT_SORT,
+        ?string $status = self::DEFAULT_STATUS
+    ): array {
+        $query = array_filter(compact('from', 'size', 'sort', 'status'));
+        $apiResponse = $this->apiProvider->request('GET', '/api/users', [
+            RequestOptions::QUERY       => $query,
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        $results = [];
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return $results;
+        }
+
+        $data = json_decode((string) $apiResponse->getBody(), true);
+        foreach ($data as $datum) {
+            $results[] = $this->serializer->denormalize($datum, User::class);
+        }
+
+        $this->lastCount = $apiResponse->getHeaderLine('X-Total-Count');
+
+        return $results;
+    }
+
+    public function toggleStatus(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, sprintf('/api/users/%s/status', $slug), [
+            RequestOptions::HTTP_ERRORS => false,
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
     /**
@@ -79,6 +119,23 @@ class UserManager
             $created = $this->deserialize($apiResponse);
         } elseif ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
             throw new InvalidArgumentException('User already exists');
+        }
+
+        return $created;
+    }
+
+    public function createInApplication(User $user): ?User
+    {
+        $data = $this->serializer->normalize($user, null, ['write' => true]);
+        $apiResponse = $this->apiProvider->request('POST', '/api/showroom/users', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON        => $data,
+        ]);
+        $created = null;
+        if ($apiResponse->getStatusCode() === Response::HTTP_CREATED) {
+            $created = $this->deserialize($apiResponse);
+        } elseif ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            throw new SlugNotAvailableException(sprintf('User with email %s already exists', $user->getEmail()));
         }
 
         return $created;
