@@ -15,6 +15,11 @@ class CustomerApplication
     public bool $sharedTags;
     public bool $reservedTags;
 
+    /**
+     * @var CustomerFields[]
+     */
+    public array $customerFields = [];
+
     public function getBucket(): ?string
     {
         return !empty($this->customerBucketConfiguration->bucketMedia)
