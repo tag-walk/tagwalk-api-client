@@ -58,11 +58,7 @@ class EventManager
         $response = [];
 
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
-            $data = json_decode((string) $apiResponse->getBody(), true);
-            foreach ($data as $event) {
-                /** @var Event $response */
-                $response[] = $this->serializer->denormalize($event, Event::class);
-            }
+            $response = $this->serializer->deserialize($apiResponse->getBody(), Event::class . '[]', 'json');
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         }
 
