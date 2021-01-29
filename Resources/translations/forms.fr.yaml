@@ -1,0 +1,17 @@
+help:
+  name: Le nom public
+  slug: Le slug est une chaîne de caractères alpha-numériques affiché dans l'url, généré automatiquement à la création s'il n'est pas renseigné
+  beginAt: La date et l'heure auxquelles la page d'accueil sera définie comme celle par défaut
+  endAt: La date et l'heure auxquelles la page d'accueil sera désactivée
+  homepage:
+    section: La section de page d'accueil à ajouter
+
+label:
+  name: Nom
+  beginAt: Commence le
+  endAt: Se termine le
+
+input:
+  homepage:
+    section:
+      home: Page d'accueil
