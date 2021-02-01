@@ -20,6 +20,14 @@ class CustomerApplication
      */
     public array $customerFields = [];
 
+    public function hasCustomReferenceField(): bool
+    {
+        return array_filter(
+            $this->customerFields,
+            fn($field) => $field->fieldType === CustomerFields::FIELD_TYPE_REFERENCE
+        ) !== [];
+    }
+
     public function getBucket(): ?string
     {
         return !empty($this->customerBucketConfiguration->bucketMedia)

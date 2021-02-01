@@ -128,6 +128,11 @@ class Media extends AbstractDocument
     private $watermarked = true;
 
     /**
+     * @var array
+     */
+    public array $customFields = [];
+
+    /**
      * @return null|Season
      */
     public function getSeason(): ?Season
