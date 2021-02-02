@@ -35,6 +35,8 @@ class PageManager
      */
     private $serializer;
 
+    public ?int $lastCount = null;
+
     /**
      * @param ApiProvider          $apiProvider
      * @param SerializerInterface  $serializer
@@ -75,6 +77,8 @@ class PageManager
             foreach ($data as $datum) {
                 $pages[] = $this->serializer->denormalize($datum, Page::class);
             }
+
+            $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         }
 
         return $pages;

@@ -13,7 +13,6 @@ class CustomerApplication
     public bool $watermarked;
     public ?CustomerBucketConfiguration $customerBucketConfiguration;
     public bool $sharedTags;
-    public bool $reservedTags;
 
     /**
      * @var CustomerFields[]
@@ -58,12 +57,5 @@ class CustomerApplication
     {
         return $this->useDedicatedCdn()
             && !empty($this->customerBucketConfiguration->usePrivateBucket);
-    }
-
-    public function supportsOwnAclFiltersForTags(): bool
-    {
-        return ($this->sharedTags === true && $this->reservedTags === true) ||
-            ($this->sharedTags === false && $this->reservedTags === true) ||
-            ($this->sharedTags === false && $this->reservedTags === false);
     }
 }
