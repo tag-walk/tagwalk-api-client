@@ -15,7 +15,7 @@ class CustomerApplication
     public bool $sharedTags;
 
     /**
-     * @var CustomerFields[]
+     * @var CustomerField[]
      */
     public array $customerFields = [];
 
@@ -23,7 +23,7 @@ class CustomerApplication
     {
         return array_filter(
             $this->customerFields,
-            fn($field) => $field->fieldType === CustomerFields::FIELD_TYPE_REFERENCE
+            fn($field) => $field->fieldType === CustomerField::FIELD_TYPE_REFERENCE
         ) !== [];
     }
 

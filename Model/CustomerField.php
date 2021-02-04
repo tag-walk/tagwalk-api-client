@@ -2,7 +2,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
-class CustomerFields
+class CustomerField
 {
     const FIELD_TYPE_BOOLEAN = 'boolean';
 
