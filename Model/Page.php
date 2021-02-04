@@ -11,25 +11,32 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
+use Tagwalk\ApiClientBundle\Utils\Constants\PageSection;
 
 /**
  * Model for static pages documents.
  */
 class Page extends AbstractDocument
 {
-    use Textable;
+    use Textable,
+        Positionable;
 
-    private ?string $position = null;
+    /**
+     * The section is where to put a link to the Page (e.g. the header)
+     * @see PageSection
+     */
+    private ?string $section = null;
 
-    public function getPosition(): ?string
+    public function getSection(): ?string
     {
-        return $this->position;
+        return $this->section;
     }
 
-    public function setPosition(?string $position): self
+    public function setSection(?string $section): self
     {
-        $this->position = $position;
+        $this->section = $section;
 
         return $this;
     }
