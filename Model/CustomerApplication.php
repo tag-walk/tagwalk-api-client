@@ -45,4 +45,13 @@ class CustomerApplication
         return $this->useDedicatedCdn()
             && !empty($this->customerBucketConfiguration->usePrivateBucket);
     }
+
+    public function getAlias(string $index): string
+    {
+        return implode('-', [
+            $this->name,
+            $this->applicationType,
+            $index
+        ]);
+    }
 }
