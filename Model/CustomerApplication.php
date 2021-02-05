@@ -14,6 +14,19 @@ class CustomerApplication
     public ?CustomerBucketConfiguration $customerBucketConfiguration;
     public bool $sharedTags;
 
+    /**
+     * @var CustomerField[]
+     */
+    public array $customerFields = [];
+
+    public function hasCustomReferenceField(): bool
+    {
+        return array_filter(
+            $this->customerFields,
+            fn($field) => $field->fieldType === CustomerField::FIELD_TYPE_REFERENCE
+        ) !== [];
+    }
+
     public function getBucket(): ?string
     {
         return !empty($this->customerBucketConfiguration->bucketMedia)
