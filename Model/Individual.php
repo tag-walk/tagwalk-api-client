@@ -72,6 +72,16 @@ class Individual extends AbstractDocument
     private $agencies;
 
     /**
+     * @Assert\Type("string")
+     */
+    private ?string $firstName = null;
+
+    /**
+     * @Assert\Type("string")
+     */
+    private ?string $lastName = null;
+
+    /**
      * @return bool
      */
     public function isModel(): bool
@@ -227,6 +237,30 @@ class Individual extends AbstractDocument
     public function setAgencies(?array $agencies): self
     {
         $this->agencies = $agencies;
+
+        return $this;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
 
         return $this;
     }

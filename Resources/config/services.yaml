@@ -286,6 +286,11 @@ services:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
+    Tagwalk\ApiClientBundle\Manager\EventManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
     Tagwalk\ApiClientBundle\Manager\CustomerApplicationManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'

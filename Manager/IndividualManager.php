@@ -12,10 +12,12 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Tagwalk\ApiClientBundle\Exception\SlugNotAvailableException;
 use Tagwalk\ApiClientBundle\Model\Individual;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
@@ -25,14 +27,9 @@ class IndividualManager
     public const DEFAULT_SORT = 'name:asc';
     public const DEFAULT_MODEL = 'true';
 
-    /**
-     * @var ApiProvider
-     */
-    protected $apiProvider;
+    protected ApiProvider $apiProvider;
 
-    /**
-     * @var Serializer
-     */
+    /** @var Serializer */
     protected $serializer;
 
     /**
@@ -40,24 +37,14 @@ class IndividualManager
      */
     public $lastCount;
 
-    /**
-     * @param ApiProvider          $apiProvider
-     * @param SerializerInterface  $serializer
-     */
-    public function __construct(
-        ApiProvider $apiProvider,
-        SerializerInterface $serializer
-    ) {
+    private array $lastErrors = [];
+
+    public function __construct(ApiProvider $apiProvider, SerializerInterface $serializer)
+    {
         $this->apiProvider = $apiProvider;
         $this->serializer = $serializer;
     }
 
-    /**
-     * @param string      $slug
-     * @param null|string $language
-     *
-     * @return Individual|null
-     */
     public function get(string $slug, ?string $language = null): ?Individual
     {
         $individual = null;
@@ -66,23 +53,20 @@ class IndividualManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
+
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             /** @var Individual $individual */
-            $individual = $this->serializer->deserialize((string) $apiResponse->getBody(), Individual::class, JsonEncoder::FORMAT);
+            $individual = $this->serializer->deserialize(
+                (string) $apiResponse->getBody(),
+                Individual::class,
+                JsonEncoder::FORMAT
+            );
         }
 
         return $individual;
     }
 
     /**
-     * @param string|null $language
-     * @param int         $from
-     * @param int         $size
-     * @param string      $sort
-     * @param string      $status
-     * @param string      $model
-     * @param bool        $denormalize
-     *
      * @return array|Individual[]
      */
     public function list(
@@ -101,8 +85,10 @@ class IndividualManager
             RequestOptions::QUERY       => $query,
             RequestOptions::HTTP_ERRORS => false,
         ]);
+
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode((string) $apiResponse->getBody(), true);
+
             if ($denormalize) {
                 foreach ($data as $datum) {
                     $individuals[] = $this->serializer->denormalize($datum, Individual::class);
@@ -110,17 +96,13 @@ class IndividualManager
             } else {
                 $individuals = $data;
             }
+
             $this->lastCount = (int) $apiResponse->getHeaderLine('X-Total-Count');
         }
 
         return $individuals;
     }
 
-    /**
-     * @param string $status
-     *
-     * @return int
-     */
     public function count(string $status = self::DEFAULT_STATUS): int
     {
         $count = 0;
@@ -131,6 +113,7 @@ class IndividualManager
             ],
             RequestOptions::HTTP_ERRORS => false,
         ]);
+
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $count = (int) $apiResponse->getHeaderLine('X-Total-Count');
         }
@@ -138,12 +121,6 @@ class IndividualManager
         return $count;
     }
 
-    /**
-     * @param string      $prefix
-     * @param string|null $language
-     *
-     * @return array
-     */
     public function suggest(string $prefix, string $language = null): array
     {
         $individuals = [];
@@ -152,6 +129,7 @@ class IndividualManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
+
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $individuals = json_decode((string) $apiResponse->getBody(), true);
         }
@@ -160,12 +138,6 @@ class IndividualManager
     }
 
     /**
-     * @param string|null $city
-     * @param string|null $season
-     * @param string|null $designers
-     * @param string|null $tags
-     * @param string|null $language
-     *
      * @return Individual[]
      */
     public function listFiltersStreet(
@@ -181,6 +153,7 @@ class IndividualManager
             RequestOptions::HTTP_ERRORS => false,
             RequestOptions::QUERY       => $query,
         ]);
+
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
             $data = json_decode((string) $apiResponse->getBody(), true);
             foreach ($data as $datum) {
@@ -189,5 +162,75 @@ class IndividualManager
         }
 
         return $results;
+    }
+
+    /**
+     * @throws SlugNotAvailableException When an individual with the same slug already exists
+     */
+    public function create(Individual $individual): ?Individual
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_POST, '/api/individuals', [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
+        ]);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_CONFLICT) {
+            throw new SlugNotAvailableException();
+        }
+
+        $data = json_decode($apiResponse->getBody(), true);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_BAD_REQUEST) {
+            $this->lastErrors = $data['errors'];
+
+            return null;
+        }
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_CREATED) {
+            return null;
+        }
+
+        return $this->serializer->denormalize($data, Individual::class);
+    }
+
+    public function update(Individual $individual): ?Individual
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PUT, '/api/individuals/' . $individual->getSlug(), [
+            RequestOptions::HTTP_ERRORS => false,
+            RequestOptions::JSON => $this->serializer->normalize($individual, null, ['write' => true])
+        ]);
+
+        $data = json_decode($apiResponse->getBody(), true);
+
+        if ($apiResponse->getStatusCode() === Response::HTTP_BAD_REQUEST) {
+            $this->lastErrors = $data['errors'];
+
+            return null;
+        }
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return null;
+        }
+
+        return $this->serializer->denormalize($data, Individual::class);
+    }
+
+    public function toggleStatus(string $slug): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_PATCH,
+            sprintf('/api/individuals/%s/status', $slug),
+            [RequestOptions::HTTP_ERRORS => false]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    public function getLastErrors(): array
+    {
+        $errors = $this->lastErrors;
+        $this->lastErrors = [];
+
+        return $errors;
     }
 }
