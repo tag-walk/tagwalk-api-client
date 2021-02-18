@@ -408,7 +408,7 @@ class MediaManager
         $apiResponse = $this->apiProvider->request(
             Request::METHOD_POST, '/api/medias/file/courtesy',
             [
-                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::HTTP_ERRORS => true,
                 RequestOptions::QUERY       => [
                     'courtesy' => $courtesy,
                     'slug'     => $slug,
