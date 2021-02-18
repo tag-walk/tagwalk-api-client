@@ -403,6 +403,23 @@ class MediaManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function addFileCourtesy(string $courtesy, string $slug, string $filename): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST, '/api/medias/file/courtesy',
+            [
+                RequestOptions::HTTP_ERRORS => false,
+                RequestOptions::QUERY       => [
+                    'courtesy' => $courtesy,
+                    'slug'     => $slug,
+                    'filename' => $filename
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
     public function addLabel(string $label, array $slugs): bool
     {
         $apiResponse = $this->apiProvider->request(
