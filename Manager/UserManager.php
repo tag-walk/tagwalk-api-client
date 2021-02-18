@@ -221,4 +221,19 @@ class UserManager
 
         return $status === Response::HTTP_OK;
     }
+
+    public function updateRoles(string $email, array $roles): bool
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_POST,
+            sprintf('/api/showroom/users/roles/%s', $email),
+            [
+                RequestOptions::QUERY => [
+                    'roles'  => implode(',', $roles),
+                ]
+            ]
+        );
+
+        return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
 }
