@@ -226,6 +226,16 @@ class IndividualManager
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
 
+    public function autocomplete(string $search): array
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/individuals/autocomplete', [
+            RequestOptions::QUERY => compact('search'),
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+
+        return json_decode($apiResponse->getBody(), true);
+    }
+
     public function getLastErrors(): array
     {
         $errors = $this->lastErrors;
