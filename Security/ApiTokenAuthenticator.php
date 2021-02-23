@@ -155,6 +155,8 @@ class ApiTokenAuthenticator
 
     final public function authorize(string $code, string $userToken): array
     {
+        $this->setApplication($this->session->get('user-application'));
+
         try {
             $this->logger->info('ApiTokenAuthenticator::authorize', [
                 'code'       => $code,
@@ -205,6 +207,7 @@ class ApiTokenAuthenticator
     {
         $state = hash('sha512', random_bytes(32));
         $this->session->set(self::AUTHORIZATION_STATE, $state);
+        $this->setApplication($this->session->get('user-application'));
 
         return array_filter([
             'response_type'            => 'code',
@@ -215,5 +218,13 @@ class ApiTokenAuthenticator
             'tagwalk-application-name' => $this->applicationName,
             'authenticate-in-showroom' => $this->authenticateInShowroom,
         ]);
+    }
+
+    public function setApplication(string $applicationName): void
+    {
+        if (!empty($applicationName)) {
+            $this->applicationName = $applicationName;
+            $this->setAuthenticateInShowroom(true);
+        }
     }
 }
