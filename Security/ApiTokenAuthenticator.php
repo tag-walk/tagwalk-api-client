@@ -220,11 +220,15 @@ class ApiTokenAuthenticator
         ]);
     }
 
-    public function setApplication(string $applicationName): void
+    public function setApplication(?string $applicationName = null): void
     {
+        $this->applicationName = $applicationName;
         if (!empty($applicationName)) {
-            $this->applicationName = $applicationName;
             $this->setAuthenticateInShowroom(true);
+
+            return;
         }
+
+        $this->setAuthenticateInShowroom(false);
     }
 }

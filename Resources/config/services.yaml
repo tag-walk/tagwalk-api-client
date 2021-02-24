@@ -38,6 +38,7 @@ services:
             $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
             $requestStack: '@request_stack'
             $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
+            $session: '@session'
             $lightData: false
             $analytics: false
             $authenticateInShowroom: false

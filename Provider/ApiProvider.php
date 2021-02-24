@@ -20,6 +20,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tagwalk\ApiClientBundle\Exception\ApiAccessDeniedException;
 use Tagwalk\ApiClientBundle\Exception\ApiLoginFailedException;
@@ -29,47 +30,20 @@ use Tagwalk\ApiClientBundle\Security\ApiTokenStorage;
 
 class ApiProvider
 {
-    /**
-     * @var ClientFactory
-     */
-    private $clientFactory;
-
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
-
-    /**
-     * @var bool
-     */
-    private $lightData;
-
-    /**
-     * @var bool
-     */
-    private $analytics;
-
-    /**
-     * @var bool
-     */
-    private $authenticateInShowroom;
-
+    private ClientFactory $clientFactory;
+    private RequestStack $requestStack;
+    private bool $lightData;
+    private bool $analytics;
+    private bool $authenticateInShowroom;
     private ?string $applicationName = null;
-
-    /**
-     * @var LoggerInterface|null
-     */
-    private $logger;
-
-    /**
-     * @var ApiTokenStorage
-     */
-    private $apiTokenStorage;
+    private ?LoggerInterface $logger;
+    private ApiTokenStorage $apiTokenStorage;
 
     public function __construct(
         ClientFactory $clientFactory,
         RequestStack $requestStack,
         ApiTokenStorage $apiTokenStorage,
+        SessionInterface $session,
         bool $lightData = true,
         bool $analytics = false,
         bool $authenticateInShowroom = false,
@@ -78,6 +52,7 @@ class ApiProvider
         $this->clientFactory = $clientFactory;
         $this->requestStack = $requestStack;
         $this->apiTokenStorage = $apiTokenStorage;
+        $this->session = $session;
         $this->lightData = $lightData;
         $this->analytics = $analytics;
         $this->authenticateInShowroom = $authenticateInShowroom;
@@ -149,6 +124,12 @@ class ApiProvider
 
     private function getDefaultOptions(): array
     {
+        $userApplication = $this->session->get('user-application');
+        if ($userApplication) {
+            $this->setAuthenticateInShowroom(true);
+            $this->setApplicationName($userApplication);
+        }
+
         try {
             // get oauth2 token for request header
             $token = $this->apiTokenStorage->getAccessToken();

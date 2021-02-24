@@ -80,12 +80,11 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
         $params = [
             'email' => $credentials['username'],
             'password' => $credentials['password'],
-            'application' => $credentials['application']
         ];
 
-        if ($params['application']) {
+        if ($credentials['application']) {
             $this->provider->setAuthenticateInShowroom(true);
-            $this->provider->setApplicationName($params['application']);
+            $this->provider->setApplicationName($credentials['application']);
         }
 
         if (isset($params['password'], $params['email'])) {
@@ -97,8 +96,8 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
                     /** @var User $user */
                     $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
 
-                    if (!empty($params['application'])) {
-                        $this->session->set('user-application', $params['application']);
+                    if (!empty($credentials['application'])) {
+                        $this->session->set('user-application', $credentials['application']);
                     }
                 }
             } catch (ApiLoginFailedException $exception) {
