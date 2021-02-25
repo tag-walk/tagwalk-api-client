@@ -35,6 +35,7 @@ class ApiProvider
     private bool $lightData;
     private bool $analytics;
     private bool $authenticateInShowroom;
+    private SessionInterface $session;
     private ?string $applicationName = null;
     private ?LoggerInterface $logger;
     private ApiTokenStorage $apiTokenStorage;
