@@ -512,6 +512,6 @@ class MediaManager
             return [];
         }
 
-        return $this->serializer->deserialize($apiResponse->getBody(), WornLook::class, JsonEncoder::FORMAT);
+        return $this->serializer->deserialize($apiResponse->getBody(), WornLook::class . '[]', JsonEncoder::FORMAT);
     }
  }
