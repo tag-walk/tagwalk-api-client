@@ -26,6 +26,11 @@ class ReferenceManager extends AbstractManager
         return '/api/references';
     }
 
+    protected function getDeleteEndpoint(): string
+    {
+        return '';
+    }
+
     protected function getModelClass(): string
     {
         return Reference::class;

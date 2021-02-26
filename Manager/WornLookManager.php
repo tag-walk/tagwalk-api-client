@@ -26,6 +26,11 @@ class WornLookManager extends AbstractManager
         return '/api/worn-looks';
     }
 
+    protected function getDeleteEndpoint(): string
+    {
+        return '/api/worn-looks/';
+    }
+
     protected function getModelClass(): string
     {
         return WornLook::class;
