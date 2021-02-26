@@ -13,7 +13,7 @@ class WornLookManager extends AbstractManager
 
     protected function getUpdateEndpoint(): string
     {
-        return '';
+        return '/api/worn-looks/';
     }
 
     protected function getListEndpoint(): string

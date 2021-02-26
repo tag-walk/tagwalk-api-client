@@ -11,13 +11,13 @@ class WornLook extends AbstractDocument
      * @Assert\Valid()
      * @Assert\Type("object")
      */
-    private Individual $individual;
+    private ?Individual $individual = null;
 
     /**
      * @Assert\Valid()
      * @Assert\Type("object")
      */
-    private Event $event;
+    private ?Event $event = null;
 
     /**
      * @Assert\NotBlank()
@@ -32,7 +32,7 @@ class WornLook extends AbstractDocument
      */
     private array $files = [];
 
-    public function getIndividual(): Individual
+    public function getIndividual(): ?Individual
     {
         return $this->individual;
     }
@@ -44,7 +44,7 @@ class WornLook extends AbstractDocument
         return $this;
     }
 
-    public function getEvent(): Event
+    public function getEvent(): ?Event
     {
         return $this->event;
     }
