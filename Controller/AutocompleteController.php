@@ -145,8 +145,8 @@ class AutocompleteController extends AbstractController
 
         $response = new JsonResponse($data);
         $response->setCache([
-            'max_age'  => 86400,
-            's_maxage' => 86400,
+            'max_age'  => 300,
+            's_maxage' => 300,
             'public'   => true,
         ]);
 
@@ -172,8 +172,8 @@ class AutocompleteController extends AbstractController
 
         $response = new JsonResponse($data);
         $response->setCache([
-            'max_age'  => 86400,
-            's_maxage' => 86400,
+            'max_age'  => 300,
+            's_maxage' => 300,
             'public'   => true,
         ]);
 
