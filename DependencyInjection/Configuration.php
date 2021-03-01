@@ -43,7 +43,11 @@ class Configuration implements ConfigurationInterface
             ->booleanNode('light')->defaultFalse()->end()
             ->scalarNode('redirect_url')->defaultNull()->end()
             ->scalarNode('authorization_url')->defaultNull()->end()
-            ->end();
+            ->scalarNode('cache')->defaultNull()->end()
+            ->scalarNode('access_token_storage')->defaultNull()->end()
+            ->scalarNode('refresh_token_storage')->defaultNull()->end()
+            ->scalarNode('storage_prefix')->defaultNull()->end()
+        ;
 
         return $treeBuilder;
     }

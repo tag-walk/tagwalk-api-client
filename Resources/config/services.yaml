@@ -21,7 +21,8 @@ services:
             $baseUri: ''
             $timeout: 30.0
             $httpCache: true
-            $cacheDirectory: '%env(CACHE_DIRECTORY)%'
+            $cacheAdapter: '@tagwalk.cache.api'
+            $dispatcher: '@event_dispatcher'
 
     Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator:
         arguments:
@@ -47,11 +48,36 @@ services:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
 
+    tagwalk.storage.access_token:
+        class: Symfony\Component\Cache\Adapter\ProxyAdapter
+        arguments:
+            - '@tagwalk.cache.null'
+            - access_token.
+            - !php/const Tagwalk\ApiClientBundle\Security\ApiTokenStorage::DEFAULT_ACCESS_TOKEN_TTL
+
+    tagwalk.storage.refresh_token:
+        class: Symfony\Component\Cache\Adapter\ProxyAdapter
+        arguments:
+            - '@tagwalk.cache.null'
+            - refresh_token.
+            - !php/const Tagwalk\ApiClientBundle\Security\ApiTokenStorage::DEFAULT_REFRESH_TOKEN_TTL
+
+    tagwalk.cache.api:
+        class: Symfony\Component\Cache\Adapter\ProxyAdapter
+        arguments:
+            - '@tagwalk.cache.null'
+            - tagwalk.api.
+            - 600
+
+    tagwalk.cache.null:
+        class: Symfony\Component\Cache\Adapter\NullAdapter
+
     Tagwalk\ApiClientBundle\Security\ApiTokenStorage:
         arguments:
             $tokenStorage: '@security.token_storage'
             $authenticator: '@Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator'
-            $cacheDirectory: '%env(CACHE_DIRECTORY)%'
+            $accessTokenCache: '@tagwalk.storage.access_token'
+            $refreshTokenCache: '@tagwalk.storage.refresh_token'
             $logger: '@logger'
 
     Tagwalk\ApiClientBundle\Event\InteractiveLoginSubscriber:

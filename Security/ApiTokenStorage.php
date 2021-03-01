@@ -16,7 +16,7 @@ use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -39,12 +39,12 @@ class ApiTokenStorage
     private $authenticator;
 
     /**
-     * @var FilesystemAdapter
+     * @var AdapterInterface
      */
     private $accessTokenCache;
 
     /**
-     * @var FilesystemAdapter
+     * @var AdapterInterface
      */
     private $refreshTokenCache;
 
@@ -66,19 +66,21 @@ class ApiTokenStorage
     /**
      * @param TokenStorageInterface $tokenStorage
      * @param ApiTokenAuthenticator $authenticator
-     * @param string|null           $cacheDirectory
+     * @param AdapterInterface      $accessTokenCache
+     * @param AdapterInterface      $refreshTokenCache
      * @param LoggerInterface|null  $logger
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         ApiTokenAuthenticator $authenticator,
-        ?string $cacheDirectory = null,
+        AdapterInterface $accessTokenCache,
+        AdapterInterface $refreshTokenCache,
         LoggerInterface $logger = null
     ) {
         $this->tokenStorage = $tokenStorage;
         $this->authenticator = $authenticator;
-        $this->accessTokenCache = new FilesystemAdapter('access_token', self::DEFAULT_ACCESS_TOKEN_TTL, $cacheDirectory);
-        $this->refreshTokenCache = new FilesystemAdapter('refresh_token', self::DEFAULT_REFRESH_TOKEN_TTL, $cacheDirectory);
+        $this->accessTokenCache = $accessTokenCache;
+        $this->refreshTokenCache = $refreshTokenCache;
         $this->logger = $logger ?? new NullLogger();
     }
 

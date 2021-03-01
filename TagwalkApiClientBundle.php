@@ -11,8 +11,15 @@
 
 namespace Tagwalk\ApiClientBundle;
 
+use Tagwalk\ApiClientBundle\DependencyInjection\CompilerPass;
+
 use Symfony\Component\HttpKernel\Bundle\Bundle;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class TagwalkApiClientBundle extends Bundle
 {
+    public function build(ContainerBuilder $container): void
+    {
+        $container->addCompilerPass(new CompilerPass());
+    }
 }

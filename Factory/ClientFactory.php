@@ -16,7 +16,9 @@ use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Tagwalk\ApiClientBundle\Event\ResponseResolved;
 
 class ClientFactory
 {
@@ -44,26 +46,33 @@ class ClientFactory
     private $httpCache;
 
     /**
-     * @var string|null
+     * @var AdapterInterface
      */
-    private $cacheDirectory;
+    private $cacheAdapter;
 
     /**
-     * @param string      $baseUri
-     * @param float       $timeout
-     * @param bool        $httpCache
-     * @param string|null $cacheDirectory
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @param string        $baseUri
+     * @param float             $timeout
+     * @param bool              $httpCache
+     * @param AbstractAdapter   $cacheAdapter
      */
     public function __construct(
         string $baseUri = '',
         float $timeout = self::DEFAULT_TIMEOUT,
         bool $httpCache = true,
-        ?string $cacheDirectory = null
+        AdapterInterface $cacheAdapter,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->baseUri = $baseUri;
         $this->timeout = $timeout;
         $this->httpCache = $httpCache;
-        $this->cacheDirectory = $cacheDirectory;
+        $this->cacheAdapter = $cacheAdapter;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -86,10 +95,9 @@ class ClientFactory
         $params = [
             'base_uri' => $this->baseUri,
             'timeout'  => $this->timeout,
+            'handler'  => $this->getClientHandlerStack(),
         ];
-        if ($this->httpCache) { // Actually useless unless http cache is enabled
-            $params['handler'] = $this->getClientHandlerStack();
-        }
+
         $this->client = new Client($params);
 
         return $this->client;
@@ -102,18 +110,55 @@ class ClientFactory
      */
     private function getClientHandlerStack(): HandlerStack
     {
-        // Create a HandlerStack
         $stack = HandlerStack::create();
-        // Add cache middleware to the top of the stack with `push`
-        $stack->push(
-            new CacheMiddleware(
-                new PrivateCacheStrategy(
-                    new Psr6CacheStorage(
-                        new FilesystemAdapter('api-client-http-cache', 600, $this->cacheDirectory)
+
+        if ($this->httpCache) {
+            $stack->push(
+                new CacheMiddleware(
+                    new PrivateCacheStrategy(
+                        new Psr6CacheStorage($this->cacheAdapter)
                     )
-                )
-            ),
-            'cache'
+                ),
+                'cache'
+            );
+        }
+
+        $stack->push(
+            function($handler) {
+                return function($request, $options) use ($handler) {
+                    $startedAt = microtime(true);
+
+                    $response = $handler($request, $options);
+
+                    if ($response instanceof \GuzzleHttp\Promise\FulfilledPromise) {
+                        $response->then(function($response) use ($request, $options, $startedAt) {
+                            $profiler = [
+                                'request'  => [
+                                    'method' => $request->getMethod(),
+                                    'uri' => (string) $request->getUri(),
+                                ],
+                                'response' => [
+                                    'status' => $response->getStatusCode(),
+                                    'Last-Modified' => ($response->getHeader('Last-Modified') ?? [null])[0],
+                                    'X-Total-Count' => ($response->getHeader('X-Total-Count') ?? [null])[0],
+                                    'X-Debug-Token-Link' => ($response->getHeader('X-Debug-Token-Link') ?? [null])[0],
+                                    'took' => microtime(true) - $startedAt
+                                ],
+                            ];
+
+                            // var_dump($profiler);
+
+                            $this->dispatcher->dispatch(
+                                new ResponseResolved($request, $response, $options, $startedAt, microtime(true)),
+                                ResponseResolved::EVENT_NAME
+                            );
+                        });
+                    }
+
+                    return $response;
+                };
+            },
+            'observable'
         );
 
         return $stack;
