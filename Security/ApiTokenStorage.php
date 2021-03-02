@@ -16,7 +16,7 @@ use DateTime;
 use Psr\Cache\CacheItemInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ProxyAdapter;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -39,12 +39,12 @@ class ApiTokenStorage
     private $authenticator;
 
     /**
-     * @var AdapterInterface
+     * @var ProxyAdapter
      */
     private $accessTokenCache;
 
     /**
-     * @var AdapterInterface
+     * @var ProxyAdapter
      */
     private $refreshTokenCache;
 
@@ -66,15 +66,15 @@ class ApiTokenStorage
     /**
      * @param TokenStorageInterface $tokenStorage
      * @param ApiTokenAuthenticator $authenticator
-     * @param AdapterInterface      $accessTokenCache
-     * @param AdapterInterface      $refreshTokenCache
+     * @param ProxyAdapter          $accessTokenCache
+     * @param ProxyAdapter          $refreshTokenCache
      * @param LoggerInterface|null  $logger
      */
     public function __construct(
         TokenStorageInterface $tokenStorage,
         ApiTokenAuthenticator $authenticator,
-        AdapterInterface $accessTokenCache,
-        AdapterInterface $refreshTokenCache,
+        ProxyAdapter $accessTokenCache,
+        ProxyAdapter $refreshTokenCache,
         LoggerInterface $logger = null
     ) {
         $this->tokenStorage = $tokenStorage;
