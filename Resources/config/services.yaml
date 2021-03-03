@@ -22,7 +22,6 @@ services:
             $timeout: 30.0
             $httpCache: true
             $cacheAdapter: '@tagwalk.cache.api'
-            $dispatcher: '@event_dispatcher'
 
     Tagwalk\ApiClientBundle\Security\ApiTokenAuthenticator:
         arguments:
@@ -326,3 +325,9 @@ services:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             $serializer: '@serializer'
+
+    Tagwalk\ApiClientBundle\DataCollector\ApiDataCollector:
+        tags:
+          - name: data_collector
+            id: 'tagwalk_api_client'
+            template: '@TagwalkApiClient/data_collector.html.twig'

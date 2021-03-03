@@ -1,0 +1,84 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <img width="28" height="28" alt="Tagwalk API" src="https://api.tag-walk.com/images/logo_square.jpg" />
+        <span class="sf-toolbar-value">{{ collector.requestCount }} in {{ collector.tookMilliseconds }} ms</span>
+    {% endset %}
+
+    {% set text %}
+        {% set successfulls = collector.countByStatusRange(200, 299) %}
+        {% set redirections = collector.countByStatusRange(300, 399) %}
+        {% set clientErrors = collector.countByStatusRange(400, 499) %}
+        {% set serverErrors = collector.countByStatusRange(500, 599) %}
+
+        <div class="sf-toolbar-info-piece">
+            <b>Requêtes</b>
+            <span class="sf-toolbar-status">{{ collector.requestCount }}</span>
+        </div>
+        <div class="sf-toolbar-info-piece">
+            <b>Successful 2xx</b>
+            <span class="sf-toolbar-status">{{ successfulls }}</span>
+        </div>
+        <div class="sf-toolbar-info-piece">
+            <b>Redirections 3xx</b>
+            <span class="sf-toolbar-status">{{ redirections }}</span>
+        </div>
+        <div class="sf-toolbar-info-piece">
+            <b>Client errors 4xx</b>
+            <span class="sf-toolbar-status {% if clientErrors > 0 %} sf-toolbar-status-red {% endif %}">{{ clientErrors }}</span>
+        </div>
+        <div class="sf-toolbar-info-piece">
+            <b>Server errors 5xx</b>
+            <span class="sf-toolbar-status {% if serverErrors > 0 %} sf-toolbar-status-red {% endif %}">{{ serverErrors }}</span>
+        </div>
+    {% endset %}
+    {% include '@WebProfiler/Profiler/toolbar_item.html.twig' with { 'link': profiler_url } %}
+{% endblock %}
+
+{% block menu %}
+<span class="label">
+    <span class="icon">
+        <img width="28" height="28" alt="Tagwalk API" src="https://api.tag-walk.com/images/logo_square.jpg" />
+    </span>
+    <strong>Tagwalk API</strong>
+    <span class="count">
+        <span>{{ collector.requestCount }}</span>
+    </span>
+</span>
+{% endblock %}
+
+
+{% block panel %}
+    <h2>Tagwalk API</h2>
+    {% if collector.requestCount %}
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">HTTP code</th>
+                    <th scope="col">Method</th>
+                    <th scope="col">Took (ms)</th>
+                    <th scope="col">URI</th>
+                    <th scope="col">Last-Modified</th>
+                    <th scope="col">Profiler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in collector.requestStack %}
+                <tr>
+                    <td>{{ item.response.status }}</td>
+                    <td>{{ item.request.method }}</td>
+                    <td>{{ (item.response.took * 1000) | round(1) }}</td>
+                    <td>{{ relative_path(item.request.uri) }}</td>
+                    <td>{{ item.response["Last-Modified"] }}</td>
+                    <td><a href="{{ item.response["X-Debug-Token-Link"] }}">{{ item.response["X-Debug-Token-Link"] }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            <em>No requests were performed.</em>
+        </p>
+    {% endif %}
+{% endblock %}

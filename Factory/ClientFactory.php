@@ -17,8 +17,6 @@ use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Tagwalk\ApiClientBundle\Event\ResponseResolved;
 
 class ClientFactory
 {
@@ -50,10 +48,7 @@ class ClientFactory
      */
     private $cacheAdapter;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
+    private array $subscribers = [];
 
     /**
      * @param string        $baseUri
@@ -65,14 +60,18 @@ class ClientFactory
         string $baseUri = '',
         float $timeout = self::DEFAULT_TIMEOUT,
         bool $httpCache = true,
-        AdapterInterface $cacheAdapter,
-        EventDispatcherInterface $dispatcher
+        AdapterInterface $cacheAdapter
     ) {
         $this->baseUri = $baseUri;
         $this->timeout = $timeout;
         $this->httpCache = $httpCache;
         $this->cacheAdapter = $cacheAdapter;
-        $this->dispatcher = $dispatcher;
+    }
+
+    public function addSubscriber(callable $subscriber): self
+    {
+        $this->subscribers[] = $subscriber;
+        return $this;
     }
 
     /**
@@ -128,34 +127,17 @@ class ClientFactory
                 return function($request, $options) use ($handler) {
                     $startedAt = microtime(true);
 
-                    $response = $handler($request, $options);
+                    $promise = $handler($request, $options);
 
-                    if ($response instanceof \GuzzleHttp\Promise\FulfilledPromise) {
-                        $response->then(function($response) use ($request, $options, $startedAt) {
-                            $profiler = [
-                                'request'  => [
-                                    'method' => $request->getMethod(),
-                                    'uri' => (string) $request->getUri(),
-                                ],
-                                'response' => [
-                                    'status' => $response->getStatusCode(),
-                                    'Last-Modified' => ($response->getHeader('Last-Modified') ?? [null])[0],
-                                    'X-Total-Count' => ($response->getHeader('X-Total-Count') ?? [null])[0],
-                                    'X-Debug-Token-Link' => ($response->getHeader('X-Debug-Token-Link') ?? [null])[0],
-                                    'took' => microtime(true) - $startedAt
-                                ],
-                            ];
-
-                            // var_dump($profiler);
-
-                            $this->dispatcher->dispatch(
-                                new ResponseResolved($request, $response, $options, $startedAt, microtime(true)),
-                                ResponseResolved::EVENT_NAME
-                            );
+                    if ($promise instanceof \GuzzleHttp\Promise\FulfilledPromise) {
+                        $promise->then(function($response) use ($request, $options, $startedAt) {
+                            foreach ($this->subscribers as $subscriber) {
+                                $subscriber($request, $response, $options, $startedAt);
+                            }
                         });
                     }
 
-                    return $response;
+                    return $promise;
                 };
             },
             'observable'
