@@ -71,7 +71,13 @@
                     <td>{{ (item.response.took * 1000) | round(1) }}</td>
                     <td>{{ relative_path(item.request.uri) }}</td>
                     <td>{{ item.response["Last-Modified"] }}</td>
-                    <td><a href="{{ item.response["X-Debug-Token-Link"] }}">{{ item.response["X-Debug-Token-Link"] }}</a></td>
+                    <td>
+                        {% if item.response["X-Debug-Token-Link"] %}
+                            <a href="{{ item.response["X-Debug-Token-Link"] }}" target="_blank">
+                                {{ relative_path(item.response["X-Debug-Token-Link"]) }}
+                            </a>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
