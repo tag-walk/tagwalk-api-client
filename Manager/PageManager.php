@@ -49,26 +49,17 @@ class PageManager
         $this->serializer = $serializer;
     }
 
-    /**
-     * @param int         $from
-     * @param int         $size
-     * @param string      $sort
-     * @param string      $status
-     * @param null|string $name
-     * @param null|string $text
-     *
-     * @return Page[]
-     */
     public function list(
         int $from = 0,
         int $size = self::DEFAULT_SIZE,
         string $sort = self::DEFAULT_SORT,
         string $status = self::DEFAULT_STATUS,
         ?string $name = null,
-        ?string $text = null
+        ?string $text = null,
+        ?string $language = null
     ): array {
         $pages = [];
-        $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text'));
+        $query = array_filter(compact('from', 'size', 'sort', 'status', 'name', 'text', 'language'));
         $query['excludes'] = 'text,text_fr,text_it,text_zh,text_es';
         $apiResponse = $this->apiProvider->request('GET', '/api/page', [RequestOptions::QUERY => $query]);
         if ($apiResponse->getStatusCode() === Response::HTTP_OK) {
