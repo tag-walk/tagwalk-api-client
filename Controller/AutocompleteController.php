@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Tagwalk\ApiClientBundle\Manager\DesignerManager;
+use Tagwalk\ApiClientBundle\Manager\EventManager;
 use Tagwalk\ApiClientBundle\Manager\IndividualManager;
 use Tagwalk\ApiClientBundle\Manager\TagManager;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
@@ -29,17 +30,20 @@ class AutocompleteController extends AbstractController
     private DesignerManager $designerManager;
     private IndividualManager $individualManager;
     private TagManager $tagManager;
+    private EventManager $eventManager;
 
     public function __construct(
         ApiProvider $apiProvider,
         DesignerManager $designerManager,
         IndividualManager $individualManager,
-        TagManager $tagManager
+        TagManager $tagManager,
+        EventManager $eventManager
     ) {
         $this->apiProvider = $apiProvider;
         $this->designerManager = $designerManager;
         $this->individualManager = $individualManager;
         $this->tagManager = $tagManager;
+        $this->eventManager = $eventManager;
     }
 
     /**
@@ -124,37 +128,52 @@ class AutocompleteController extends AbstractController
 
     /**
      * @Route("/individual", name="autocomplete_individual")
-     *
-     * @param Request $request
-     *
-     * @return JsonResponse
      */
     public function individual(Request $request): JsonResponse
     {
+        $results = [];
         $search = $request->query->get('search');
+
         if (false === empty($search)) {
-            $results = $this->individualManager->suggest($search, $request->getLocale());
-            $count = min(10, count($results));
-        } else {
-            $page = $request->query->get('page', 1);
-            $results = $this->individualManager->list(
-                $request->getLocale(),
-                ($page - 1) * 20,
-                20,
-                $this->individualManager::DEFAULT_SORT,
-                $this->individualManager::DEFAULT_STATUS,
-                false
-            );
-            $count = $this->individualManager->lastCount;
+            $results = $this->individualManager->autocomplete($search);
         }
+
         $data = [
             'results'     => $results,
-            'total_count' => $count,
+            'total_count' => count($results),
         ];
+
         $response = new JsonResponse($data);
         $response->setCache([
-            'max_age'  => 86400,
-            's_maxage' => 86400,
+            'max_age'  => 300,
+            's_maxage' => 300,
+            'public'   => true,
+        ]);
+
+        return $response;
+    }
+
+    /**
+     * @Route("/event", name="autocomplete_event")
+     */
+    public function event(Request $request): JsonResponse
+    {
+        $results = [];
+        $search = $request->query->get('search');
+
+        if (false === empty($search)) {
+            $results = $this->eventManager->autocomplete($search);
+        }
+
+        $data = [
+            'results'     => $results,
+            'total_count' => count($results),
+        ];
+
+        $response = new JsonResponse($data);
+        $response->setCache([
+            'max_age'  => 300,
+            's_maxage' => 300,
             'public'   => true,
         ]);
 

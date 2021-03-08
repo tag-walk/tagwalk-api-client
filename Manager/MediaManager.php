@@ -18,6 +18,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Tagwalk\ApiClientBundle\Model\Media;
+use Tagwalk\ApiClientBundle\Model\WornLook;
 use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 use Tagwalk\ApiClientBundle\Utils\Constants\Status;
 
@@ -497,5 +498,20 @@ class MediaManager
         $result = json_decode($apiResponse->getBody(), true);
 
         return $result['position'] ?? null;
+    }
+
+    public function getMediaWornLooks(string $mediaSlug): array
+    {
+        $apiResponse = $this->apiProvider->request(
+            Request::METHOD_GET,
+            sprintf('/api/medias/%s/worn-looks', $mediaSlug),
+            [RequestOptions::HTTP_ERRORS => true]
+        );
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return [];
+        }
+
+        return $this->serializer->deserialize($apiResponse->getBody(), WornLook::class . '[]', JsonEncoder::FORMAT);
     }
  }

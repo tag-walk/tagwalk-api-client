@@ -300,3 +300,8 @@ services:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             $serializer: '@serializer'
+
+    Tagwalk\ApiClientBundle\Manager\WornLookManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
