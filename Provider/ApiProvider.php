@@ -105,7 +105,7 @@ class ApiProvider
     final public function request(string $method, string $uri, array $options = []): ResponseInterface
     {
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
-        $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
+        $this->logger->debug('ApiProvider::request', $this->filterSensitiveData(compact('method', 'uri', 'options')));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         $this->logger->debug('ApiProvider::request::response', [
             'message' => substr($response->getBody(), 0, 1024),
@@ -189,5 +189,12 @@ class ApiProvider
     final public function getClient(): Client
     {
         return $this->clientFactory->get();
+    }
+
+    private function filterSensitiveData(array $data): array
+    {
+        unset($data['options']['headers']['Authorization']);
+
+        return $data;
     }
 }

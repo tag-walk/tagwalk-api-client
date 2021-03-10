@@ -145,7 +145,6 @@ class ApiTokenStorage
                 // create a new anonymous token
                 $authentication = $this->authenticator->authenticate();
             }
-            $this->logger->debug('ApiTokenStorage::getAccessToken creating cache from api response', $authentication);
             // save the refresh token in his storage
             if (isset($authentication['refresh_token'])) {
                 $refreshTokenExpiration = (clone $dateTime)->modify('+1 year');
@@ -165,7 +164,6 @@ class ApiTokenStorage
 
             return $authentication['access_token'];
         }, $beta);
-        $this->logger->debug('ApiTokenStorage::getAccessToken', ['access_token' => $accessToken]);
 
         return $accessToken;
     }
@@ -181,11 +179,7 @@ class ApiTokenStorage
         if (null === $this->identifier) {
             $this->init();
         }
-        $this->logger->debug('ApiTokenStorage::setAccessToken', [
-            'identifier'   => $this->identifier,
-            'access_token' => $accessToken,
-            'expires_in'   => $expiresIn,
-        ]);
+
         /** @var CacheItemInterface $cacheItem */
         $cacheItem = $this->accessTokenCache->getItem($this->identifier);
         $cacheItem->set($accessToken);
@@ -204,11 +198,7 @@ class ApiTokenStorage
         if (null === $this->identifier) {
             $this->init();
         }
-        $this->logger->debug('ApiTokenStorage::setRefreshToken', [
-            'identifier'    => $this->identifier,
-            'refresh_token' => $refreshToken,
-            'expires_in'    => $expiresIn,
-        ]);
+
         /** @var CacheItemInterface $cacheItem */
         $cacheItem = $this->refreshTokenCache->getItem($this->identifier);
         $cacheItem->set($refreshToken);
