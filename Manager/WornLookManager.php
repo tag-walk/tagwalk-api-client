@@ -13,7 +13,7 @@ class WornLookManager extends AbstractManager
 
     protected function getUpdateEndpoint(): string
     {
-        return '';
+        return '/api/worn-looks/';
     }
 
     protected function getListEndpoint(): string
@@ -24,6 +24,11 @@ class WornLookManager extends AbstractManager
     protected function getCreateEndpoint(): string
     {
         return '/api/worn-looks';
+    }
+
+    protected function getDeleteEndpoint(): string
+    {
+        return '/api/worn-looks/';
     }
 
     protected function getModelClass(): string

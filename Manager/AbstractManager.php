@@ -17,6 +17,7 @@ abstract class AbstractManager
     protected string $getEndpoint;
     protected string $createEndpoint;
     protected string $updateEndpoint;
+    protected string $deleteEndpoint;
     protected string $modelClass;
     public int $lastCount = 0;
 
@@ -29,6 +30,7 @@ abstract class AbstractManager
         $this->createEndpoint = $this->getCreateEndpoint();
         $this->updateEndpoint = $this->getUpdateEndpoint();
         $this->listEndpoint = $this->getListEndpoint();
+        $this->deleteEndpoint = $this->getDeleteEndpoint();
         $this->modelClass = $this->getModelClass();
     }
 
@@ -36,6 +38,7 @@ abstract class AbstractManager
     abstract protected function getCreateEndpoint(): string;
     abstract protected function getUpdateEndpoint(): string;
     abstract protected function getListEndpoint(): string;
+    abstract protected function getDeleteEndpoint(): string;
     abstract protected function getModelClass(): string;
 
     public function create(object $document)
@@ -121,5 +124,16 @@ abstract class AbstractManager
             $this->modelClass . '[]',
             JsonEncoder::FORMAT
         );
+    }
+
+    public function delete(string $slug): bool
+    {
+        $response = $this->provider->request(
+            Request::METHOD_DELETE,
+            $this->deleteEndpoint . $slug,
+            [RequestOptions::HTTP_ERRORS => true]
+        );
+
+        return $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
