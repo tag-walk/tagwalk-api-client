@@ -119,7 +119,6 @@ class ApiTokenAuthenticator
             'client_secret' => $this->clientSecret,
             'grant_type'    => 'client_credentials',
         ];
-        $this->logger->info('ApiTokenAuthenticator::authenticate', $params);
         $response = $this->clientFactory->get()->request(
             'POST',
             '/oauth/v2/token',
@@ -140,7 +139,6 @@ class ApiTokenAuthenticator
             'client_secret' => $this->clientSecret,
             'refresh_token' => $token,
         ];
-        $this->logger->info('ApiTokenAuthenticator::refreshToken', $params);
         $response = $this->clientFactory->get()->request(
             'POST',
             '/oauth/v2/token',
@@ -156,10 +154,6 @@ class ApiTokenAuthenticator
     final public function authorize(string $code, string $userToken): array
     {
         try {
-            $this->logger->info('ApiTokenAuthenticator::authorize', [
-                'code'       => $code,
-                'user_token' => $userToken,
-            ]);
             $response = $this->clientFactory->get()->request(
                 'POST',
                 '/oauth/v2/token',
@@ -181,8 +175,7 @@ class ApiTokenAuthenticator
             );
         } catch (ClientException $exception) {
             $this->logger->error('Error authorizing token', [
-                'user_token' => $userToken,
-                'response'   => $exception->getResponse() !== null ? json_decode(
+                'response' => $exception->getResponse() !== null ? json_decode(
                     $exception->getResponse()->getBody(),
                     true,
                     512,
