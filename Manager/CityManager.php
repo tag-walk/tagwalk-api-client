@@ -183,4 +183,14 @@ class CityManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
+
+    public function autocomplete(string $search, $lang)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/cities/autocomplete', [
+            RequestOptions::QUERY => compact('search', 'lang'),
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+
+        return json_decode($apiResponse->getBody(), true);
+    }
 }
