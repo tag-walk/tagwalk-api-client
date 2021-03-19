@@ -197,4 +197,14 @@ class SeasonManager
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
     }
+
+    public function autocomplete(string $search)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/seasons/autocomplete', [
+            RequestOptions::QUERY => compact('search'),
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+
+        return json_decode($apiResponse->getBody(), true);
+    }
 }

@@ -219,4 +219,14 @@ class DesignerManager
 
         return $results;
     }
+
+    public function autocomplete(string $search)
+    {
+        $apiResponse = $this->apiProvider->request('GET', '/api/designers/autocomplete', [
+            RequestOptions::QUERY => compact('search'),
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+
+        return json_decode($apiResponse->getBody(), true);
+    }
 }

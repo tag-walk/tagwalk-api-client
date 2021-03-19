@@ -238,4 +238,14 @@ class TagManager
 
         return $response;
     }
+
+    public function autocomplete(string $search): array
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/tags/autocomplete', [
+            RequestOptions::QUERY => compact('search'),
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+
+        return json_decode($apiResponse->getBody(), true);
+    }
 }
