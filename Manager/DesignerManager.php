@@ -223,7 +223,7 @@ class DesignerManager
     public function autocomplete(string $search)
     {
         $apiResponse = $this->apiProvider->request('GET', '/api/designers/autocomplete', [
-            RequestOptions::QUERY => ['search' => $search],
+            RequestOptions::QUERY => compact('search'),
             RequestOptions::HTTP_ERRORS => true
         ]);
 
