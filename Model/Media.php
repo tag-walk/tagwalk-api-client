@@ -133,6 +133,11 @@ class Media extends AbstractDocument
     public array $customFields = [];
 
     /**
+     * @Assert\Type("bool")
+     */
+    private bool $worn = false;
+
+    /**
      * @return null|Season
      */
     public function getSeason(): ?Season
@@ -516,6 +521,18 @@ class Media extends AbstractDocument
     public function setWatermarked(bool $watermarked): self
     {
         $this->watermarked = $watermarked;
+
+        return $this;
+    }
+
+    public function isWorn(): bool
+    {
+        return $this->worn;
+    }
+
+    public function setWorn(bool $worn): self
+    {
+        $this->worn = $worn;
 
         return $this;
     }

@@ -70,7 +70,7 @@ trait Descriptable
      */
     public function setDescription(?string $description): self
     {
-        $this->description = strip_tags($description);
+        $this->description = $description;
 
         return $this;
     }

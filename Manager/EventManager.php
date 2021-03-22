@@ -3,6 +3,7 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use GuzzleHttp\RequestOptions;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -110,5 +111,15 @@ class EventManager
         ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
+    }
+
+    public function autocomplete(string $search): array
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/event/autocomplete', [
+            RequestOptions::QUERY => compact('search'),
+            RequestOptions::HTTP_ERRORS => true
+        ]);
+
+        return json_decode($apiResponse->getBody(), true);
     }
 }

@@ -81,7 +81,8 @@ class ApiProvider
     final public function request(string $method, string $uri, array $options = []): ResponseInterface
     {
         $options = array_replace_recursive($this->getDefaultOptions(), $options);
-        $this->logger->debug('ApiProvider::request', compact('method', 'uri', 'options'));
+        $data = compact('method', 'uri', 'options');
+        $this->logger->debug('ApiProvider::request', $this->filterSensitiveData($data));
         $response = $this->clientFactory->get()->request($method, $uri, $options);
         $this->logger->debug('ApiProvider::request::response', [
             'message' => substr($response->getBody(), 0, 1024),
@@ -171,5 +172,24 @@ class ApiProvider
     final public function getClient(): Client
     {
         return $this->clientFactory->get();
+    }
+
+    private function filterSensitiveData(array &$data): array
+    {
+        $sensitiveParams = ['Authorization', 'password', 'salt', 'api_token', 'token', 'access_token'];
+
+        foreach ($data as $key => &$value) {
+            if (is_array($value) === true) {
+                $this->filterSensitiveData($value);
+
+                continue;
+            }
+
+            if (in_array($key, $sensitiveParams) === true) {
+                unset($data[$key]);
+            }
+        }
+
+        return $data;
     }
 }
