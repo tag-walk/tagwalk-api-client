@@ -2,6 +2,8 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use \DateTimeInterface;
+
 class CustomerApplication
 {
     public int $id;
@@ -13,6 +15,9 @@ class CustomerApplication
     public bool $watermarked;
     public ?CustomerBucketConfiguration $customerBucketConfiguration;
     public bool $sharedTags;
+    public ?DateTimeInterface $endOfTagging;
+    public ?bool $endOfTaggingNotified;
+    public ?array $languages;
 
     /**
      * @var CustomerField[]
