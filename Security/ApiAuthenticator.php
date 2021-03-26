@@ -64,10 +64,12 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request): array
     {
+        $application = strtolower(trim($request->request->get('_application')));
+
         return [
             'username' => $request->request->get('_username'),
             'password' => $request->request->get('_password'),
-            'application' => $request->request->get('_application')
+            'application' => $application
         ];
     }
 
