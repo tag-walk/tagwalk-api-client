@@ -2,6 +2,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use DateTimeInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Tagwalk\ApiClientBundle\Model\Traits\Fileable;
 
@@ -25,6 +26,16 @@ class WornLook extends AbstractDocument
      * @Assert\NotBlank()
      */
     private string $lookSlug;
+
+    /**
+     * @Assert\Type("string")
+     */
+    private ?string $comment = null;
+
+    /**
+     * @Assert\DateTime()
+     */
+    private ?DateTimeInterface $wornAt = null;
 
     public function getIndividual(): ?Individual
     {
@@ -58,6 +69,30 @@ class WornLook extends AbstractDocument
     public function setLookSlug(string $lookSlug): self
     {
         $this->lookSlug = $lookSlug;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getWornAt(): ?DateTimeInterface
+    {
+        return $this->wornAt;
+    }
+
+    public function setWornAt(?DateTimeInterface $wornAt): self
+    {
+        $this->wornAt = $wornAt;
 
         return $this;
     }
