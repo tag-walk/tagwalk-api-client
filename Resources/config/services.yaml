@@ -133,6 +133,7 @@ services:
             $designerManager: '@Tagwalk\ApiClientBundle\Manager\DesignerManager'
             $individualManager: '@Tagwalk\ApiClientBundle\Manager\IndividualManager'
             $tagManager: '@Tagwalk\ApiClientBundle\Manager\TagManager'
+            $eventManager: '@Tagwalk\ApiClientBundle\Manager\EventManager'
 
     Tagwalk\ApiClientBundle\Controller\AnalyticsController:
         arguments:
