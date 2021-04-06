@@ -325,9 +325,3 @@ services:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             $serializer: '@serializer'
-
-    Tagwalk\ApiClientBundle\DataCollector\ApiDataCollector:
-        tags:
-          - name: data_collector
-            id: 'tagwalk_api_client'
-            template: '@TagwalkApiClient/data_collector.html.twig'
