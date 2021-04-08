@@ -236,6 +236,26 @@ class IndividualManager
         return json_decode($apiResponse->getBody(), true);
     }
 
+    public function getMultiple(array $slugs): array
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_GET, '/api/individuals/multi', [
+            RequestOptions::QUERY => ['slugs' => implode(',', $slugs)],
+        ]);
+
+        if ($apiResponse->getStatusCode() !== Response::HTTP_OK) {
+            return [];
+        }
+
+        $data = json_decode($apiResponse->getBody(), true);
+        $individuals = [];
+
+        foreach ($data as $individual) {
+            $individuals[] = $this->serializer->denormalize($individual, Individual::class);
+        }
+
+        return $individuals;
+    }
+
     public function getLastErrors(): array
     {
         $errors = $this->lastErrors;

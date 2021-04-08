@@ -137,6 +137,8 @@ class Media extends AbstractDocument
      */
     private bool $worn = false;
 
+    private ?array $likedBy = [];
+
     /**
      * @return null|Season
      */
@@ -533,6 +535,18 @@ class Media extends AbstractDocument
     public function setWorn(bool $worn): self
     {
         $this->worn = $worn;
+
+        return $this;
+    }
+
+    public function getLikedBy(): ?array
+    {
+        return $this->likedBy;
+    }
+
+    public function setLikedBy(?array $likedBy): self
+    {
+        $this->likedBy = $likedBy;
 
         return $this;
     }
