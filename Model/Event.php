@@ -24,9 +24,27 @@ class Event extends AbstractDocument
 
     /**
      * @Assert\Type("string")
-     * @Assert\Length(min=2)
      */
-    private ?string $description;
+    private ?string $description = null;
+
+    private ?\DateTimeInterface $date = null;
+
+    /**
+     * @Assert\Type("string")
+     */
+    private ?string $type = null;
+
+    public function getDate(): ?\DateTimeInterface
+    {
+        return $this->date;
+    }
+
+    public function setDate(?\DateTimeInterface $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
 
     public function getDescription(): ?string
     {
