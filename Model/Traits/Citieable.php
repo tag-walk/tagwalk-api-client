@@ -11,7 +11,7 @@ trait Citieable
      * @Assert\Valid()
      * @Assert\Type("object")
      */
-    private ?City $city;
+    private ?City $city = null;
 
     /**
      * @return City|null
