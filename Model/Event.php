@@ -12,42 +12,48 @@
 namespace Tagwalk\ApiClientBundle\Model;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Tagwalk\ApiClientBundle\Model\Traits\Citieable;
 use Tagwalk\ApiClientBundle\Model\Traits\Coverable;
 
 class Event extends AbstractDocument
 {
     use Coverable;
+    use Citieable;
+
+    public array $customFields = [];
 
     /**
      * @Assert\Type("string")
      */
-    private ?string $date = null;
+    private ?string $description = null;
+
+    private ?\DateTimeInterface $date = null;
 
     /**
      * @Assert\Type("string")
      */
     private ?string $type = null;
 
-    public function getDate(): ?string
+    public function getDate(): ?\DateTimeInterface
     {
         return $this->date;
     }
 
-    public function setDate(?string $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 
         return $this;
     }
 
-    public function getType(): ?string
+    public function getDescription(): ?string
     {
-        return $this->type;
+        return $this->description;
     }
 
-    public function setType(?string $type): self
+    public function setDescription(?string $description): self
     {
-        $this->type = $type;
+        $this->description = $description;
 
         return $this;
     }
