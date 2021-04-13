@@ -66,13 +66,6 @@ class SeasonManager
     }
 
     /**
-     * @param null|string $type
-     * @param null|string $city
-     * @param null|string $designer
-     * @param null|string $tags
-     * @param null|string $models
-     * @param string|null $language
-     *
      * @return Season[]
      */
     public function listFilters(
@@ -100,12 +93,6 @@ class SeasonManager
     }
 
     /**
-     * @param string|null $city
-     * @param string|null $designers
-     * @param string|null $individuals
-     * @param string|null $tags
-     * @param string|null $language
-     *
      * @return Season[]
      */
     public function listFiltersStreet(
@@ -196,5 +183,15 @@ class SeasonManager
         ]);
 
         return $apiResponse->getStatusCode() === Response::HTTP_OK;
+    }
+
+    public function reorder(array $sortedSlugs): bool
+    {
+        $apiResponse = $this->apiProvider->request(Request::METHOD_PATCH, '/api/seasons/reorder', [
+            RequestOptions::HTTP_ERRORS => true,
+            RequestOptions::FORM_PARAMS => ['slugs' => $sortedSlugs]
+        ]);
+
+        return $apiResponse->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
