@@ -3,27 +3,36 @@
 namespace Tagwalk\ApiClientBundle\Manager;
 
 use Tagwalk\ApiClientBundle\Model\Reference;
-use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ReferenceManager extends AbstractManager
 {
-    protected function setGetEndpoint()
+    protected function getGetEndpoint(): string
     {
-        $this->getEndpoint = '/api/references/';
+        return '/api/references/';
     }
 
-    protected function setUpdateEndpoint()
+    protected function getUpdateEndpoint(): string
     {
-        $this->updateEndpoint = '/api/references/';
+        return '/api/references/';
     }
 
-    protected function setListEndpoint()
+    protected function getCreateEndpoint(): string
     {
-        $this->listEndpoint = '/api/references';
+        return '';
     }
 
-    protected function setModelClass()
+    protected function getListEndpoint(): string
     {
-        $this->modelClass = Reference::class;
+        return '/api/references';
+    }
+
+    protected function getDeleteEndpoint(): string
+    {
+        return '';
+    }
+
+    protected function getModelClass(): string
+    {
+        return Reference::class;
     }
 }

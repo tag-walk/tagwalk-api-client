@@ -11,6 +11,7 @@
 
 namespace Tagwalk\ApiClientBundle\Model;
 
+use Tagwalk\ApiClientBundle\Model\Traits\NameTranslatable;
 use Tagwalk\ApiClientBundle\Model\Traits\Positionable;
 use Tagwalk\ApiClientBundle\Model\Traits\Textable;
 use Tagwalk\ApiClientBundle\Utils\Constants\PageSection;
@@ -21,7 +22,8 @@ use Tagwalk\ApiClientBundle\Utils\Constants\PageSection;
 class Page extends AbstractDocument
 {
     use Textable,
-        Positionable;
+        Positionable,
+        NameTranslatable;
 
     /**
      * The section is where to put a link to the Page (e.g. the header)

@@ -137,10 +137,11 @@ class ApiTokenAuthenticatorTest extends TestCase
         $client = $this->getClientWithOneCallToRequest($response, $this->equalTo('POST'), $this->equalTo('/oauth/v2/token'), $this->anything());
         $clientFactory = $this->getClientFactoryWithOneCallToGet($client);
         $session = $this->createMock(SessionInterface::class);
-        $session->expects($this->once())
-                ->method('get')
-                ->with($this->equalTo(ApiTokenAuthenticator::AUTHORIZATION_STATE))
-                ->willReturn('bar');
+        $session->expects($this->exactly(2))
+            ->method('get')
+            ->withConsecutive([$this->equalTo('user-application')], [$this->equalTo(ApiTokenAuthenticator::AUTHORIZATION_STATE)])
+            ->willReturnOnConsecutiveCalls(null, 'bar')
+        ;
         $authenticator = new ApiTokenAuthenticator($clientFactory, $session, '', '');
         $this->expectException(InvalidArgumentException::class);
         $authenticator->authorize('', '');

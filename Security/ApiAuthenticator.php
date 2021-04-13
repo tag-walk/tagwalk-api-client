@@ -15,6 +15,7 @@ use GuzzleHttp\RequestOptions;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -27,24 +28,15 @@ use Tagwalk\ApiClientBundle\Provider\ApiProvider;
 
 class ApiAuthenticator extends AbstractGuardAuthenticator
 {
-    /**
-     * @var ApiProvider
-     */
-    private $provider;
+    private ApiProvider $provider;
+    private SerializerInterface $serializer;
+    private SessionInterface $session;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    /**
-     * @param ApiProvider         $provider
-     * @param SerializerInterface $serializer
-     */
-    public function __construct(ApiProvider $provider, SerializerInterface $serializer)
+    public function __construct(ApiProvider $provider, SerializerInterface $serializer, SessionInterface $session)
     {
         $this->provider = $provider;
         $this->serializer = $serializer;
+        $this->session = $session;
     }
 
     /**
@@ -72,9 +64,12 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCredentials(Request $request): array
     {
+        $application = strtolower(trim($request->request->get('_application')));
+
         return [
             'username' => $request->request->get('_username'),
             'password' => $request->request->get('_password'),
+            'application' => $application
         ];
     }
 
@@ -84,19 +79,28 @@ class ApiAuthenticator extends AbstractGuardAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
     {
         $user = null;
-        $password = $credentials['password'];
-        $email = $credentials['username'];
-        if (isset($password, $email)) {
+        $params = [
+            'email' => $credentials['username'],
+            'password' => $credentials['password'],
+        ];
+
+        if ($credentials['application']) {
+            $this->provider->setAuthenticateInShowroom(true);
+            $this->provider->setApplicationName($credentials['application']);
+        }
+
+        if (isset($params['password'], $params['email'])) {
             try {
                 $response = $this->provider->request('POST', '/api/users/login', [
-                    RequestOptions::JSON => [
-                        'email'    => $email,
-                        'password' => $password,
-                    ],
+                    RequestOptions::JSON => $params,
                 ]);
                 if ($response->getStatusCode() === Response::HTTP_OK) {
                     /** @var User $user */
                     $user = $this->serializer->deserialize($response->getBody(), User::class, 'json');
+
+                    if (!empty($credentials['application'])) {
+                        $this->session->set('user-application', $credentials['application']);
+                    }
                 }
             } catch (ApiLoginFailedException $exception) {
             }

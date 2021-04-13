@@ -38,6 +38,7 @@ services:
             $clientFactory: '@Tagwalk\ApiClientBundle\Factory\ClientFactory'
             $requestStack: '@request_stack'
             $apiTokenStorage: '@Tagwalk\ApiClientBundle\Security\ApiTokenStorage'
+            $session: '@session'
             $lightData: false
             $analytics: false
             $authenticateInShowroom: false
@@ -92,6 +93,7 @@ services:
         arguments:
             - '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             - '@serializer'
+            - '@session'
 
     serializer.name_converter.camel_case_to_spinal_case:
         class: 'Tagwalk\ApiClientBundle\Serializer\NameConverter\CamelCaseToSpinalCaseNameConverter'
@@ -156,6 +158,7 @@ services:
             $designerManager: '@Tagwalk\ApiClientBundle\Manager\DesignerManager'
             $individualManager: '@Tagwalk\ApiClientBundle\Manager\IndividualManager'
             $tagManager: '@Tagwalk\ApiClientBundle\Manager\TagManager'
+            $eventManager: '@Tagwalk\ApiClientBundle\Manager\EventManager'
 
     Tagwalk\ApiClientBundle\Controller\AnalyticsController:
         arguments:
@@ -322,6 +325,11 @@ services:
             $serializer: '@serializer'
 
     Tagwalk\ApiClientBundle\Manager\ReferenceManager:
+        arguments:
+            $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
+            $serializer: '@serializer'
+
+    Tagwalk\ApiClientBundle\Manager\WornLookManager:
         arguments:
             $apiProvider: '@Tagwalk\ApiClientBundle\Provider\ApiProvider'
             $serializer: '@serializer'

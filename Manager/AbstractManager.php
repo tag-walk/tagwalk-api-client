@@ -15,7 +15,9 @@ abstract class AbstractManager
     private SerializerInterface $serializer;
     protected string $listEndpoint;
     protected string $getEndpoint;
+    protected string $createEndpoint;
     protected string $updateEndpoint;
+    protected string $deleteEndpoint;
     protected string $modelClass;
     public int $lastCount = 0;
 
@@ -24,16 +26,44 @@ abstract class AbstractManager
         $this->provider = $apiProvider;
         $this->serializer = $serializer;
 
-        $this->setGetEndpoint();
-        $this->setUpdateEndpoint();
-        $this->setListEndpoint();
-        $this->setModelClass();
+        $this->getEndpoint = $this->getGetEndpoint();
+        $this->createEndpoint = $this->getCreateEndpoint();
+        $this->updateEndpoint = $this->getUpdateEndpoint();
+        $this->listEndpoint = $this->getListEndpoint();
+        $this->deleteEndpoint = $this->getDeleteEndpoint();
+        $this->modelClass = $this->getModelClass();
     }
 
-    abstract protected function setGetEndpoint();
-    abstract protected function setUpdateEndpoint();
-    abstract protected function setListEndpoint();
-    abstract protected function setModelClass();
+    abstract protected function getGetEndpoint(): string;
+    abstract protected function getCreateEndpoint(): string;
+    abstract protected function getUpdateEndpoint(): string;
+    abstract protected function getListEndpoint(): string;
+    abstract protected function getDeleteEndpoint(): string;
+    abstract protected function getModelClass(): string;
+
+    public function create(object $document)
+    {
+        $normalized = $this->serializer->normalize($document, null, ['write' => true]);
+
+        $response = $this->provider->request(
+            Request::METHOD_POST,
+            $this->createEndpoint,
+            [
+                RequestOptions::JSON => $normalized,
+                RequestOptions::HTTP_ERRORS => true
+            ]
+        );
+
+        if ($response->getStatusCode() !== Response::HTTP_CREATED) {
+            return null;
+        }
+
+        return $this->serializer->deserialize(
+            $response->getBody(),
+            $this->modelClass,
+            JsonEncoder::FORMAT
+        );
+    }
 
     public function update(string $slug, object $document)
     {
@@ -94,5 +124,16 @@ abstract class AbstractManager
             $this->modelClass . '[]',
             JsonEncoder::FORMAT
         );
+    }
+
+    public function delete(string $slug): bool
+    {
+        $response = $this->provider->request(
+            Request::METHOD_DELETE,
+            $this->deleteEndpoint . $slug,
+            [RequestOptions::HTTP_ERRORS => true]
+        );
+
+        return $response->getStatusCode() === Response::HTTP_NO_CONTENT;
     }
 }
