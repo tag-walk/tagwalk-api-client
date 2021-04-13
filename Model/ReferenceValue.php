@@ -13,5 +13,5 @@ class ReferenceValue
      * @Assert\NotBlank()
      * @Assert\Regex("/^[a-z0-9]+(?:-[a-z0-9]+)*$/")
      */
-    public string $slug;
+    public ?string $slug = null;
 }
